@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "650269388287",
+    "project_id": "cmput301f22t15-foodverse",
+    "storage_bucket": "cmput301f22t15-foodverse.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:650269388287:android:98beb95bbb5fa3cb154bca",
+        "android_client_info": {
+          "package_name": "com.example.foodverse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "650269388287-qp2c6m4vdrekgesn4aaqj5tanjh2lloo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWWU5ub0OYhabcRLHUctb5tZIqrQ4PWHI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "650269388287-qp2c6m4vdrekgesn4aaqj5tanjh2lloo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
