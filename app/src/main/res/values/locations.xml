@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A list of valid storage locations to populate the dropdown menu, adapted
+from https://developer.android.com/develop/ui/views/components/spinner
+last updated August 2022. -->
+<resources>
+    <string-array name="locations_array">
+        <item>Freezer</item>
+        <item>Fridge</item>
+        <item>Pantry</item>
+    </string-array>
+</resources>

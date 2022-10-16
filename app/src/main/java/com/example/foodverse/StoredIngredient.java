@@ -30,6 +30,15 @@ public class Ingredient {
         unitCost = 0;
     }
 
+    public Ingredient(Date bestBefore, int count, String description,
+                      Location location, int unitCost) {
+        this.bestBefore = bestBefore;
+        this.count = count;
+        this.description = description;
+        this.location = location;
+        this.unitCost = unitCost;
+    }
+
     public Date getBestBefore() {
         return bestBefore;
     }
