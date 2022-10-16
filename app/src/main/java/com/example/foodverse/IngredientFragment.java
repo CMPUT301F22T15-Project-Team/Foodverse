@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -32,7 +33,7 @@ import java.util.Date;
  */
 
 public class IngredientFragment extends DialogFragment {
-    private Ingredient ingredient;
+    private StoredIngredient ingredient;
     private EditText ingredientDescription;
     private EditText ingredientCount;
     private EditText ingredientCost;
@@ -46,7 +47,7 @@ public class IngredientFragment extends DialogFragment {
         this.ingredient = null;
     }
 
-    public IngredientFragment(Ingredient ingredient) {
+    public IngredientFragment(StoredIngredient ingredient) {
         super();
         this.ingredient = ingredient;
     }
@@ -55,8 +56,8 @@ public class IngredientFragment extends DialogFragment {
      * Interface for interacting with ingredient entries in the list.
      */
     public interface OnFragmentInteractionListener {
-        void ingredientAdded(Ingredient ingredient);
-        void ingredientEdited(Ingredient ingredient);
+        void ingredientAdded(StoredIngredient ingredient);
+        void ingredientEdited(StoredIngredient ingredient);
         void ingredientDeleted();
     }
 
@@ -85,20 +86,6 @@ public class IngredientFragment extends DialogFragment {
         ingredientCost = view.findViewById(R.id.cost_edit_text);
         ingredientLocation = view.findViewById(R.id.location_spinner);
         ingredientExpiry = view.findViewById(R.id.expiry_button);
-
-        /* Code for using a spinner inspired off of "Setting spinners in
-        fragment" by Nick on September 2nd, 2012 under the CC BY-SA 4.0 license
-        (https://stackoverflow.com/questions/12238155/
-        setting-spinners-in-fragment). Code was retrieved on September 24th,
-        2022 and modified. */
-        String []locations = {"Pantry", "Freezer", "Fridge"};
-        ArrayAdapter<String> locationAdapter = new ArrayAdapter<>(
-                this.getActivity(), android.R.layout.simple_spinner_item,
-                locations);
-
-        locationAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item);
-        ingredientLocation.setAdapter(locationAdapter);
 
         /* Code for creating a spinner-style date picker inspired off of "Pop Up
         Date Picker Android Studio Tutorial" by Code With Cal on December 19th,
@@ -135,15 +122,15 @@ public class IngredientFragment extends DialogFragment {
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
 
-            // The enum is stored as {PANTRY, FREEZER, FRIDGE}
-            Location location = ingredient.getLocation();
-            if (location == Location.PANTRY) {
-                ingredientLocation.setSelection(0);
-            } else if (location == Location.FREEZER) {
-                ingredientLocation.setSelection(1);
-            } else {
-                ingredientLocation.setSelection(2);
-            }
+            /*
+             * Locations stored in locations.xml, get array and set accordingly
+             * Code adapted from:
+             * https://stackoverflow.com/questions/11072576/set-selected-item-of-spinner-programmatically
+             * Answer by user Arun George in 2012
+             */
+            String []loc = getResources().getStringArray(R.array.locations_array);
+            ingredientLocation.setSelection(Arrays.asList(loc)
+                    .indexOf(ingredient.getLocation()));
         }
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(
@@ -169,15 +156,15 @@ public class IngredientFragment extends DialogFragment {
                 .setPositiveButton("Confirm",
                         (dialog, which) -> {
                             // Create a Ingredient object with the new values
-                            Ingredient newIngredient = new Ingredient();
+                            StoredIngredient newIngredient = new StoredIngredient();
                             String descriptionStr = ingredientDescription
                                     .getText().toString();
                             String countStr = ingredientCount
                                     .getText().toString();
                             String costStr = ingredientCost
                                     .getText().toString();
-                            int locationPosition = ingredientLocation
-                                    .getSelectedItemPosition();
+                            String locationStr = ingredientLocation
+                                    .getSelectedItem().toString();
 
                             // Load the data into the Ingredient object
                             newIngredient.setDescription(descriptionStr);
@@ -185,8 +172,7 @@ public class IngredientFragment extends DialogFragment {
                             float roundedCost = Float.parseFloat(costStr);
                             newIngredient.setUnitCost(
                                     (int) Math.ceil(roundedCost));
-                            newIngredient.setLocation(
-                                    Location.values()[locationPosition]);
+                            newIngredient.setLocation(locationStr);
                             newIngredient.setBestBefore(expiryDate);
 
                             /* Determine if a ingredient was added or edited
