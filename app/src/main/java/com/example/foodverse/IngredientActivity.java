@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
 /**
- * MainActivity
+ * IngredientActivity
  * This class is used to run the app and is responsible for managing all of the
  * other components within it.
  *
@@ -23,7 +23,7 @@ import java.util.ArrayList;
  *
  */
 
-public class MainActivity extends AppCompatActivity
+public class IngredientActivity extends AppCompatActivity
         implements IngredientFragment.OnFragmentInteractionListener {
 
     // Declare the variables so that you will be able to reference it later.
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_ingredient);
 
         ingredientListView = findViewById(R.id.ingredient_list);
         totalCostTextView = findViewById(R.id.total_text_view);

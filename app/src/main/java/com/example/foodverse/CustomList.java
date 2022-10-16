@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 
 /**
- * CustomList
+ * IngredientList
  * A custom class to display the description, amount, and unit cost of a
  * ingredient entry.
  *
@@ -38,7 +38,7 @@ public class CustomList extends ArrayAdapter<Ingredient> {
                         @NonNull ViewGroup parent) {
         View view = convertView;
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.content,
+            view = LayoutInflater.from(context).inflate(R.layout.content_ingredient,
                     parent,false);
         }
         Ingredient ingredient = ingredients.get(position);
