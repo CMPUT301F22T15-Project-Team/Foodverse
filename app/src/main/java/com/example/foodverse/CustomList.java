@@ -20,8 +20,6 @@ import java.util.ArrayList;
  * Version 1.0
  *
  * 2022-09-24
- *
- * No copyright
  */
 
 public class CustomList extends ArrayAdapter<Ingredient> {

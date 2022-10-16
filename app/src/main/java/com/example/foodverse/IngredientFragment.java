@@ -29,8 +29,6 @@ import java.util.Date;
  * Version 1.0
  *
  * 2022-09-24
- *
- * No copyright
  */
 
 public class IngredientFragment extends DialogFragment {
