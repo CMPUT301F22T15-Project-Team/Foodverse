@@ -236,14 +236,14 @@ public class IngredientActivity extends AppCompatActivity
                 @Override
                 public void onSuccess(Void aVoid) {
                     // Log success
-                    Log.d(TAG, "Data has been added successfully!");
+                    Log.d(TAG, "Data has been updated successfully!");
                 }
             })
             .addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     // Log any issues
-                    Log.d(TAG, "Data could not be added!" + e.toString());
+                    Log.d(TAG, "Data could not be updated!" + e.toString());
                 }
             });
     }

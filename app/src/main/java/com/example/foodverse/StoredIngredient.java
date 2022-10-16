@@ -41,8 +41,9 @@ public class StoredIngredient {
 
     public int hashCode() {
         int hash = 0;
-        hash += bestBefore.hashCode() + count + unitCost +
-                description.hashCode() + location.hashCode();
+        hash += count + unitCost + description.hashCode()
+                + location.hashCode() + bestBefore.getYear()
+                + bestBefore.getMonth() + bestBefore.getDate();
         return hash;
     }
 
