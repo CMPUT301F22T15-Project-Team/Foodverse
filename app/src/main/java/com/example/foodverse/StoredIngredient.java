@@ -15,19 +15,36 @@ import java.util.Date;
  *
  * 2022-09-24
  */
-public class Ingredient {
+public class StoredIngredient {
     private Date bestBefore;
     private int count;
     private String description;
-    private Location location;
+    private String location;
     private int unitCost;
 
-    public Ingredient() {
+    public StoredIngredient() {
         bestBefore = new Date();
         count = 0;
         description = "";
-        location = Location.PANTRY;
+        location = "Pantry";
         unitCost = 0;
+    }
+
+    public StoredIngredient(String description, int count, Date bestBefore,
+                            String location, int unitCost) {
+        this.bestBefore = bestBefore;
+        this.count = count;
+        this.description = description;
+        this.location = location;
+        this.unitCost = unitCost;
+    }
+
+    public int hashCode() {
+        int hash = 0;
+        hash += count + unitCost + description.hashCode()
+                + location.hashCode() + bestBefore.getYear()
+                + bestBefore.getMonth() + bestBefore.getDate();
+        return hash;
     }
 
     public Date getBestBefore() {
@@ -42,7 +59,7 @@ public class Ingredient {
         return description;
     }
 
-    public Location getLocation() {
+    public String getLocation() {
         return location;
     }
 
@@ -70,7 +87,7 @@ public class Ingredient {
         }
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(String location) {
         this.location = location;
     }
 
@@ -81,10 +98,4 @@ public class Ingredient {
             this.unitCost = 0;
         }
     }
-}
-
-enum Location {
-    PANTRY,
-    FREEZER,
-    FRIDGE
 }
