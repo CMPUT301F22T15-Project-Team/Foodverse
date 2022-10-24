@@ -9,8 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class MealPlanActivity extends AppCompatActivity {
-
-    private ArrayList<Pair<LocalDate, ArrayList<Meal>>> days;
+    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
