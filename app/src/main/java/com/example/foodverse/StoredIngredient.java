@@ -11,13 +11,12 @@ import java.util.Date;
  * attributes, they have been made private to enforce these requirements through
  * the setters.
  *
- * Version 1.1
+ * @Version 1.1
  *
  * 2022-09-24
  */
 public class StoredIngredient extends Ingredient {
     private Date bestBefore;
-//    private String description;
     private String location;
     private int unitCost;
 
@@ -32,7 +31,6 @@ public class StoredIngredient extends Ingredient {
                             String location, int unitCost) {
         super(description, count);
         this.bestBefore = bestBefore;
-        this.count = count;
         this.location = location;
         this.unitCost = unitCost;
     }
@@ -49,14 +47,6 @@ public class StoredIngredient extends Ingredient {
         return bestBefore;
     }
 
-    public int getCount() {
-        return count;
-    }
-
-//    public String getDescription() {
-//        return description;
-//    }
-
     public String getLocation() {
         return location;
     }
@@ -68,14 +58,6 @@ public class StoredIngredient extends Ingredient {
     public void setBestBefore(Date bestBefore) {
         this.bestBefore = bestBefore;
     }
-
-//    public void setDescription(String description) {
-//        if (description.length() > 30) {
-//            this.description = description.substring(0,29);
-//        } else {
-//            this.description = description;
-//        }
-//    }
 
     public void setLocation(String location) {
         this.location = location;
