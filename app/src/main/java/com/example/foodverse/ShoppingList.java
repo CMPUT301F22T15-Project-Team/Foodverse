@@ -12,11 +12,11 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class ShoppingList extends ArrayAdapter<StoredIngredient> {
-    private ArrayList<StoredIngredient> ingredients;
+public class ShoppingList extends ArrayAdapter<Ingredient> {
+    private ArrayList<Ingredient> ingredients;
     private Context context;
 
-    public ShoppingList(Context context, ArrayList<StoredIngredient> ingredients) {
+    public ShoppingList(Context context, ArrayList<Ingredient> ingredients) {
         super(context, 0, ingredients);
         this.ingredients = ingredients;
         this.context = context;
@@ -31,7 +31,7 @@ public class ShoppingList extends ArrayAdapter<StoredIngredient> {
             view = LayoutInflater.from(context).inflate(R.layout.shopping_list_item,
                     parent,false);
         }
-        StoredIngredient ingredient = ingredients.get(position);
+        Ingredient ingredient = ingredients.get(position);
         TextView ingredientDescription = view.findViewById(R.id.description_text);
         TextView ingredientAmount = view.findViewById(R.id.amount_value);
         TextView ingredientCost = view.findViewById(R.id.cost_value);

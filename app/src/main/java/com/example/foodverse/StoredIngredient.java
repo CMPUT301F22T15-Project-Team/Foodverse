@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * 2022-09-24
  */
-public class StoredIngredient {
+public class StoredIngredient extends Ingredient {
     private Date bestBefore;
     private int count;
     private String description;
