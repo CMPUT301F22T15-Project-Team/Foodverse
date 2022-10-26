@@ -11,37 +11,33 @@ import java.util.Date;
  * attributes, they have been made private to enforce these requirements through
  * the setters.
  *
- * Version 1.0
+ * @Version 1.1
  *
  * 2022-09-24
  */
-public class StoredIngredient {
+public class StoredIngredient extends Ingredient {
     private Date bestBefore;
-    private int count;
-    private String description;
     private String location;
     private int unitCost;
 
     public StoredIngredient() {
+        super();
         bestBefore = new Date();
-        count = 0;
-        description = "";
         location = "Pantry";
         unitCost = 0;
     }
 
     public StoredIngredient(String description, int count, Date bestBefore,
                             String location, int unitCost) {
+        super(description, count);
         this.bestBefore = bestBefore;
-        this.count = count;
-        this.description = description;
         this.location = location;
         this.unitCost = unitCost;
     }
 
     public int hashCode() {
         int hash = 0;
-        hash += count + unitCost + description.hashCode()
+        hash += unitCost + super.hashCode()
                 + location.hashCode() + bestBefore.getYear()
                 + bestBefore.getMonth() + bestBefore.getDate();
         return hash;
@@ -49,14 +45,6 @@ public class StoredIngredient {
 
     public Date getBestBefore() {
         return bestBefore;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getLocation() {
@@ -69,22 +57,6 @@ public class StoredIngredient {
 
     public void setBestBefore(Date bestBefore) {
         this.bestBefore = bestBefore;
-    }
-
-    public void setCount(int count) {
-        if (count >= 0) {
-            this.count = count;
-        } else {
-            this.count = 0;
-        }
-    }
-
-    public void setDescription(String description) {
-        if (description.length() > 30) {
-            this.description = description.substring(0,29);
-        } else {
-            this.description = description;
-        }
     }
 
     public void setLocation(String location) {
