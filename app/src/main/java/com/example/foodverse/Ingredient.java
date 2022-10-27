@@ -55,9 +55,4 @@ public class Ingredient {
             this.description = description;
         }
     }
-
-    // Tyler: Dummy method for ingredient until relevance of cost is determined
-    public int getUnitCost() {
-        return 1;
-    }
 }

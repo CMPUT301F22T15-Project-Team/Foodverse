@@ -32,7 +32,7 @@ import java.util.HashMap;
  * This class is used to run the app and is responsible for managing all of the
  * other components within it.
  *
- * Version 1.0
+ * @Version 1.0
  *
  * 2022-09-24
  *
@@ -46,8 +46,6 @@ public class IngredientActivity extends AppCompatActivity
     private ArrayAdapter<StoredIngredient> ingredientAdapter;
     private ArrayList<StoredIngredient> ingredientArrayList;
     private int selectedIngredientIndex = -1;
-    private int totalCost = 0;
-    private TextView totalCostTextView;
     private FirebaseFirestore db;
     private final String TAG = "IngredientActivity";
     private CollectionReference collectionReference;
@@ -58,7 +56,6 @@ public class IngredientActivity extends AppCompatActivity
         setContentView(R.layout.activity_ingredient);
 
         ingredientListView = findViewById(R.id.ingredient_list);
-        totalCostTextView = findViewById(R.id.total_text_view);
 
         ingredientArrayList = new ArrayList<>();
         ingredientAdapter = new IngredientList(this, ingredientArrayList);
@@ -66,6 +63,7 @@ public class IngredientActivity extends AppCompatActivity
 
         // Get our database
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestore.setLoggingEnabled(true);
 
         collectionReference = db.collection("StoredIngredients");
 
@@ -91,8 +89,8 @@ public class IngredientActivity extends AppCompatActivity
                     Long count = (Long) doc.getData().get("Count");
                     Long unitCost = (Long) doc.getData().get("Cost");
                     ingredientArrayList.add(
-                            new StoredIngredient(description, count.intValue(), bestBefore,
-                                    location, unitCost.intValue()));
+                            new StoredIngredient(description, count.intValue(),
+                                    bestBefore, location, unitCost.intValue()));
                 }
                 // Update with new cloud data
                 ingredientAdapter.notifyDataSetChanged();

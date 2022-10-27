@@ -10,7 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingHorizontal = "20dp"
+        android:paddingHorizontal = "10dp"
         android:text="Ingredient Description"
         android:textSize="30sp">
 
@@ -28,30 +28,13 @@
             android:layout_weight="1"
             android:orientation="horizontal">
             <TextView
-                android:id="@+id/cost_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.25"
-                android:text="Cost"
-                android:textSize="20sp">
-
-            </TextView>
-            <TextView
                 android:id="@+id/cost_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="0"
+                android:paddingLeft = "20dp"
                 android:textSize="20sp">
-            </TextView>
-            <TextView
-                android:id="@+id/amount_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="Amount"
-                android:textSize="20sp">
-
             </TextView>
             <TextView
                 android:id="@+id/amount_value"
@@ -62,27 +45,18 @@
                 android:textSize="20sp">
             </TextView>
             <TextView
-                android:id="@+id/unit_text"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.25"
-                android:text="Unit"
-                android:textSize="20sp">
-
-            </TextView>
-            <TextView
                 android:id="@+id/unit_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Box"
+                android:text="Unit:Box"
                 android:textSize="20sp">
             </TextView>
         </LinearLayout>
-        <CheckBox android:id="@+id/checkbox_cheese"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onCheckboxClicked"/>
+<!--        <CheckBox android:id="@+id/checkbox_cheese"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:onClick="onCheckboxClicked"/>-->
     </LinearLayout>
 </LinearLayout>
