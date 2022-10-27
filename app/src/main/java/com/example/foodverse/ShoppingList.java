@@ -38,8 +38,8 @@ public class ShoppingList extends ArrayAdapter<StoredIngredient> {
         TextView ingredientUnit = view.findViewById(R.id.unit_value);
 
         ingredientDescription.setText(ingredient.getDescription());
-        ingredientAmount.setText("x" + Integer.toString(ingredient.getCount()));
-        ingredientCost.setText("$" + Integer.toString(ingredient.getUnitCost()));
+        ingredientAmount.setText("Amount:" + Integer.toString(ingredient.getCount()));
+        ingredientCost.setText("Cost:$" + Integer.toString(ingredient.getUnitCost()));
 //        ingredientUnit.setText
         return view;
     }
