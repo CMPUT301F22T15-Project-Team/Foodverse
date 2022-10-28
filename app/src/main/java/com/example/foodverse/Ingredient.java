@@ -8,7 +8,7 @@ package com.example.foodverse;
  * Since there are certain restrictions on the attributes, they have been made protected
  * to enforce these requirements through the setters, but still allow derived classes to access
  *
- * Version 1.0
+ * @Version 1.0
  *
  * 2022-10-22
  */
