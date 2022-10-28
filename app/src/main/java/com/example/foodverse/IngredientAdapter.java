@@ -28,7 +28,7 @@ public class IngredientAdapter extends ArrayAdapter<Ingredient> {
                         @NonNull ViewGroup parent) {
         View view = convertView;
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.content_ingredient,
+            view = LayoutInflater.from(context).inflate(R.layout.content_stored_ingredient,
                     parent,false);
         }
         Ingredient ingredient = ingredients.get(position);
