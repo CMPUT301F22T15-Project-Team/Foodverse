@@ -1,6 +1,6 @@
 package com.example.foodverse;
 
-import android.graphics.Color;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,7 +9,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,8 +33,8 @@ import java.util.HashMap;
 public class ShoppingListActivity extends AppCompatActivity implements  ShoppingListFragment.OnFragmentInteractionListener{
     // Declare the variables so that you will be able to reference it later.
     ListView shoppingListView;
-    ArrayAdapter<StoredIngredient> shoppingListAdapter;
-    ArrayList<StoredIngredient> shoppingArrayList;
+    ArrayAdapter<Ingredient> shoppingListAdapter;
+    ArrayList<Ingredient> shoppingArrayList;
     int selectedIngredientIndex = -1;
     FirebaseFirestore db;
     final String TAG = "ShoppingListActivity";
@@ -57,15 +56,15 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
         Calendar calendar = new GregorianCalendar(2019, 7, 7);
         StoredIngredient newIng1 = new StoredIngredient("Ingredient 1", 2, calendar.getTime(), "Pantry", "Boxes",3);
 
-//        shoppingArrayList.add(new StoredIngredient("Ingredient 1", 2, calendar.getTime(), "Pantry", "Boxes",3));
-//        shoppingArrayList.add(new StoredIngredient("Ingredient 2", 4, calendar.getTime(), "Fridge", "Cans",4));
+        //shoppingArrayList.add(new Ingredient("Ingredient 1", 2));
+        //shoppingArrayList.add(new Ingredient("Ingredient 2", 4));
+
         shoppingListAdapter = new ShoppingList(this, shoppingArrayList);
         shoppingListView.setAdapter(shoppingListAdapter);
         shoppingListAdapter.notifyDataSetChanged();
 
         // Get our database
         db = FirebaseFirestore.getInstance();
-        FirebaseFirestore.setLoggingEnabled(true);
 
         collectionReference = db.collection("ShoppingList");
 
@@ -80,26 +79,18 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     String description = (String) doc.getData().get("Description");
-                    /*
-                     * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
-                     * Answer by Niyas, February 23, 2019. Reference on casting
-                     * from firebase.timestamp to java.date.
-                     */
-                    Date bestBefore = ((Timestamp)doc.getData().get("Best Before"))
-                            .toDate();
-                    String location = (String) doc.getData().get("Location");
                     Long count = (Long) doc.getData().get("Count");
-//                    String unit = (String) doc.getData().get("Unit");
-                    Long unitCost = (Long) doc.getData().get("Cost");
                     shoppingArrayList.add(
-                            new StoredIngredient(description, count.intValue(),
-                                    bestBefore, location,  unitCost.intValue()));
+                            new Ingredient(description, count.intValue()));
                 }
                 // Update with new cloud data
                 shoppingListAdapter.notifyDataSetChanged();
             }
         });
 
+
+        //ingredientAdded(new Ingredient("Ingredient 1", 2));
+        //ingredientAdded(new Ingredient("Ingredient 2", 4));
 
         /*
          * Learned how to do this using the following link:
@@ -125,7 +116,7 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
         shoppingListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                StoredIngredient ingredient = shoppingListAdapter.getItem(position);
+                Ingredient ingredient = shoppingListAdapter.getItem(position);
                 selectedIngredientIndex = position;
                 new ShoppingListFragment(ingredient).show(
                         getSupportFragmentManager(), "EDIT_INGREDIENT");
@@ -148,16 +139,20 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
 //        });
     }
 
+
+    /**
+     * Called when the user clicks confirms a new {@link Ingredient}
+     * object in the shopping list. Adds the ingredient to Firebase, with a key
+     * value using the {@link Ingredient#hashCode()} method.
+     *
+     * @param ingredient The {@link Ingredient} object that was edited.
+     */
     @Override
-    public void ingredientAdded(StoredIngredient ingredient) {
+    public void ingredientAdded(Ingredient ingredient) {
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
         data.put("Description", ingredient.getDescription());
-        data.put("Best Before", ingredient.getBestBefore());
-        data.put("Location", ingredient.getLocation());
-        data.put("Unit", ingredient.getUnit());
         data.put("Count", ingredient.getCount());
-        data.put("Cost", ingredient.getUnitCost());
         /*
          * Store all data under the hash code of the ingredient, so we can
          * store multiple similar ingredients.
@@ -181,19 +176,57 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
                 });
     }
 
+
+    /**
+     * Called when the user chooses to delete an {@link Ingredient} object from
+     * the shopping list. Removes the associated object from Firebase.
+     */
     @Override
-    public void ingredientEdited(StoredIngredient ingredient) {
+    public void ingredientDeleted() {
+        if (selectedIngredientIndex != -1) {
+            Ingredient oldIngredient = shoppingArrayList.get(
+                    selectedIngredientIndex);
+            // Remove ingredient from database
+            collectionReference
+                    .document(String.valueOf(oldIngredient.hashCode()))
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            // Log success
+                            Log.d(TAG, "Data has been deleted!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Log any issues
+                            Log.d(TAG, "Data could not be deleted!" + e.toString());
+                        }
+                    });
+
+            // Change the index to be invalid
+            selectedIngredientIndex = -1;
+        }
+    }
+
+
+    /**
+     * Called when the user edits an {@link Ingredient} object in the shopping
+     * list. Will first delete the old object from Firebase, then add a new
+     * object so that the {@link Ingredient#hashCode()} is updated.
+     *
+     * @param ingredient The {@link Ingredient} object that was edited.
+     */
+    @Override
+    public void ingredientEdited(Ingredient ingredient) {
         HashMap<String, Object> data = new HashMap<>();
-        StoredIngredient oldIngredient = shoppingArrayList.get(
+        Ingredient oldIngredient = shoppingArrayList.get(
                 selectedIngredientIndex);
 
         // Grab data from the updated ingredient
         data.put("Description", ingredient.getDescription());
-        data.put("Best Before", ingredient.getBestBefore());
-        data.put("Location", ingredient.getLocation());
         data.put("Count", ingredient.getCount());
-        data.put("Unit", ingredient.getCount());
-        data.put("Cost", ingredient.getUnitCost());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldIngredient.hashCode()))
@@ -217,35 +250,67 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
                 });
     }
 
+
+    /**
+     * Called when the user requests adding an {@link Ingredient} object to
+     * storage. The object will be stored in the collection used to store other
+     * {@link StoredIngredient} objects, with a key created using the
+     * {@link StoredIngredient#hashCode()} method. Additionally, will remove
+     * the {@link Ingredient} object from the shopping list.
+     *
+     * @param ingredient The {@link StoredIngredient} object that should be
+     *                   added to storage. It is expected to have the same
+     *                   description as the {@link Ingredient} object it is
+     *                   generated from.
+     */
     @Override
-    public void ingredientDeleted() {
-        if (selectedIngredientIndex != -1) {
-            StoredIngredient oldIngredient = shoppingArrayList.get(
-                    selectedIngredientIndex);
-            // Remove ingredient from database
-            collectionReference
-                    .document(String.valueOf(oldIngredient.hashCode()))
-                    .delete()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            // Log success
-                            Log.d(TAG, "Data has been deleted!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // Log any issues
-                            Log.d(TAG, "Data could not be deleted!" + e.toString());
-                        }
-                    });
+    public void addToStorage(StoredIngredient ingredient) {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("Description", ingredient.getDescription());
+        data.put("Best Before", ingredient.getBestBefore());
+        data.put("Location", ingredient.getLocation());
+        data.put("Count", ingredient.getCount());
+        data.put("Cost", ingredient.getUnitCost());
 
-            // Change the index to be invalid
-            shoppingArrayList.remove(selectedIngredientIndex);
-            shoppingListAdapter.notifyDataSetChanged();
-            selectedIngredientIndex = -1;
-        }
+        // Need to store ingredient in the stored ingredients collection
+        CollectionReference storedReference =
+                db.collection("StoredIngredients");
 
+        storedReference
+                .document(String.valueOf(ingredient.hashCode()))
+                .set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // These are a method which gets executed when the task is succeeded
+                        Log.d(TAG, "Data added to StoredIngredients successfully!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // These are a method which gets executed if there’s any problem
+                        Log.d(TAG, "Data could not be added to StoredIngredients!" + e.toString());
+                    }
+                });
+        Ingredient toRemove =
+                new Ingredient(ingredient.getDescription(), ingredient.getCount());
+        collectionReference
+                .document(String.valueOf(toRemove.hashCode()))
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Log success
+                        Log.d(TAG, "Data has been deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Log any issues
+                        Log.d(TAG, "Data could not be deleted!" + e.toString());
+                    }
+                });
     }
 }

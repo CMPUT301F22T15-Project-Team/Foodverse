@@ -39,7 +39,7 @@ public class ShoppingList extends ArrayAdapter<Ingredient> {
 
         ingredientDescription.setText(ingredient.getDescription());
         ingredientAmount.setText("Amount:" + Integer.toString(ingredient.getCount()));
-        ingredientCost.setText("Cost:$" + Integer.toString(ingredient.getUnitCost()));
+        //ingredientCost.setText("Cost:$" + Integer.toString(ingredient.getUnitCost()));
 //        ingredientUnit.setText
         return view;
     }

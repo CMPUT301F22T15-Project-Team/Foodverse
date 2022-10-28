@@ -33,7 +33,7 @@ import java.util.Date;
  */
 
 public class ShoppingListFragment extends DialogFragment {
-    private StoredIngredient ingredient;
+    private Ingredient ingredient;
     private EditText ingredientDescription;
     private EditText ingredientCount;
     private EditText ingredientUnit;
@@ -48,7 +48,7 @@ public class ShoppingListFragment extends DialogFragment {
         this.ingredient = null;
     }
 
-    public ShoppingListFragment(StoredIngredient ingredient) {
+    public ShoppingListFragment(Ingredient ingredient) {
         super();
         this.ingredient = ingredient;
     }
@@ -57,9 +57,10 @@ public class ShoppingListFragment extends DialogFragment {
      * Interface for interacting with ingredient entries in the list.
      */
     public interface OnFragmentInteractionListener {
-        void ingredientAdded(StoredIngredient ingredient);
-        void ingredientEdited(StoredIngredient ingredient);
+        void ingredientAdded(Ingredient ingredient);
+        void ingredientEdited(Ingredient ingredient);
         void ingredientDeleted();
+        void addToStorage(StoredIngredient ingredient);
     }
 
     @Override
@@ -104,49 +105,14 @@ public class ShoppingListFragment extends DialogFragment {
             }
         };
 
-        // Set the start date to the current date
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        setNewExpiryDate(calendar);
 
         // Load data from an existing Ingredient object
         if (ingredient != null) {
             ingredientDescription.setText(ingredient.getDescription());
             ingredientCount.setText(Integer.toString(ingredient.getCount()));
-            ingredientUnit.setText(ingredient.getUnit());
-            ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
-
-            // Load the time information
-            calendar.setTime(ingredient.getBestBefore());
-            year = calendar.get(Calendar.YEAR);
-            month = calendar.get(Calendar.MONTH);
-            day = calendar.get(Calendar.DAY_OF_MONTH);
-            setNewExpiryDate(calendar);
-
-            /*
-             * Locations stored in locations.xml, get array and set accordingly
-             * Code adapted from:
-             * https://stackoverflow.com/questions/11072576/set-selected-item-of-spinner-programmatically
-             * Answer by user Arun George in 2012
-             */
-            String []loc = getResources().getStringArray(R.array.locations_array);
-            ingredientLocation.setSelection(Arrays.asList(loc)
-                    .indexOf(ingredient.getLocation()));
+            //ingredientUnit.setText(ingredient.getUnit());
+            //ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
         }
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this.getActivity(), AlertDialog.THEME_HOLO_LIGHT,
-                dateSetListener, year, month, day);
-
-        // Connect the DatePickerDialog to the expiry_button
-        ingredientExpiry.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                datePickerDialog.show();
-            }
-        });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
