@@ -128,6 +128,8 @@ public class IngredientActivity extends AppCompatActivity
                         getSupportFragmentManager(), "EDIT_INGREDIENT");
             }
         });
+
+
     }
 
     /**

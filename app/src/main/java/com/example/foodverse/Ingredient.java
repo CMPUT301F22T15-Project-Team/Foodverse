@@ -32,6 +32,13 @@ public class Ingredient {
         return hash;
     }
 
+    public boolean equals(Object o) {
+        if (o instanceof Ingredient) {
+            return (hashCode() == ((Ingredient) o).hashCode());
+        }
+        return false;
+    }
+
     public String getDescription() {
         return description;
     }

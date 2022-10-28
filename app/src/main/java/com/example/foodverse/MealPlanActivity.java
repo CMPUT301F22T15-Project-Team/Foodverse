@@ -7,6 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,8 +29,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
-public class MealPlanActivity extends AppCompatActivity {
+public class MealPlanActivity extends AppCompatActivity implements MealPlanFragment.OnFragmentInteractionListener {
 
+    private ListView mealListView;
+    private ArrayAdapter<Meal> mealAdapter;
+    //private ArrayList<Meal> mealList;
     private FirebaseFirestore db;
     private final String TAG = "MealPlanActivity";
     private CollectionReference collectionReference;
@@ -37,8 +45,13 @@ public class MealPlanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meal_plan);
 
-        mealArrayList = new ArrayList<>();
+        //mealArrayList = new ArrayList<>();
         selectedMealIndex = -1;
+        mealListView = findViewById(R.id.meal_list);
+
+        mealArrayList = new ArrayList<>();
+        mealAdapter = new MealList(this, mealArrayList);
+        mealListView.setAdapter(mealAdapter);
 
         // Get db, the MealPlan collection
         db = FirebaseFirestore.getInstance();
@@ -55,8 +68,6 @@ public class MealPlanActivity extends AppCompatActivity {
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    Float time = (Float) doc.getData().get("Time");
-                    Float servings = (Float) doc.getData().get("Servings");
                     // TODO: This needs testing
                     String[] ingStrings = (String[]) doc.getData().get("Ingredients");
                     // Reconstruct ArrayList
@@ -66,12 +77,37 @@ public class MealPlanActivity extends AppCompatActivity {
                                 DatabaseIngredient.stringToIngredient(ingString);
                         ingredients.add(ing);
                     }
-                    mealArrayList.add(new Meal(time, servings, ingredients));
+                    //mealArrayList.add(new Meal(ingredients, date));
                 }
                 // Update with new cloud data
-                // mealAdapter.notifyDataSetChanged();
+                mealAdapter.notifyDataSetChanged();
             }
         });
+
+        mealListView.setOnItemClickListener((adapterView, view, i, l) -> selectedMealIndex = i);
+
+        final Button addMealButton = findViewById(R.id.add_meal_button);
+
+        addMealButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new MealPlanFragment().show(getSupportFragmentManager(), "TEST");
+            }
+        });
+
+        mealListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view,
+                                            int position, long id) {
+                        Meal meal = mealAdapter.getItem(position);
+                        selectedMealIndex = position;
+                        new MealPlanFragment(meal).show(
+                                getSupportFragmentManager(), "EDIT_MEAL");
+                    }
+                });
+
+
     }
 
     /**
@@ -84,8 +120,7 @@ public class MealPlanActivity extends AppCompatActivity {
     public void mealAdded(Meal meal) {
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
-        data.put("Time", meal.getTime());
-        data.put("Servings", meal.getNumberOfServings());
+
 
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
@@ -167,8 +202,6 @@ public class MealPlanActivity extends AppCompatActivity {
         Meal oldMeal = mealArrayList.get(selectedMealIndex);
 
         // Grab data from the updated ingredient
-        data.put("Time", meal.getTime());
-        data.put("Servings", meal.getNumberOfServings());
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
         for (Ingredient ingredient : meal.getIngredients()) {
