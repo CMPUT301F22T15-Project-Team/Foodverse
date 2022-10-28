@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -32,7 +31,7 @@ import java.util.Date;
  * 2022-09-24
  */
 
-public class IngredientFragment extends DialogFragment {
+public class StoredIngredientFragment extends DialogFragment {
     private StoredIngredient ingredient;
     private EditText ingredientDescription;
     private EditText ingredientCount;
@@ -42,12 +41,12 @@ public class IngredientFragment extends DialogFragment {
     private OnFragmentInteractionListener listener;
     private Date expiryDate;
 
-    public IngredientFragment() {
+    public StoredIngredientFragment() {
         super();
         this.ingredient = null;
     }
 
-    public IngredientFragment(StoredIngredient ingredient) {
+    public StoredIngredientFragment(StoredIngredient ingredient) {
         super();
         this.ingredient = ingredient;
     }
@@ -78,7 +77,7 @@ public class IngredientFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater
                 .from(getActivity())
-                .inflate(R.layout.fragment_edit_text, null);
+                .inflate(R.layout.stored_ingredient_fragment, null);
 
         // Initialize components
         ingredientDescription = view.findViewById(R.id.description_edit_text);
