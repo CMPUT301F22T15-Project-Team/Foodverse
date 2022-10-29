@@ -39,7 +39,7 @@ import java.util.List;
 
 
 public class MealPlanActivity extends AppCompatActivity implements
-        MealTestFragment.OnFragmentInteractionListener,
+        MealPlanFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     private ListView mealListView;
@@ -126,7 +126,7 @@ public class MealPlanActivity extends AppCompatActivity implements
         addMealButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MealTestFragment().show(getSupportFragmentManager(), "TEST");
+                new MealPlanFragment().show(getSupportFragmentManager(), "TEST");
             }
         });
 
@@ -137,7 +137,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                                             int position, long id) {
                         Meal meal = mealAdapter.getItem(position);
                         selectedMealIndex = position;
-                        new MealTestFragment(meal).show(
+                        new MealPlanFragment(meal).show(
                                 getSupportFragmentManager(), "EDIT_MEAL");
                     }
                 });

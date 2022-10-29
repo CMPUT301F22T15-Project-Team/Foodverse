@@ -54,6 +54,7 @@ public class MealPlanFragment extends DialogFragment  {
     private ArrayList<Ingredient> mealIngredients = new ArrayList<>();
     private ArrayList<Ingredient> addedIngredients = new ArrayList<>();
     private ArrayList<String> listedIngredients = new ArrayList<>();
+    private ArrayAdapter<String> ingAdapter;
     private FirebaseFirestore db;
     private CollectionReference ingRef, storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
@@ -118,20 +119,22 @@ public class MealPlanFragment extends DialogFragment  {
         ingRef = db.collection("Ingredients");
         storedRef = db.collection("StoredIngredients");
 
+        ArrayList<String> arraySpinner = new ArrayList<>();
+        arraySpinner.add("Add New Ingredient");
+
         ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
-                // Clear the old list
-                mealIngredients.clear();
                 // Add ingredients from the cloud
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
                     String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
                     Long count = (Long) doc.getData().get("Count");
                     Ingredient ing = new Ingredient(description, count.intValue());
                     if (!set.contains(ing)) {
-                        mealIngredients.add(ing);
+                        arraySpinner.add(description);
                         set.add(ing);
                     }
                 }
@@ -148,28 +151,20 @@ public class MealPlanFragment extends DialogFragment  {
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
                     String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
                     Long count = (Long) doc.getData().get("Count");
                     Ingredient ing = new Ingredient(description, count.intValue());
                     if (!set.contains(ing)) {
-                        mealIngredients.add(ing);
+                        arraySpinner.add(description);
                         set.add(ing);
                     }
                 }
             }
         });
 
-        ArrayList<String> arraySpinner = new ArrayList<>();
-
-        for (Ingredient ingredient : mealIngredients) {
-            arraySpinner.add(ingredient.getDescription());
-        }
-
-        arraySpinner.add("Add New Ingredient");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_item, arraySpinner);
-
-        ingredientSpinner.setAdapter(adapter);
+        ingAdapter = new IngredientSpinnerAdapter(getActivity(), arraySpinner);
+        ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+        ingredientSpinner.setAdapter(ingAdapter);
 
 
 
