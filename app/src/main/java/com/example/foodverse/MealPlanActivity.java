@@ -68,8 +68,8 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    // TODO: This needs testing
-                    String[] ingStrings = (String[]) doc.getData().get("Ingredients");
+                    ArrayList<String> ingStrings =
+                            (ArrayList<String>) doc.getData().get("Ingredients");
                     Date date = ((Timestamp) doc.getData().get("Date")).toDate();
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
@@ -130,12 +130,8 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
                     DatabaseIngredient.ingredientToString(ingredient);
             ingStrings.add(ingString);
         }
-        /*
-         * https://stackoverflow.com/questions/55100180/how-to-store-array-in-firestore-database-using-android
-         * Answer by Tamir Abutbul (2019) edited by Guy Luz (2019).
-         * For storing an ArrayList in Firebase
-         */
-        data.put("Ingredients", Arrays.asList(ingStrings));
+
+        data.put("Ingredients", ingStrings);
         data.put("Date", meal.getDate());
         /*
          * Store all data under the hash code of the meal, so we can
@@ -210,7 +206,7 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
             String ingString = DatabaseIngredient.ingredientToString(ingredient);
             ingStrings.add(ingString);
         }
-        data.put("Ingredients", Arrays.asList(ingStrings));
+        data.put("Ingredients", ingStrings);
         data.put("date", meal.getDate());
 
         // Delete old ingredient and set new since hashCode() will return different result
