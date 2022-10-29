@@ -2,11 +2,16 @@ package com.example.foodverse;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,6 +20,7 @@ import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -29,7 +35,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
-public class MealPlanActivity extends AppCompatActivity implements MealPlanFragment.OnFragmentInteractionListener {
+public class MealPlanActivity extends AppCompatActivity implements
+        MealPlanFragment.OnFragmentInteractionListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
     private ListView mealListView;
     private ArrayAdapter<Meal> mealAdapter;
@@ -39,6 +47,9 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
     private CollectionReference collectionReference;
     private ArrayList<Meal> mealArrayList;
     private int selectedMealIndex;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private DrawerLayout drawerLayout;
+    private NavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +63,22 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
         mealArrayList = new ArrayList<>();
         mealAdapter = new MealList(this, mealArrayList);
         mealListView.setAdapter(mealAdapter);
+
+        /*
+         * https://www.geeksforgeeks.org/navigation-drawer-in-android/
+         * by adityamshidlyali, 2020
+         */
+        drawerLayout = findViewById(R.id.meal_plan_drawer);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
+
+        // Allow menu to be toggleable, always display.
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Setup listeners for the navigation view
+        navView = findViewById(R.id.nav_menu_meals);
+        navView.setNavigationItemSelectedListener(this);
 
         // Get db, the MealPlan collection
         db = FirebaseFirestore.getInstance();
@@ -230,5 +257,60 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
                         Log.d(TAG, "Data could not be updated!" + e.toString());
                     }
                 });
+    }
+
+
+    /**
+     * Implemented to allow for the opening and closing of the navigation menu.
+     *
+     * Code from: https://www.geeksforgeeks.org/navigation-drawer-in-android/
+     * By adityamshidlyali, posted 2020, accessed October 28, 2022.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    /**
+     * Overridden from NavigationView.OnNavigationItemSelectedListener.
+     * Navigate to the selected activity, if we are not already on it, otherwise
+     * close the menu. Possible destinations are {@link StoredIngredientActivity},
+     * {@link MealPlanActivity}, and {@link ShoppingListActivity}.
+     *
+     * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
+     * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
+     *
+     * @returns Always true, iff the selected item is the calling activity.
+     */
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menu) {
+        // Go to activity selected, based on title.
+        String destination = (String) menu.getTitle();
+        switch(destination) {
+            /*case "Recipes": {
+
+            }*/
+            case "Ingredients": {
+                Intent intent = new Intent(this, StoredIngredientActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case "Shopping List": {
+                Intent intent = new Intent(this, ShoppingListActivity.class);
+                startActivity(intent);
+                break;
+            }
+            default: break;
+        }
+
+        // Close navigation drawer if we selected the current activity.
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
