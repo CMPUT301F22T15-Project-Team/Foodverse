@@ -202,7 +202,7 @@ public class MealTestFragment extends DialogFragment  {
                         //listener.onOkPressed(new City(city, province));
                         Meal newMeal = new Meal();
                         LocalDate date = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                        newMeal.setDate(date);
+                        newMeal.setDate(date2);
                         // Add Recipe Stuff
                         // Add array of ingredients to meal
                         newMeal.setIngredients(mealIngredients);

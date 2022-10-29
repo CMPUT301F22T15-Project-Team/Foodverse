@@ -30,14 +30,16 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class MealPlanActivity extends AppCompatActivity implements
-        MealPlanFragment.OnFragmentInteractionListener,
+        MealTestFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     private ListView mealListView;
@@ -97,7 +99,8 @@ public class MealPlanActivity extends AppCompatActivity implements
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     // TODO: This needs testing
-                    String[] ingStrings = (String[]) doc.getData().get("Ingredients");
+                    ArrayList<String> ingStrings = (ArrayList<String>)
+                            doc.getData().get("Ingredients");
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
                     for (String ingString : ingStrings) {
@@ -112,6 +115,10 @@ public class MealPlanActivity extends AppCompatActivity implements
             }
         });
 
+        ArrayList<Ingredient> ing = new ArrayList<>();
+        ing.add(new Ingredient("1", 1));
+        ing.add(new Ingredient("2", 2));
+        mealAdded(new Meal(ing, new Date()));
         mealListView.setOnItemClickListener((adapterView, view, i, l) -> selectedMealIndex = i);
 
         final Button addMealButton = findViewById(R.id.add_meal_button);
@@ -152,17 +159,15 @@ public class MealPlanActivity extends AppCompatActivity implements
 
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
-        for (Ingredient ingredient : meal.getIngredients()) {
-            String ingString =
-                    DatabaseIngredient.ingredientToString(ingredient);
+        String ingString;
+        for (int i = 0; i < meal.getIngredients().size(); i++) {
+            ingString = DatabaseIngredient.ingredientToString(
+                    meal.getIngredients().get(i));
             ingStrings.add(ingString);
         }
-        /*
-         * https://stackoverflow.com/questions/55100180/how-to-store-array-in-firestore-database-using-android
-         * Answer by Tamir Abutbul (2019) edited by Guy Luz (2019).
-         * For storing an ArrayList in Firebase
-         */
-        data.put("Ingredients", Arrays.asList(ingStrings));
+
+
+        data.put("Ingredients", ingStrings);
         /*
          * Store all data under the hash code of the meal, so we can
          * store multiple similar meals.

@@ -4,17 +4,18 @@ import static java.lang.Math.round;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Meal {
     ArrayList<Ingredient> ingredients;
     // Recipe recipe;
-    LocalDate date;
+    Date date;
 
     public Meal() {
 
     }
 
-    public Meal(ArrayList<Ingredient> ingredients, LocalDate date) {
+    public Meal(ArrayList<Ingredient> ingredients, Date date) {
         this.ingredients = ingredients;
         this.date = date;
     }
@@ -34,11 +35,11 @@ public class Meal {
         this.ingredients = ingredients;
     }
 
-    public LocalDate getDate() {
+    public Date getDate() {
         return this.date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 }
