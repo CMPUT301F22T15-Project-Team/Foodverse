@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
+
 public class MealPlanActivity extends AppCompatActivity implements
         MealPlanFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -56,10 +57,10 @@ public class MealPlanActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meal_plan);
 
-        //mealArrayList = new ArrayList<>();
         selectedMealIndex = -1;
         mealListView = findViewById(R.id.meal_list);
 
+        // Initialize attributes
         mealArrayList = new ArrayList<>();
         mealAdapter = new MealList(this, mealArrayList);
         mealListView.setAdapter(mealAdapter);
@@ -118,7 +119,7 @@ public class MealPlanActivity extends AppCompatActivity implements
         addMealButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MealPlanFragment().show(getSupportFragmentManager(), "TEST");
+                new MealTestFragment().show(getSupportFragmentManager(), "TEST");
             }
         });
 
@@ -129,7 +130,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                                             int position, long id) {
                         Meal meal = mealAdapter.getItem(position);
                         selectedMealIndex = position;
-                        new MealPlanFragment(meal).show(
+                        new MealTestFragment(meal).show(
                                 getSupportFragmentManager(), "EDIT_MEAL");
                     }
                 });
