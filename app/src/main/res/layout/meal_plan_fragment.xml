@@ -78,7 +78,7 @@
     </LinearLayout>
 
     <ListView
-        android:id="@+id/meal_list"
+        android:id="@+id/meal_fragment_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="50dp"
