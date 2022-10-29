@@ -12,11 +12,11 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class IngredientAdapter extends ArrayAdapter<Ingredient> {
-    private ArrayList<Ingredient> ingredients;
+public class IngredientSpinnerAdapter extends ArrayAdapter<String> {
+    private ArrayList<String> ingredients;
     private Context context;
 
-    public IngredientAdapter(Context context, ArrayList<Ingredient> ingredients) {
+    public IngredientSpinnerAdapter(Context context, ArrayList<String> ingredients) {
         super(context, 0, ingredients);
         this.ingredients = ingredients;
         this.context = context;
@@ -28,17 +28,15 @@ public class IngredientAdapter extends ArrayAdapter<Ingredient> {
                         @NonNull ViewGroup parent) {
         View view = convertView;
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.content_stored_ingredient,
+            view = LayoutInflater.from(context).inflate(R.layout.ingredient_spinner,
                     parent,false);
         }
-        Ingredient ingredient = ingredients.get(position);
+        //Ingredient ingredient = ingredients.get(position);
         TextView ingredientDescription = view.findViewById(
-                R.id.description_text);
-        TextView ingredientCount = view.findViewById(R.id.count_text);
-        TextView ingredientCost = view.findViewById(R.id.cost_text);
+                R.id.spinner_description_text);
 
-        ingredientDescription.setText(ingredient.getDescription());
-        ingredientCount.setText("x" + Integer.toString(ingredient.getCount()));
-        return view;
+        //ingredientDescription.setText(ingredient.getDescription());
+        ingredientDescription.setText("Hello");
+        return ingredientDescription;
     }
 }

@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -23,22 +22,31 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-public class TestFragment2 extends DialogFragment{
+/**
+ * IngredientFragment
+ * Used to create an interface for adding/editing/deleting a ingredient item.
+ *
+ * Version 1.0
+ *
+ * 2022-09-24
+ */
+
+public class StoredIngredientFragment extends DialogFragment {
     private StoredIngredient ingredient;
     private EditText ingredientDescription;
     private EditText ingredientCount;
     private EditText ingredientCost;
     private Spinner ingredientLocation;
     private Button ingredientExpiry;
-    private TestFragment2.OnFragmentInteractionListener listener;
+    private OnFragmentInteractionListener listener;
     private Date expiryDate;
 
-    public TestFragment2() {
+    public StoredIngredientFragment() {
         super();
         this.ingredient = null;
     }
 
-    public TestFragment2(StoredIngredient ingredient) {
+    public StoredIngredientFragment(StoredIngredient ingredient) {
         super();
         this.ingredient = ingredient;
     }
@@ -55,8 +63,8 @@ public class TestFragment2 extends DialogFragment{
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof TestFragment2.OnFragmentInteractionListener) {
-            listener = (TestFragment2.OnFragmentInteractionListener) context;
+        if (context instanceof OnFragmentInteractionListener) {
+            listener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + "must implement OnFragmentInteractionListener");
@@ -69,7 +77,7 @@ public class TestFragment2 extends DialogFragment{
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         View view = LayoutInflater
                 .from(getActivity())
-                .inflate(R.layout.fragment_edit_text, null);
+                .inflate(R.layout.stored_ingredient_fragment, null);
 
         // Initialize components
         ingredientDescription = view.findViewById(R.id.description_edit_text);

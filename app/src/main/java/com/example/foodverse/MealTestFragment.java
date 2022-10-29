@@ -39,33 +39,36 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MealPlanFragment extends DialogFragment  {
+public class MealTestFragment extends DialogFragment  {
     private Meal meal;
     private EditText date;
     // Recipe-related elements still need to be implemented
     private ListView ingredientList;
     private EditText servings;
 
-    private Button mealDate;
-    private Button addButton;
+    private Button mealDate; // Date selector
+    private Button addButton; // Plus button to add ingredient to meal
     private Date date2;
-    private Spinner recipeSpinner;
-    private Spinner ingredientSpinner;
-    private ArrayList<Ingredient> mealIngredients = new ArrayList<>();
+    private Spinner recipeSpinner; // Spinner for recipes
+    private Spinner ingredientSpinner; // Spinner for ingredients
+    private ArrayList<Ingredient> mealIngredients = new ArrayList<>(); //
+    private ArrayList<String> ingredientStringList = new ArrayList<>();
     private ArrayList<Ingredient> addedIngredients = new ArrayList<>();
     private ArrayList<String> listedIngredients = new ArrayList<>();
+    //private ArrayAdapter<Ingredient> ingAdapter;
+    private ArrayAdapter<String> ingAdapter;
     private FirebaseFirestore db;
     private CollectionReference ingRef, storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
 
-    private MealPlanFragment.OnFragmentInteractionListener listener;
+    private MealTestFragment.OnFragmentInteractionListener listener;
 
-    public MealPlanFragment() {
+    public MealTestFragment() {
         super();
         this.meal = null;
     }
 
-    public MealPlanFragment(Meal meal) {
+    public MealTestFragment(Meal meal) {
         super();
         this.meal = meal;
     }
@@ -79,8 +82,8 @@ public class MealPlanFragment extends DialogFragment  {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof MealPlanFragment.OnFragmentInteractionListener) {
-            listener = (MealPlanFragment.OnFragmentInteractionListener) context;
+        if (context instanceof MealTestFragment.OnFragmentInteractionListener) {
+            listener = (MealTestFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + "must implement OnFragmentInteractionListener");
@@ -97,9 +100,9 @@ public class MealPlanFragment extends DialogFragment  {
         recipeSpinner = view.findViewById(R.id.recipe_spinner);
         ingredientSpinner = view.findViewById(R.id.meal_ingredient_spinner);
         addButton = view.findViewById(R.id.add_meal_ingredient_button);
-        ingredientList = view.findViewById(R.id.meal_list);
+        ingredientList = view.findViewById(R.id.meal_fragment_list);
 
-        ArrayAdapter<String> listedAdapter = new ArrayAdapter<String>(getActivity(), R.layout.content_stored_ingredient, listedIngredients);
+        //ArrayAdapter<String> listedAdapter = new ArrayAdapter<String>(getActivity(), R.layout.content_stored_ingredient, listedIngredients);
         //ingredientList.setAdapter(listedAdapter);
 
         DatePickerDialog.OnDateSetListener dateSetListener;
@@ -118,58 +121,26 @@ public class MealPlanFragment extends DialogFragment  {
         ingRef = db.collection("Ingredients");
         storedRef = db.collection("StoredIngredients");
 
-        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Clear the old list
-                mealIngredients.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        mealIngredients.add(ing);
-                        set.add(ing);
-                    }
-                }
-            }
-        });
+        //ArrayList<Ingredient> arraySpinner = new ArrayList<>();
+        ArrayList<Ingredient> arraySpinner = new ArrayList<>();
+        ingAdapter = new IngredientSpinnerAdapter(getActivity(), ingredientStringList);
 
-        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Clear the old list
-                mealIngredients.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        mealIngredients.add(ing);
-                        set.add(ing);
-                    }
-                }
-            }
-        });
+        Ingredient test1 = new Ingredient("Test1", 1);
+        Ingredient test2 = new Ingredient("Test6", 2);
+        Ingredient test3 = new Ingredient("Test3", 3);
 
-        ArrayList<String> arraySpinner = new ArrayList<>();
 
-        for (Ingredient ingredient : mealIngredients) {
-            arraySpinner.add(ingredient.getDescription());
+        arraySpinner.add(test1);
+        arraySpinner.add(test2);
+        arraySpinner.add(test3);
+
+        for (int i = 0; i < arraySpinner.size(); i++) {
+            ingredientStringList.add(arraySpinner.get(i).getDescription());
         }
 
-        arraySpinner.add("Add New Ingredient");
+        ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_item, arraySpinner);
-
-        ingredientSpinner.setAdapter(adapter);
+        ingredientSpinner.setAdapter(ingAdapter);
 
 
 
@@ -181,9 +152,6 @@ public class MealPlanFragment extends DialogFragment  {
 
         if (meal != null) {
             // Set the values for the various fields
-            //ingredientDescription.setText(ingredient.getDescription());
-            //ingredientCount.setText(Integer.toString(ingredient.getCount()));
-            //ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
 
             // Load the time information
             //calendar.setTime(ingredient.getBestBefore());
@@ -198,22 +166,12 @@ public class MealPlanFragment extends DialogFragment  {
                 this.getActivity(), AlertDialog.THEME_HOLO_LIGHT,
                 dateSetListener, year, month, day);
 
-
-        //ingredientExpiry.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //        datePickerDialog.show();
-        //    }
-        //});
-
         mealDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 datePickerDialog.show();
             }
         });
-
-        //ArrayList<String> listedIngredients = new ArrayList<>();
 
 
 
@@ -222,15 +180,14 @@ public class MealPlanFragment extends DialogFragment  {
             @Override
             public void onClick(View view) {
                 //addedIngredients.add((Ingredient) ingredientSpinner.getSelectedItem());
-                listedIngredients.add((String) ingredientSpinner.getSelectedItem());
-                listedAdapter.notifyDataSetChanged();
+                //listedIngredients.add((String) ingredientSpinner.getSelectedItem());
+                //listedAdapter.notifyDataSetChanged();
+                int ingIndex;
+                ingIndex = ingredientSpinner.getSelectedItemPosition();
+                mealIngredients.add(arraySpinner.get(ingIndex));
+                ingAdapter.notifyDataSetChanged();
             }
         });
-
-        //IngredientAdapter addedAdapter = new IngredientAdapter(getActivity(), addedIngredients);
-        //ingredientList.setAdapter(listedAdapter);
-
-        //ArrayList<String> listedIngredients = new ArrayList<String>();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
@@ -242,15 +199,15 @@ public class MealPlanFragment extends DialogFragment  {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //String city = cityName.getText().toString();
-                        //String province = provinceName.getText().toString();
                         //listener.onOkPressed(new City(city, province));
-                        Meal meal = new Meal();
+                        Meal newMeal = new Meal();
                         LocalDate date = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                        meal.setDate(date2);
+                        newMeal.setDate(date);
                         // Add Recipe Stuff
                         // Add array of ingredients to meal
-                        meal.setIngredients(mealIngredients);
+                        newMeal.setIngredients(mealIngredients);
+                        listener.mealAdded(newMeal);
+
                     }
                 }).create();
     }

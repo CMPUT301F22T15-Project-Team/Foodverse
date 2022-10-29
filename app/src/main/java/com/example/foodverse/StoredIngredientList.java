@@ -22,11 +22,11 @@ import java.util.ArrayList;
  * 2022-09-24
  */
 
-public class IngredientList extends ArrayAdapter<StoredIngredient> {
+public class StoredIngredientList extends ArrayAdapter<StoredIngredient> {
     private ArrayList<StoredIngredient> ingredients;
     private Context context;
 
-    public IngredientList(Context context, ArrayList<StoredIngredient> ingredients) {
+    public StoredIngredientList(Context context, ArrayList<StoredIngredient> ingredients) {
         super(context, 0, ingredients);
         this.ingredients = ingredients;
         this.context = context;
@@ -38,7 +38,7 @@ public class IngredientList extends ArrayAdapter<StoredIngredient> {
                         @NonNull ViewGroup parent) {
         View view = convertView;
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.content_ingredient,
+            view = LayoutInflater.from(context).inflate(R.layout.content_stored_ingredient,
                     parent,false);
         }
         StoredIngredient ingredient = ingredients.get(position);
