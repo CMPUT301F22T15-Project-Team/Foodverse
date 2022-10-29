@@ -60,8 +60,8 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
 
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException error) {
                 // Clear the old list
                 mealArrayList.clear();
                 // Add ingredients from the cloud
@@ -70,6 +70,7 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
                     String hashCode = doc.getId();
                     // TODO: This needs testing
                     String[] ingStrings = (String[]) doc.getData().get("Ingredients");
+                    Date date = ((Timestamp) doc.getData().get("Date")).toDate();
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
                     for (String ingString : ingStrings) {
@@ -77,7 +78,7 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
                                 DatabaseIngredient.stringToIngredient(ingString);
                         ingredients.add(ing);
                     }
-                    //mealArrayList.add(new Meal(ingredients, date));
+                    mealArrayList.add(new Meal(ingredients, date));
                 }
                 // Update with new cloud data
                 mealAdapter.notifyDataSetChanged();
@@ -135,6 +136,7 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
          * For storing an ArrayList in Firebase
          */
         data.put("Ingredients", Arrays.asList(ingStrings));
+        data.put("Date", meal.getDate());
         /*
          * Store all data under the hash code of the meal, so we can
          * store multiple similar meals.
@@ -209,6 +211,7 @@ public class MealPlanActivity extends AppCompatActivity implements MealPlanFragm
             ingStrings.add(ingString);
         }
         data.put("Ingredients", Arrays.asList(ingStrings));
+        data.put("date", meal.getDate());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldMeal.hashCode()))

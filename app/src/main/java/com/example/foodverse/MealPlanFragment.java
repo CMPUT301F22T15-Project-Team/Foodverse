@@ -240,7 +240,7 @@ public class MealPlanFragment extends DialogFragment  {
                         //listener.onOkPressed(new City(city, province));
                         Meal meal = new Meal();
                         LocalDate date = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                        meal.setDate(date);
+                        meal.setDate(date2);
                         // Add Recipe Stuff
                         // Add array of ingredients to meal
                         meal.setIngredients(mealIngredients);
