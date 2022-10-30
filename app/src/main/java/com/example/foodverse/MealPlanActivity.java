@@ -207,7 +207,7 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
             ingStrings.add(ingString);
         }
         data.put("Ingredients", ingStrings);
-        data.put("date", meal.getDate());
+        data.put("Date", meal.getDate());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldMeal.hashCode()))
