@@ -67,6 +67,8 @@ public class MealTestFragment extends DialogFragment implements AdapterView.OnIt
     private CollectionReference ingRef, storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayAdapter<Ingredient> listViewAdapter;
+    private boolean ingFinished = false, storedFinished = false;
+    private MealPlanActivity act;
 
     private MealTestFragment.OnFragmentInteractionListener listener;
 
@@ -128,52 +130,64 @@ public class MealTestFragment extends DialogFragment implements AdapterView.OnIt
             }
         };
 
+        ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
         db = FirebaseFirestore.getInstance();
         db.enableNetwork();
-        ingRef = db.collection("Ingredients");
-        storedRef = db.collection("StoredIngredients");
-
-        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Log.d("MEALFRAG", description);
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        ingredientStringList.add(description);
-                        arraySpinner.add(ing);
-                        set.add(ing);
-                    }
-                }
-            }
-        });
-
-        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Log.d("MEALFRAG", description);
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        ingredientStringList.add(description);
-                        arraySpinner.add(ing);
-                        set.add(ing);
-                    }
-                }
-            }
-        });
-
-        ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
+//        ingRef = db.collection("Ingredients");
+//        storedRef = db.collection("StoredIngredients");
+//
+//        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+//                    FirebaseFirestoreException error) {
+//                // Add ingredients from the cloud
+//                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+//                    String hashCode = doc.getId();
+//                    String description = (String) doc.getData().get("Description");
+//                    Log.d("MEALFRAG", description);
+//                    Long count = (Long) doc.getData().get("Count");
+//                    Ingredient ing = new Ingredient(description, count.intValue());
+//                    if (!set.contains(ing)) {
+//                        arraySpinner.add(ing);
+//                        set.add(ing);
+//                        Log.d("MEALFRAG", "Added ing");
+//                    }
+//                }
+//                ingFinished = true;
+//                if (ingFinished && storedFinished) {
+//                    populateSpinner();
+//                }
+//            }
+//        });
+//
+//        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+//                    FirebaseFirestoreException error) {
+//                // Add ingredients from the cloud
+//                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+//                    String hashCode = doc.getId();
+//                    String description = (String) doc.getData().get("Description");
+//                    Log.d("MEALFRAG", description);
+//                    Long count = (Long) doc.getData().get("Count");
+//                    Ingredient ing = new Ingredient(description, count.intValue());
+//                    if (!set.contains(ing)) {
+//                        arraySpinner.add(ing);
+//                        set.add(ing);
+//                        Log.d("MEALFRAG", "Added ing");
+//                    }
+//                }
+//                storedFinished = true;
+//                if (ingFinished && storedFinished) {
+//                    populateSpinner();
+//                }
+//            }
+//        });
+        act = (MealPlanActivity) getActivity();
+        for (int i = 0; i < act.getDatabaseIngredients().size(); i++) {
+            ingredientStringList.add(
+                    act.getDatabaseIngredients().get(i).getDescription());
+        }
 
         ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
 
@@ -226,8 +240,9 @@ public class MealTestFragment extends DialogFragment implements AdapterView.OnIt
                 //listedIngredients.add((String) ingredientSpinner.getSelectedItem());
                 //listedAdapter.notifyDataSetChanged();
                 int ingIndex;
+                Log.d("MealFrag", "Adding ingredient");
                 ingIndex = ingredientSpinner.getSelectedItemPosition();
-                mealIngredients.add(arraySpinner.get(ingIndex));
+                mealIngredients.add(act.getDatabaseIngredients().get(ingIndex));
                 //ingAdapter.notifyDataSetChanged();
                 listViewAdapter.notifyDataSetChanged();
             }

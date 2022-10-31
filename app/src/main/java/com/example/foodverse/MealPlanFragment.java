@@ -285,5 +285,4 @@ public class MealPlanFragment extends DialogFragment  {
         date2 = calendar.getTime();
     }
 
-
 }

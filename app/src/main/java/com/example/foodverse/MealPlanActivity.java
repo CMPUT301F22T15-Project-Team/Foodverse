@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * MealPlanActivity
@@ -42,8 +43,10 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
     //private ArrayList<Meal> mealList;
     private FirebaseFirestore db;
     private final String TAG = "MealPlanActivity";
-    private CollectionReference collectionReference;
+    private CollectionReference collectionReference, ingRef, storedRef;
     private ArrayList<Meal> mealArrayList;
+    private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
+    private HashSet<Ingredient> set = new HashSet<>();
     private int selectedMealIndex;
 
     @Override
@@ -88,6 +91,49 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
                 }
                 // Update with new cloud data
                 mealAdapter.notifyDataSetChanged();
+            }
+        });
+
+        ingRef = db.collection("Ingredients");
+        storedRef = db.collection("StoredIngredients");
+
+        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                // Add ingredients from the cloud
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
+                    Long count = (Long) doc.getData().get("Count");
+                    Ingredient ing = new Ingredient(description, count.intValue());
+                    if (!set.contains(ing)) {
+                        databaseIngredients.add(ing);
+                        set.add(ing);
+                        Log.d("MEALFRAG", "Added ing");
+                    }
+                }
+            }
+        });
+
+        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                // Add ingredients from the cloud
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
+                    Long count = (Long) doc.getData().get("Count");
+                    Ingredient ing = new Ingredient(description, count.intValue());
+                    if (!set.contains(ing)) {
+                        databaseIngredients.add(ing);
+                        set.add(ing);
+                        Log.d("MEALFRAG", "Added ing");
+                    }
+                }
             }
         });
 
@@ -238,5 +284,9 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
                         Log.d(TAG, "Data could not be updated!" + e.toString());
                     }
                 });
+    }
+
+    public ArrayList<Ingredient> getDatabaseIngredients() {
+        return databaseIngredients;
     }
 }
