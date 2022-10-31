@@ -208,6 +208,8 @@ public class StoredIngredientActivity extends AppCompatActivity
         if (selectedIngredientIndex != -1) {
             StoredIngredient oldIngredient = ingredientArrayList.get(
                     selectedIngredientIndex);
+            Log.d(TAG+"Ind", String.valueOf(selectedIngredientIndex));
+            Log.d(TAG+"Des", oldIngredient.getDescription());
             // Remove ingredient from database
             collectionReference
                 .document(String.valueOf(oldIngredient.hashCode()))
@@ -254,8 +256,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Cost", ingredient.getUnitCost());
 
         // Delete old ingredient and set new since hashCode() will return different result
-        collectionReference.document(String.valueOf(oldIngredient.hashCode()))
-                        .delete();
+        ingredientDeleted();
         collectionReference
             .document(String.valueOf(ingredient.hashCode()))
             .set(data)
@@ -296,7 +297,8 @@ public class StoredIngredientActivity extends AppCompatActivity
      * Overridden from NavigationView.OnNavigationItemSelectedListener.
      * Navigate to the selected activity, if we are not already on it, otherwise
      * close the menu. Possible destinations are {@link StoredIngredientActivity},
-     * {@link MealPlanActivity}, and {@link ShoppingListActivity}.
+     * {@link MealPlanActivity}, {@link RecipeActivity}, and
+     * {@link ShoppingListActivity}.
      *
      * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
      * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
@@ -308,9 +310,11 @@ public class StoredIngredientActivity extends AppCompatActivity
         // Go to activity selected, based on title.
         String destination = (String) menu.getTitle();
         switch(destination) {
-            /*case "Recipes": {
-
-            }*/
+            case "Recipes": {
+                Intent intent = new Intent(this, RecipeActivity.class);
+                startActivity(intent);
+                break;
+            }
             case "Meal Planner": {
                 Intent intent = new Intent(this, MealPlanActivity.class);
                 startActivity(intent);

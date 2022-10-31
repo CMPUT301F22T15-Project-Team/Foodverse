@@ -1,8 +1,10 @@
 package com.example.foodverse;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -11,10 +13,14 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -23,10 +29,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
-public class RecipeActivity  extends AppCompatActivity implements RecipeFragment.OnFragmentInteractionListener{
+public class RecipeActivity  extends AppCompatActivity implements
+        RecipeFragment.OnFragmentInteractionListener,
+        NavigationView.OnNavigationItemSelectedListener {
     private ListView RecipeList;
     ArrayAdapter<Recipe> RecAdapter;
     ArrayList<Recipe> RecipeDataList;
@@ -35,16 +42,36 @@ public class RecipeActivity  extends AppCompatActivity implements RecipeFragment
     private FirebaseFirestore db;
     private CollectionReference collectionReference;
     private final String TAG = "RecipeActivity";
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private DrawerLayout drawerLayout;
+    private NavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.recipe_list);
+        setContentView(R.layout.activity_recipe_list);
         RecipeList = findViewById(R.id.recipes_list);
 
         RecipeDataList = new ArrayList<>();
         RecAdapter = new RecipeList(this, RecipeDataList); //create the interface for the entries
         RecipeList.setAdapter(RecAdapter); //update the UI
+
+
+        /*
+         * https://www.geeksforgeeks.org/navigation-drawer-in-android/
+         * by adityamshidlyali, 2020
+         */
+        drawerLayout = findViewById(R.id.recipe_drawer);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
+
+        // Allow menu to be toggleable, always display.
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Setup listeners for the navigation view
+        navView = findViewById(R.id.nav_menu_recipes);
+        navView.setNavigationItemSelectedListener(this);
 
         // Connect to the database, grab the Recipes collection.
         db = FirebaseFirestore.getInstance();
@@ -169,11 +196,11 @@ public class RecipeActivity  extends AppCompatActivity implements RecipeFragment
      * referenced by an equal {@link Recipe#hashCode()} and add a new one for
      * the edited object, so the hash is updated.
      *
-     * @param newRecipe The edited {@link Recipe} object to add to Firebase.
+     * @param oldRecipe The edited {@link Recipe} object to be removed.
      */
-    public void onOkEditPressed(Recipe newRecipe) {
+    public void onOkEditPressed(Recipe oldRecipe) {
         HashMap<String, Object> data = new HashMap<>();
-        Recipe oldRecipe = RecipeDataList.get(selectedRecipeIndex);
+        Recipe newRecipe = RecipeDataList.get(selectedRecipeIndex);
 
         // Grab data from the updated recipe
         data.put("Title", newRecipe.getTitle());
@@ -182,9 +209,10 @@ public class RecipeActivity  extends AppCompatActivity implements RecipeFragment
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
 
+        Log.d(TAG, String.valueOf(selectedRecipeIndex));
+
         // Update hash code so we can continue referencing recipe
-        collectionReference.document(String.valueOf(oldRecipe.hashCode()))
-                .delete();
+        onDeletePressed();
         collectionReference
                 .document(String.valueOf(newRecipe.hashCode()))
                 .set(data)
@@ -192,6 +220,7 @@ public class RecipeActivity  extends AppCompatActivity implements RecipeFragment
                     @Override
                     public void onSuccess(Void aVoid) {
                         // Log success
+                        Log.d(TAG+"NewData", String.valueOf(newRecipe.hashCode()));
                         Log.d(TAG, "Data has been updated successfully!");
                     }
                 })
@@ -235,5 +264,63 @@ public class RecipeActivity  extends AppCompatActivity implements RecipeFragment
             // Change the index to be invalid
             selectedRecipeIndex = -1;
         }
+    }
+
+
+    /**
+     * Implemented to allow for the opening and closing of the navigation menu.
+     *
+     * Code from: https://www.geeksforgeeks.org/navigation-drawer-in-android/
+     * By adityamshidlyali, posted 2020, accessed October 28, 2022.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    /**
+     * Overridden from NavigationView.OnNavigationItemSelectedListener.
+     * Navigate to the selected activity, if we are not already on it, otherwise
+     * close the menu. Possible destinations are {@link StoredIngredientActivity},
+     * {@link MealPlanActivity}, {@link RecipeActivity}, and
+     * {@link ShoppingListActivity}.
+     *
+     * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
+     * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
+     *
+     * @returns Always true, iff the selected item is the calling activity.
+     */
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menu) {
+        // Go to activity selected, based on title.
+        String destination = (String) menu.getTitle();
+        switch(destination) {
+            case "Shopping List": {
+                Intent intent = new Intent(this, ShoppingListActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case "Ingredients": {
+                Intent intent = new Intent(this, StoredIngredientActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case "Meal Planner": {
+                Intent intent = new Intent(this, MealPlanActivity.class);
+                startActivity(intent);
+                break;
+            }
+            default: break;
+        }
+
+        // Close navigation drawer if we selected the current activity.
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }

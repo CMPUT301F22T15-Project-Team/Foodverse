@@ -22,7 +22,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -32,7 +31,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
@@ -57,7 +55,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shopping_list);
+        setContentView(R.layout.activity_shopping_list);
 
         shoppingListView = findViewById(R.id.shopping_list_view);
         addButton = findViewById(R.id.add_ingredient_to_storage_button);
@@ -363,7 +361,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
      * Overridden from NavigationView.OnNavigationItemSelectedListener.
      * Navigate to the selected activity, if we are not already on it, otherwise
      * close the menu. Possible destinations are {@link StoredIngredientActivity},
-     * {@link MealPlanActivity}, and {@link ShoppingListActivity}.
+     * {@link MealPlanActivity}, {@link RecipeActivity}, and
+     * {@link ShoppingListActivity}.
      *
      * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
      * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
@@ -375,9 +374,11 @@ public class ShoppingListActivity extends AppCompatActivity implements
         // Go to activity selected, based on title.
         String destination = (String) menu.getTitle();
         switch(destination) {
-            /*case "Recipes": {
-
-            }*/
+            case "Recipes": {
+                Intent intent = new Intent(this, RecipeActivity.class);
+                startActivity(intent);
+                break;
+            }
             case "Ingredients": {
                 Intent intent = new Intent(this, StoredIngredientActivity.class);
                 startActivity(intent);
