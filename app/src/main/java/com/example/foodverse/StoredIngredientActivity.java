@@ -7,7 +7,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,8 +37,8 @@ import java.util.HashMap;
  *
  */
 
-public class IngredientActivity extends AppCompatActivity
-        implements IngredientFragment.OnFragmentInteractionListener {
+public class StoredIngredientActivity extends AppCompatActivity
+        implements StoredIngredientFragment.OnFragmentInteractionListener {
 
     // Declare the variables so that you will be able to reference it later.
     private ListView ingredientListView;
@@ -53,17 +52,18 @@ public class IngredientActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ingredient);
+        setContentView(R.layout.activity_stored_ingredient);
 
         ingredientListView = findViewById(R.id.ingredient_list);
 
         ingredientArrayList = new ArrayList<>();
-        ingredientAdapter = new IngredientList(this, ingredientArrayList);
+        ingredientAdapter = new StoredIngredientList(this, ingredientArrayList);
         ingredientListView.setAdapter(ingredientAdapter);
 
         // Get our database
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
+        db.enableNetwork();
 
         collectionReference = db.collection("StoredIngredients");
 
@@ -109,7 +109,7 @@ public class IngredientActivity extends AppCompatActivity
         addIngredientButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new IngredientFragment().show(getSupportFragmentManager(),
+                new StoredIngredientFragment().show(getSupportFragmentManager(),
                         "ADD_INGREDIENT");
             }
         });
@@ -124,10 +124,12 @@ public class IngredientActivity extends AppCompatActivity
                                     int position, long id) {
                 StoredIngredient ingredient = ingredientAdapter.getItem(position);
                 selectedIngredientIndex = position;
-                new IngredientFragment(ingredient).show(
+                new StoredIngredientFragment(ingredient).show(
                         getSupportFragmentManager(), "EDIT_INGREDIENT");
             }
         });
+
+
     }
 
     /**
