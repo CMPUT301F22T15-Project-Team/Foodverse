@@ -90,17 +90,17 @@ public class MealPlanActivity extends AppCompatActivity implements
 
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException error) {
                 // Clear the old list
                 mealArrayList.clear();
                 // Add ingredients from the cloud
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    // TODO: This needs testing
-                    ArrayList<String> ingStrings = (ArrayList<String>)
-                            doc.getData().get("Ingredients");
+                    ArrayList<String> ingStrings =
+                            (ArrayList<String>) doc.getData().get("Ingredients");
+                    Date date = ((Timestamp) doc.getData().get("Date")).toDate();
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
                     for (String ingString : ingStrings) {
@@ -108,7 +108,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                                 DatabaseIngredient.stringToIngredient(ingString);
                         ingredients.add(ing);
                     }
-                    //mealArrayList.add(new Meal(ingredients, date));
+                    mealArrayList.add(new Meal(ingredients, date));
                 }
                 // Update with new cloud data
                 mealAdapter.notifyDataSetChanged();
@@ -166,8 +166,8 @@ public class MealPlanActivity extends AppCompatActivity implements
             ingStrings.add(ingString);
         }
 
-
         data.put("Ingredients", ingStrings);
+        data.put("Date", meal.getDate());
         /*
          * Store all data under the hash code of the meal, so we can
          * store multiple similar meals.
@@ -241,7 +241,8 @@ public class MealPlanActivity extends AppCompatActivity implements
             String ingString = DatabaseIngredient.ingredientToString(ingredient);
             ingStrings.add(ingString);
         }
-        data.put("Ingredients", Arrays.asList(ingStrings));
+        data.put("Ingredients", ingStrings);
+        data.put("Date", meal.getDate());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldMeal.hashCode()))

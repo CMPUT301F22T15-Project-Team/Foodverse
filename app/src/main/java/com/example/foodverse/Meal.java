@@ -3,6 +3,7 @@ package com.example.foodverse;
 import static java.lang.Math.round;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -23,7 +24,7 @@ public class Meal {
     public int hashCode() {
         // TODO: Add recipe hashCode when complete
         int hash = 0;
-        hash += ingredients.hashCode();
+        hash += ingredients.hashCode() + date.hashCode();
         return hash;
     }
 

@@ -60,6 +60,7 @@ public class MealTestFragment extends DialogFragment  {
     private FirebaseFirestore db;
     private CollectionReference ingRef, storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
+    private ArrayAdapter<Ingredient> listViewAdapter;
 
     private MealTestFragment.OnFragmentInteractionListener listener;
 
@@ -101,6 +102,9 @@ public class MealTestFragment extends DialogFragment  {
         ingredientSpinner = view.findViewById(R.id.meal_ingredient_spinner);
         addButton = view.findViewById(R.id.add_meal_ingredient_button);
         ingredientList = view.findViewById(R.id.meal_fragment_list);
+        listViewAdapter = new IngredientAdapter(getActivity(), mealIngredients);
+        ingredientList.setAdapter(listViewAdapter);
+
 
         //ArrayAdapter<String> listedAdapter = new ArrayAdapter<String>(getActivity(), R.layout.content_stored_ingredient, listedIngredients);
         //ingredientList.setAdapter(listedAdapter);
@@ -148,17 +152,23 @@ public class MealTestFragment extends DialogFragment  {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        //setNewExpiryDate(calendar);
+        setNewExpiryDate(calendar);
 
         if (meal != null) {
             // Set the values for the various fields
 
             // Load the time information
-            //calendar.setTime(ingredient.getBestBefore());
+            calendar.setTime(meal.getDate());
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
+
+            mealIngredients = meal.getIngredients();
+            listViewAdapter.notifyDataSetChanged();
+
+
+
 
         }
 
@@ -185,7 +195,8 @@ public class MealTestFragment extends DialogFragment  {
                 int ingIndex;
                 ingIndex = ingredientSpinner.getSelectedItemPosition();
                 mealIngredients.add(arraySpinner.get(ingIndex));
-                ingAdapter.notifyDataSetChanged();
+                //ingAdapter.notifyDataSetChanged();
+                listViewAdapter.notifyDataSetChanged();
             }
         });
 
@@ -194,19 +205,26 @@ public class MealTestFragment extends DialogFragment  {
                 .setView(view)
                 .setTitle("Add/Edit Meal")
                 .setNeutralButton("Cancel", null)
-                .setNegativeButton("Delete", null)
+                .setNegativeButton("Delete", (dialog, which) -> {
+                    listener.mealDeleted();
+                })
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //listener.onOkPressed(new City(city, province));
                         Meal newMeal = new Meal();
-                        LocalDate date = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                        //LocalDate date = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
                         newMeal.setDate(date2);
                         // Add Recipe Stuff
                         // Add array of ingredients to meal
                         newMeal.setIngredients(mealIngredients);
-                        listener.mealAdded(newMeal);
+                        if (meal == null) {
+                            listener.mealAdded(newMeal);
+                        } else {
+                            listener.mealEdited(newMeal);
+                        }
+                        //listener.mealAdded(newMeal);
 
                     }
                 }).create();
