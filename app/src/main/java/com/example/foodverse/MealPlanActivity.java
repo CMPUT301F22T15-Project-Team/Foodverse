@@ -46,7 +46,7 @@ import java.util.HashSet;
 
 
 public class MealPlanActivity extends AppCompatActivity implements
-        MealPlanFragment.OnFragmentInteractionListener,
+        MealTestFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     private ListView mealListView;
@@ -174,7 +174,7 @@ public class MealPlanActivity extends AppCompatActivity implements
         addMealButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MealPlanFragment().show(getSupportFragmentManager(), "TEST");
+                new MealTestFragment().show(getSupportFragmentManager(), "TEST");
             }
         });
 
@@ -188,7 +188,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                         // to the fragment.
                         Meal meal = mealAdapter.getItem(position);
                         selectedMealIndex = position;
-                        new MealPlanFragment(meal).show(
+                        new MealTestFragment(meal).show(
                                 getSupportFragmentManager(), "EDIT_MEAL");
                     }
                 });
