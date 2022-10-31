@@ -132,13 +132,11 @@ public class RecipeFragment extends DialogFragment {
                         //update the values of each attribute by getting and setting the values of the food item
                         // have the context be updated when the Ok button is pressed
                         if (edit_text == Boolean.TRUE){
-                            chosenRecipe.setTitle(recipe_title);
-                            chosenRecipe.setComments(recipe_comments);
-                            chosenRecipe.setPrepTime(prepare_time);
-                            chosenRecipe.setServings(serving_size);
-                            chosenRecipe.setCategory(recipeCategory);
+                            Recipe edited = new Recipe(recipe_title,
+                                    prepare_time, serving_size,
+                                    recipeCategory, recipe_comments);
 
-                            listener.onOkEditPressed(chosenRecipe);
+                            listener.onOkEditPressed(edited);
 
                         }
                         //context updated by creating a new food item entry

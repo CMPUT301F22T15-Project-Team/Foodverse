@@ -117,34 +117,30 @@ public class RecipeActivity  extends AppCompatActivity implements
                 }
                 clickedElement = view;
                 clickedElement.setBackgroundColor(Color.GRAY);
-                RecAdapter.notifyDataSetChanged();
-                btn_del.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (clickedElement != null) {
-                            selectedRecipeIndex = i;
-                            onDeletePressed();
-                            clickedElement.setBackgroundColor(Color.WHITE);
-                            clickedElement = null;
-                        }
-                    }
-                });
-                edit_btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (clickedElement != null) {
-                            selectedRecipeIndex = i;
-                            RecipeFragment.newInstance(RecipeDataList.get(i))
-                                    .show(getSupportFragmentManager(), "Edit_Recipe");
-                            clickedElement.setBackgroundColor(Color.WHITE);
-                            clickedElement = null;
-                        }
-                    }
-                });
-
+                selectedRecipeIndex = i;
             }
         });
-
+        btn_del.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (clickedElement != null) {
+                    onDeletePressed();
+                    clickedElement.setBackgroundColor(Color.WHITE);
+                    clickedElement = null;
+                }
+            }
+        });
+        edit_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (clickedElement != null) {
+                    RecipeFragment.newInstance(RecipeDataList.get(selectedRecipeIndex))
+                            .show(getSupportFragmentManager(), "Edit_Recipe");
+                    clickedElement.setBackgroundColor(Color.WHITE);
+                    clickedElement = null;
+                }
+            }
+        });
     }
 
 
@@ -196,11 +192,11 @@ public class RecipeActivity  extends AppCompatActivity implements
      * referenced by an equal {@link Recipe#hashCode()} and add a new one for
      * the edited object, so the hash is updated.
      *
-     * @param oldRecipe The edited {@link Recipe} object to be removed.
+     * @param newRecipe The edited {@link Recipe} object to be removed.
      */
-    public void onOkEditPressed(Recipe oldRecipe) {
+    public void onOkEditPressed(Recipe newRecipe) {
         HashMap<String, Object> data = new HashMap<>();
-        Recipe newRecipe = RecipeDataList.get(selectedRecipeIndex);
+        Recipe oldRecipe = RecipeDataList.get(selectedRecipeIndex);
 
         // Grab data from the updated recipe
         data.put("Title", newRecipe.getTitle());
@@ -242,6 +238,8 @@ public class RecipeActivity  extends AppCompatActivity implements
     public void onDeletePressed() {
         if (selectedRecipeIndex != -1) {
             Recipe oldRecipe = RecipeDataList.get(selectedRecipeIndex);
+            Log.d(TAG+"DelH", String.valueOf(oldRecipe.hashCode()));
+            Log.d(TAG+"Del", String.valueOf(selectedRecipeIndex));
             // Remove ingredient from database
             collectionReference
                     .document(String.valueOf(oldRecipe.hashCode()))
@@ -250,7 +248,7 @@ public class RecipeActivity  extends AppCompatActivity implements
                         @Override
                         public void onSuccess(Void aVoid) {
                             // Log success
-                            Log.d(TAG, "Data has been deleted!");
+                            Log.d(TAG+"Del", "Data has been deleted!");
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
