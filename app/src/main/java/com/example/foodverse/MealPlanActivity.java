@@ -29,6 +29,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * MealPlanActivity
+ * This activity allows the user to build a meal plan by
+ * adding, editing, or deleting meals.
+ */
+
 public class MealPlanActivity extends AppCompatActivity implements MealTestFragment.OnFragmentInteractionListener {
 
     private ListView mealListView;
@@ -101,6 +107,9 @@ public class MealPlanActivity extends AppCompatActivity implements MealTestFragm
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view,
                                             int position, long id) {
+                        // When a meal is selected from the list,
+                        // its index is taken and the meal is passed
+                        // to the fragment.
                         Meal meal = mealAdapter.getItem(position);
                         selectedMealIndex = position;
                         new MealTestFragment(meal).show(

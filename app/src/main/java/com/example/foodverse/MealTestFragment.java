@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -39,7 +40,14 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MealTestFragment extends DialogFragment  {
+/**
+ * MealTestFragment
+ * Used to create a fragment for adding, editing or deleting meals.
+ * Originally this was created as a test, but it has since supplanted
+ * the original MealPlanFragment class.
+ */
+
+public class MealTestFragment extends DialogFragment implements AdapterView.OnItemSelectedListener {
     private Meal meal;
     private EditText date;
     // Recipe-related elements still need to be implemented
@@ -105,6 +113,8 @@ public class MealTestFragment extends DialogFragment  {
         listViewAdapter = new IngredientAdapter(getActivity(), mealIngredients);
         ingredientList.setAdapter(listViewAdapter);
 
+        ingredientSpinner.setOnItemSelectedListener(this);
+
 
         //ArrayAdapter<String> listedAdapter = new ArrayAdapter<String>(getActivity(), R.layout.content_stored_ingredient, listedIngredients);
         //ingredientList.setAdapter(listedAdapter);
@@ -127,7 +137,9 @@ public class MealTestFragment extends DialogFragment  {
 
         //ArrayList<Ingredient> arraySpinner = new ArrayList<>();
         ArrayList<Ingredient> arraySpinner = new ArrayList<>();
-        ingAdapter = new IngredientSpinnerAdapter(getActivity(), ingredientStringList);
+        //ingAdapter = new IngredientSpinnerAdapter(getActivity(), ingredientStringList);
+
+        ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
 
         Ingredient test1 = new Ingredient("Test1", 1);
         Ingredient test2 = new Ingredient("Test6", 2);
@@ -164,7 +176,11 @@ public class MealTestFragment extends DialogFragment  {
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
 
-            mealIngredients = meal.getIngredients();
+            //mealIngredients = meal.getIngredients();
+
+            for (int i = 0; i < meal.getIngredients().size(); i++) {
+                mealIngredients.add(meal.getIngredients().get(i));
+            }
             listViewAdapter.notifyDataSetChanged();
 
 
@@ -254,5 +270,14 @@ public class MealTestFragment extends DialogFragment  {
         date2 = calendar.getTime();
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        //this.locationInt = pos;
+        //ingredientSpinner.setSelection(pos);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
 
 }

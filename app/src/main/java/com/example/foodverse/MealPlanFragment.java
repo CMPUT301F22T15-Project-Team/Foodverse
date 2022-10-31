@@ -39,6 +39,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * MealPlanFragment
+ * Currently not a functional class.
+ * This
+ */
+
 public class MealPlanFragment extends DialogFragment  {
     private Meal meal;
     private EditText date;
