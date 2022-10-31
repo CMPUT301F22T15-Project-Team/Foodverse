@@ -59,11 +59,9 @@ public class MealTestFragment extends DialogFragment implements AdapterView.OnIt
     private Date date2;
     private Spinner recipeSpinner; // Spinner for recipes
     private Spinner ingredientSpinner; // Spinner for ingredients
-    private ArrayList<Ingredient> mealIngredients = new ArrayList<>(); //
+    private ArrayList<Ingredient> mealIngredients = new ArrayList<>();
     private ArrayList<String> ingredientStringList = new ArrayList<>();
-    private ArrayList<Ingredient> addedIngredients = new ArrayList<>();
-    private ArrayList<String> listedIngredients = new ArrayList<>();
-    //private ArrayAdapter<Ingredient> ingAdapter;
+    private ArrayList<Ingredient> arraySpinner = new ArrayList<>();
     private ArrayAdapter<String> ingAdapter;
     private FirebaseFirestore db;
     private CollectionReference ingRef, storedRef;
@@ -135,24 +133,47 @@ public class MealTestFragment extends DialogFragment implements AdapterView.OnIt
         ingRef = db.collection("Ingredients");
         storedRef = db.collection("StoredIngredients");
 
-        //ArrayList<Ingredient> arraySpinner = new ArrayList<>();
-        ArrayList<Ingredient> arraySpinner = new ArrayList<>();
-        //ingAdapter = new IngredientSpinnerAdapter(getActivity(), ingredientStringList);
+        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                // Add ingredients from the cloud
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
+                    Long count = (Long) doc.getData().get("Count");
+                    Ingredient ing = new Ingredient(description, count.intValue());
+                    if (!set.contains(ing)) {
+                        ingredientStringList.add(description);
+                        arraySpinner.add(ing);
+                        set.add(ing);
+                    }
+                }
+            }
+        });
+
+        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                // Add ingredients from the cloud
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
+                    Long count = (Long) doc.getData().get("Count");
+                    Ingredient ing = new Ingredient(description, count.intValue());
+                    if (!set.contains(ing)) {
+                        ingredientStringList.add(description);
+                        arraySpinner.add(ing);
+                        set.add(ing);
+                    }
+                }
+            }
+        });
 
         ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
-
-        Ingredient test1 = new Ingredient("Test1", 1);
-        Ingredient test2 = new Ingredient("Test6", 2);
-        Ingredient test3 = new Ingredient("Test3", 3);
-
-
-        arraySpinner.add(test1);
-        arraySpinner.add(test2);
-        arraySpinner.add(test3);
-
-        for (int i = 0; i < arraySpinner.size(); i++) {
-            ingredientStringList.add(arraySpinner.get(i).getDescription());
-        }
 
         ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
 
@@ -182,10 +203,6 @@ public class MealTestFragment extends DialogFragment implements AdapterView.OnIt
                 mealIngredients.add(meal.getIngredients().get(i));
             }
             listViewAdapter.notifyDataSetChanged();
-
-
-
-
         }
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(
