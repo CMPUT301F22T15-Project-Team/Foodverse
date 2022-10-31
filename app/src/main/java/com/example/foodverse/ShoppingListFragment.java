@@ -25,30 +25,34 @@ import java.util.Date;
 
 /**
  * ShoppingListFragment
- * Used to create an interface for adding/editing/deleting a ingredient item.
+ * Used to create an interface for adding/editing/deleting a ShoppingListIngredient item.
  *
  * Version 1.0
  *
  * 2022-09-24
  */
-
 public class ShoppingListFragment extends DialogFragment {
-    private Ingredient ingredient;
+    // Declare the variables so that you will be able to reference it later.
+    private ShoppingListIngredient ingredient;
     private EditText ingredientDescription;
     private EditText ingredientCount;
     private EditText ingredientUnit;
-    private EditText ingredientCost;
-    private Spinner ingredientLocation;
-    private Button ingredientExpiry;
+    private EditText ingredientCategory;
     private OnFragmentInteractionListener listener;
-    private Date expiryDate;
 
+    /**
+     * Constructor used when a new ingredient is being added to the list.
+     */
     public ShoppingListFragment() {
         super();
         this.ingredient = null;
     }
 
-    public ShoppingListFragment(Ingredient ingredient) {
+    /**
+     * Constructor used when an existing ingredient is being edited.
+     * @param ingredient The ingredient being edited.
+     */
+    public ShoppingListFragment(ShoppingListIngredient ingredient) {
         super();
         this.ingredient = ingredient;
     }
@@ -57,12 +61,16 @@ public class ShoppingListFragment extends DialogFragment {
      * Interface for interacting with ingredient entries in the list.
      */
     public interface OnFragmentInteractionListener {
-        void ingredientAdded(Ingredient ingredient);
-        void ingredientEdited(Ingredient ingredient);
+        void ingredientAdded(ShoppingListIngredient ingredient);
+        void ingredientEdited(ShoppingListIngredient ingredient);
         void ingredientDeleted();
         void addToStorage(StoredIngredient ingredient);
     }
 
+    /**
+     * Called when fragment is attached to the context.
+     * @param context The context being attached to.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -74,6 +82,11 @@ public class ShoppingListFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Initializes the components when the fragment is created.
+     * @param savedInstanceState
+     * @return
+     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     @Override
@@ -86,32 +99,15 @@ public class ShoppingListFragment extends DialogFragment {
         ingredientDescription = view.findViewById(R.id.description_edit_text);
         ingredientCount = view.findViewById(R.id.count_edit_text);
         ingredientUnit = view.findViewById(R.id.unit_edit_text);
-        ingredientCost = view.findViewById(R.id.cost_edit_text);
-        ingredientLocation = view.findViewById(R.id.location_spinner);
-        ingredientExpiry = view.findViewById(R.id.expiry_button);
-
-        /* Code for creating a spinner-style date picker inspired off of "Pop Up
-        Date Picker Android Studio Tutorial" by Code With Cal on December 19th,
-        2020 (https://www.youtube.com/watch?v=qCoidM98zNk). Retrieved September
-        24th, 2022 */
-        DatePickerDialog.OnDateSetListener dateSetListener;
-        dateSetListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker datePicker, int year, int month,
-                                  int day) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(year, month, day);
-                setNewExpiryDate(calendar);
-            }
-        };
+        ingredientCategory = view.findViewById(R.id.category_edit_text);
 
 
         // Load data from an existing Ingredient object
         if (ingredient != null) {
             ingredientDescription.setText(ingredient.getDescription());
             ingredientCount.setText(Integer.toString(ingredient.getCount()));
-            //ingredientUnit.setText(ingredient.getUnit());
-            //ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
+            ingredientUnit.setText(ingredient.getUnit());
+            ingredientCategory.setText(ingredient.getCategory());
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -125,27 +121,21 @@ public class ShoppingListFragment extends DialogFragment {
                 .setPositiveButton("Confirm",
                         (dialog, which) -> {
                             // Create a Ingredient object with the new values
-                            StoredIngredient newIngredient = new StoredIngredient();
+                            ShoppingListIngredient newIngredient = new ShoppingListIngredient();
                             String descriptionStr = ingredientDescription
                                     .getText().toString();
                             String countStr = ingredientCount
                                     .getText().toString();
                             String unitStr = ingredientUnit
                                     .getText().toString();
-                            String costStr = ingredientCost
+                            String categoryStr = ingredientCategory
                                     .getText().toString();
-                            String locationStr = ingredientLocation
-                                    .getSelectedItem().toString();
 
                             // Load the data into the Ingredient object
                             newIngredient.setDescription(descriptionStr);
                             newIngredient.setCount(Integer.parseInt(countStr));
                             newIngredient.setUnit(unitStr);
-                            float roundedCost = Float.parseFloat(costStr);
-                            newIngredient.setUnitCost(
-                                    (int) Math.ceil(roundedCost));
-                            newIngredient.setLocation(locationStr);
-                            newIngredient.setBestBefore(expiryDate);
+                            newIngredient.setCategory(categoryStr);
 
                             /* Determine if a ingredient was added or edited
                             based on if there was a previous value. */
@@ -157,34 +147,4 @@ public class ShoppingListFragment extends DialogFragment {
                         }).create();
     }
 
-    /**
-     * This function changes the text displayed on the "expiry_button" to
-     * match the time represented by calendar and updates the expiryDate global
-     * variable to match.
-     *
-     * @param calendar A calendar object representing the new expiry time.
-     */
-    private void setNewExpiryDate(Calendar calendar) {
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        // The month is an index, so we need to add one to make it accurate
-        month++;
-
-        // Format the month and day strings
-        String monthStr = Integer.toString(month);
-        String dayStr = Integer.toString(day);
-        if (month < 10) {
-            monthStr = "0" + monthStr;
-        }
-        if (day < 10) {
-            dayStr = "0" + dayStr;
-        }
-
-        // Update the spots that track/display the best before date
-        String date = Integer.toString(year) + "-" + monthStr + "-" + dayStr;
-        ingredientExpiry.setText(date);
-        expiryDate = calendar.getTime();
-    }
 }
