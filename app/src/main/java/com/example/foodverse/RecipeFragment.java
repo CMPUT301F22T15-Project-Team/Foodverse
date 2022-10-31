@@ -86,7 +86,7 @@ public class RecipeFragment extends DialogFragment {
             }
 
             rec_servings.setText(RecipeObject.getServings().toString());
-            rec_preptime.setText(RecipeObject.getPrep_time().toString());
+            rec_preptime.setText(RecipeObject.getPrepTime().toString());
             chosenRecipe = RecipeObject; //update on the object
         }
 
@@ -134,7 +134,7 @@ public class RecipeFragment extends DialogFragment {
                         if (edit_text == Boolean.TRUE){
                             chosenRecipe.setTitle(recipe_title);
                             chosenRecipe.setComments(recipe_comments);
-                            chosenRecipe.setPrep_time(prepare_time);
+                            chosenRecipe.setPrepTime(prepare_time);
                             chosenRecipe.setServings(serving_size);
                             chosenRecipe.setCategory(recipeCategory);
 
@@ -143,7 +143,9 @@ public class RecipeFragment extends DialogFragment {
                         }
                         //context updated by creating a new food item entry
                         else{
-                            listener.onOkPressed(new Recipe(recipe_title,prepare_time,serving_size,recipeCategory,recipe_comments));
+                            listener.onOkPressed(new Recipe(recipe_title,
+                                    prepare_time,serving_size,recipeCategory,
+                                    recipe_comments));
                         }
 
 

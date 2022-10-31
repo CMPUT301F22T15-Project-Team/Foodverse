@@ -10,10 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.List;
 
 public class RecipeList extends ArrayAdapter<Recipe> {
     private ArrayList<Recipe> recipes;
@@ -48,7 +45,7 @@ public class RecipeList extends ArrayAdapter<Recipe> {
         recipeCategory.setText(recipe_obj.getCategory());
         recipeServings.setText(recipe_obj.getServings().toString());
         recipeComments.setText(recipe_obj.getComments());
-        recipePrep.setText(recipe_obj.getPrep_time().toString());
+        recipePrep.setText(recipe_obj.getPrepTime().toString());
 
 
         return view;

@@ -24,6 +24,13 @@ public class Recipe implements Serializable {
         //this.ingredientArrayList = ingredientArrayList;
     }
 
+    public int hashCode() {
+        int hash = 0;
+        hash += title.hashCode() + category.hashCode() + comments.hashCode()
+                + prep_time + servings; // + ingredientArrayList.hashCode();
+        return hash;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -32,11 +39,11 @@ public class Recipe implements Serializable {
         this.title = title;
     }
 
-    public Integer getPrep_time() {
+    public Integer getPrepTime() {
         return prep_time;
     }
 
-    public void setPrep_time(int prep_time) {
+    public void setPrepTime(int prep_time) {
         this.prep_time = prep_time;
     }
 
