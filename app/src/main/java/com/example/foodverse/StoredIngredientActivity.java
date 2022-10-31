@@ -208,8 +208,6 @@ public class StoredIngredientActivity extends AppCompatActivity
         if (selectedIngredientIndex != -1) {
             StoredIngredient oldIngredient = ingredientArrayList.get(
                     selectedIngredientIndex);
-            Log.d(TAG+"Ind", String.valueOf(selectedIngredientIndex));
-            Log.d(TAG+"Des", oldIngredient.getDescription());
             // Remove ingredient from database
             collectionReference
                 .document(String.valueOf(oldIngredient.hashCode()))
