@@ -35,7 +35,6 @@ public class IngredientAdapter extends ArrayAdapter<Ingredient> {
         TextView ingredientDescription = view.findViewById(
                 R.id.description_text);
         TextView ingredientCount = view.findViewById(R.id.count_text);
-        TextView ingredientCost = view.findViewById(R.id.cost_text);
 
         ingredientDescription.setText(ingredient.getDescription());
         ingredientCount.setText("x" + Integer.toString(ingredient.getCount()));
