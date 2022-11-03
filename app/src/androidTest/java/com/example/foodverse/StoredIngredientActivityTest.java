@@ -2,10 +2,13 @@ package com.example.foodverse;
 
 import android.app.Activity;
 
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+
+import android.view.Gravity;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.robotium.solo.Solo;
@@ -65,16 +68,20 @@ public class StoredIngredientActivityTest {
          */
         DrawerLayout drawer =
                 solo.getCurrentActivity().findViewById(R.id.stored_ingredient_drawer);
-        /*assertFalse(drawer.isDrawerOpen(
-                solo.getView(R.id.stored_ingredient_drawer)));
+        /*
+         * Check if drawer is open:
+         * https://stackoverflow.com/questions/21633791/how-to-detect-if-navigation-drawer-is-open
+         * Answer by Neoh (2014). Accessed 2022-11-03.
+         */
+        assertFalse(drawer.isDrawerOpen(GravityCompat.START));
         solo.clickOnImageButton(0);
+        solo.sleep(1000);
         // Ensure menu options are visible, to assert drawer is open.
-        assertTrue(drawer.isDrawerOpen(
-                solo.getView(R.id.stored_ingredient_drawer)));
+        assertTrue(drawer.isDrawerOpen(GravityCompat.START));
         solo.clickOnImageButton(0);
+        solo.sleep(1000);
         // Assert options are gone to check drawer is closed.
-        assertFalse(drawer.isDrawerOpen(
-                solo.getView(R.id.stored_ingredient_drawer)));*/
+        assertFalse(drawer.isDrawerOpen(GravityCompat.START));
     }
 
     /**
