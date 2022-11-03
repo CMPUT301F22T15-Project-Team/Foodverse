@@ -17,6 +17,7 @@ public class Ingredient {
     protected int count;
     protected String unit;
 
+
     public Ingredient() {
         description = "";
         count = 0;

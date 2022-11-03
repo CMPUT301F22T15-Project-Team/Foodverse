@@ -26,7 +26,8 @@ public class DatabaseIngredient {
     @NonNull
     public static String ingredientToString(@NonNull Ingredient ingredient) {
         String ingString = ingredient.getDescription();
-        ingString += "|" + String.valueOf(ingredient.getCount());
+        ingString += "|" + String.valueOf(ingredient.getCount()) + "|" +
+        ingredient.getUnit();
         return ingString;
     }
 
@@ -48,6 +49,11 @@ public class DatabaseIngredient {
          */
         String description = ingString.split("\\|")[0];
         int count = Integer.parseInt(ingString.split("\\|")[1]);
-        return new Ingredient(description, count);
+        try {
+            String unit = ingString.split("\\|")[2];
+            return new Ingredient(description, count, unit);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return new Ingredient(description, count);
+        }
     }
 }
