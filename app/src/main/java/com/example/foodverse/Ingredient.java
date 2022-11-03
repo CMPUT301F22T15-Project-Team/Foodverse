@@ -15,20 +15,29 @@ package com.example.foodverse;
 public class Ingredient {
     protected String description;
     protected int count;
+    protected String unit;
 
     public Ingredient() {
         description = "";
         count = 0;
+        this.unit = "";
     }
 
     public Ingredient(String description, int count) {
         this.description = description;
         this.count = count;
+        this.unit = "";
+    }
+
+    public Ingredient(String description, int count, String unit) {
+        this.description = description;
+        this.count = count;
+        this.unit = unit;
     }
 
     public int hashCode() {
         int hash = 0;
-        hash += count + description.hashCode();
+        hash += count + description.hashCode() + unit.hashCode();
         return hash;
     }
 
@@ -47,6 +56,10 @@ public class Ingredient {
         return count;
     }
 
+    public String getUnit() {
+        return unit;
+    }
+
     public void setCount(int count) {
         if (count >= 0) {
             this.count = count;
@@ -61,5 +74,9 @@ public class Ingredient {
         } else {
             this.description = description;
         }
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }

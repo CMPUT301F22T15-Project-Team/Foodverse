@@ -137,7 +137,8 @@ public class MealPlanActivity extends AppCompatActivity implements
                     String description = (String) doc.getData().get("Description");
                     Log.d("MEALFRAG", description);
                     Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
+                    String unit = (String) doc.getData().get("Unit");
+                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
                     if (!set.contains(ing)) {
                         databaseIngredients.add(ing);
                         set.add(ing);
@@ -157,7 +158,8 @@ public class MealPlanActivity extends AppCompatActivity implements
                     String description = (String) doc.getData().get("Description");
                     Log.d("MEALFRAG", description);
                     Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
+                    String unit = (String) doc.getData().get("Unit");
+                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
                     if (!set.contains(ing)) {
                         databaseIngredients.add(ing);
                         set.add(ing);

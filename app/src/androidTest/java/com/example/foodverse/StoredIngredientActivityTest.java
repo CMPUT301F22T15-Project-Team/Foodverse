@@ -165,6 +165,39 @@ public class StoredIngredientActivityTest {
     }
 
     /**
+     * Test adding a new ingredient. Check to ensure it is still there after
+     * an activity restart.
+     */
+    @Test
+    public void testAddIngredient() {
+        solo.clickOnButton("Add Ingredient");
+        solo.sleep(1000);
+        solo.enterText((EditText) solo.getView(R.id.description_edit_text),
+                "IntentTest Ingredient");
+        solo.enterText((EditText) solo.getView(R.id.count_text_view),
+                "IntentTest Ingredient");
+    }
+
+    /**
+     * Test editing an ingredient. Check to ensure edit persists after
+     * an activity restart.
+     */
+    @Test
+    public void testEditIngredient() {
+
+    }
+
+    /**
+     * Test deleting an ingredient. Check to ensure ingredient does not
+     * reappear after an activity restart.
+     */
+    @Test
+    public void testDeleteIngredient() {
+
+    }
+
+
+    /**
      * Check item taken from the listview
      */
     /*@Test
