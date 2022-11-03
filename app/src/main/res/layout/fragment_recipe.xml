@@ -39,6 +39,7 @@
         android:layout_weight="0.5"
         android:hint="Recipe Title"
         android:inputType="textPersonName"
+        android:text="aaron"
         />
 
 
@@ -64,7 +65,8 @@
             android:layout_gravity="right"
             android:maxLength="30"
             android:inputType="textPersonName"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:text="aaron"/>
     </LinearLayout>
 
     <LinearLayout
@@ -125,7 +127,8 @@
             android:layout_weight="2"
             android:ems="10"
             android:hint="Category"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:text="aaron"/>
     </LinearLayout>
 
     <LinearLayout
@@ -149,7 +152,8 @@
             android:layout_weight="1"
             android:ems="10"
             android:hint="Serving Size"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:text="aaron"/>
     </LinearLayout>
 
     <LinearLayout
@@ -174,7 +178,8 @@
             android:ems="10"
             android:hint="Prep Time in Minutes"
             android:layout_weight="1"
-            android:inputType="number" />
+            android:inputType="number"
+            android:text="aaron"/>
     </LinearLayout>
 
     <LinearLayout

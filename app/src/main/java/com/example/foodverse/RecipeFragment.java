@@ -85,8 +85,8 @@ public class RecipeFragment extends DialogFragment {
                 recCategory.check(R.id.mexican_op);
             }
 
-            rec_servings.setText(RecipeObject.getServings().toString());
-            rec_preptime.setText(RecipeObject.getPrepTime().toString());
+            rec_servings.setText(Integer.toString(RecipeObject.getServings()));//switched w int refactor
+            rec_preptime.setText(Integer.toString(RecipeObject.getPrepTime()));//switched w int refactor
             chosenRecipe = RecipeObject; //update on the object
         }
 

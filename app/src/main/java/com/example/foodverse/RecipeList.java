@@ -43,9 +43,9 @@ public class RecipeList extends ArrayAdapter<Recipe> {
         //set the value of the attribute based on the information that was stored in the field when creating the food item entry
         recipeTitle.setText(recipe_obj.getTitle());
         recipeCategory.setText(recipe_obj.getCategory());
-        recipeServings.setText(recipe_obj.getServings().toString());
+        recipeServings.setText(Integer.toString(recipe_obj.getServings()));
         recipeComments.setText(recipe_obj.getComments());
-        recipePrep.setText(recipe_obj.getPrepTime().toString());
+        recipePrep.setText(Integer.toString(recipe_obj.getPrepTime()));
 
 
         return view;

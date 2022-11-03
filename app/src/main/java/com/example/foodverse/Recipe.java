@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 public class Recipe implements Serializable {
    private String title;
-   private Integer prep_time; //in mins
-   private Integer servings;
+   private int prep_time; //in mins
+   private int servings;
    private String category;
    private String comments;
    //private ArrayList<Ingredient> ingredientArrayList;
@@ -39,7 +39,7 @@ public class Recipe implements Serializable {
         this.title = title;
     }
 
-    public Integer getPrepTime() {
+    public int getPrepTime() {
         return prep_time;
     }
 
@@ -47,7 +47,7 @@ public class Recipe implements Serializable {
         this.prep_time = prep_time;
     }
 
-    public Integer getServings() {
+    public int getServings() {
         return servings;
     }
 
