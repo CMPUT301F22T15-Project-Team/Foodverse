@@ -33,11 +33,11 @@ import java.util.Date;
 import java.util.HashMap;
 
 /**
- * IngredientActivity
+ * StoredIngredientActivity
  * This class is used to run the app and is responsible for managing all of the
  * other components within it.
  *
- * @Version 1.0
+ * @version 1.0
  *
  * 2022-09-24
  *
@@ -113,11 +113,12 @@ public class StoredIngredientActivity extends AppCompatActivity
                     Date bestBefore = ((Timestamp)doc.getData().get("Best Before"))
                             .toDate();
                     String location = (String) doc.getData().get("Location");
+                    String unit = (String) doc.getData().get("Unit");
                     Long count = (Long) doc.getData().get("Count");
                     Long unitCost = (Long) doc.getData().get("Cost");
                     ingredientArrayList.add(
                             new StoredIngredient(description, count.intValue(),
-                                    bestBefore, location, unitCost.intValue()));
+                                    bestBefore, location, unit, unitCost.intValue()));
                 }
                 // Update with new cloud data
                 ingredientAdapter.notifyDataSetChanged();
@@ -175,6 +176,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Location", ingredient.getLocation());
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
+        data.put("Unit", ingredient.getUnit());
         /*
          * Store all data under the hash code of the ingredient, so we can
          * store multiple similar ingredients.
@@ -252,6 +254,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Location", ingredient.getLocation());
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
+        data.put("Unit", ingredient.getUnit());
 
         // Delete old ingredient and set new since hashCode() will return different result
         ingredientDeleted();

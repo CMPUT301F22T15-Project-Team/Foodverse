@@ -28,17 +28,18 @@ public class IngredientAdapter extends ArrayAdapter<Ingredient> {
                         @NonNull ViewGroup parent) {
         View view = convertView;
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.content_stored_ingredient,
+            view = LayoutInflater.from(context).inflate(R.layout.content_ingredient,
                     parent,false);
         }
         Ingredient ingredient = ingredients.get(position);
         TextView ingredientDescription = view.findViewById(
                 R.id.description_text);
         TextView ingredientCount = view.findViewById(R.id.count_text);
-        TextView ingredientCost = view.findViewById(R.id.cost_text);
+        TextView ingredientUnit = view.findViewById(R.id.unit_text);
 
         ingredientDescription.setText(ingredient.getDescription());
         ingredientCount.setText("x" + Integer.toString(ingredient.getCount()));
+        ingredientUnit.setText(ingredient.getUnit());
         return view;
     }
 }

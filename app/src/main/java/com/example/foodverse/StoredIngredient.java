@@ -11,21 +11,17 @@ import java.util.Date;
  * attributes, they have been made private to enforce these requirements through
  * the setters.
  *
- * @Version 1.1
- *
- * 2022-09-24
+ * @version 1.1
  */
 public class StoredIngredient extends Ingredient {
     private Date bestBefore;
     private String location;
-    private String unit = "Box";
     private int unitCost;
 
     public StoredIngredient() {
         super();
         bestBefore = new Date();
         location = "Pantry";
-        unit = "N/A";
         unitCost = 0;
     }
 
@@ -39,18 +35,17 @@ public class StoredIngredient extends Ingredient {
 
     public StoredIngredient(String description, int count, Date bestBefore,
                             String location, String unit, int unitCost) {
-        super(description, count);
+        super(description, count, unit);
         this.bestBefore = bestBefore;
         this.location = location;
-        this.unit = unit;
         this.unitCost = unitCost;
     }
 
     public int hashCode() {
         int hash = 0;
         hash += unitCost + super.hashCode()
-                + location.hashCode() + bestBefore.getYear() + bestBefore.getMonth()
-                + bestBefore.getDate(); //+ unit.hashCode();
+                + location.hashCode() + bestBefore.getYear()
+                + bestBefore.getMonth() + bestBefore.getDate();
         return hash;
     }
 
@@ -60,10 +55,6 @@ public class StoredIngredient extends Ingredient {
 
     public String getLocation() {
         return location;
-    }
-
-    public String getUnit() {
-        return unit;
     }
 
     public int getUnitCost() {
@@ -76,10 +67,6 @@ public class StoredIngredient extends Ingredient {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
     }
 
     public void setUnitCost(int unitCost) {

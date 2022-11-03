@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * IngredientList
@@ -42,15 +43,27 @@ public class StoredIngredientList extends ArrayAdapter<StoredIngredient> {
                     parent,false);
         }
         StoredIngredient ingredient = ingredients.get(position);
-        TextView ingredientDescription = view.findViewById(
-                R.id.description_text);
-        TextView ingredientCount = view.findViewById(R.id.count_text);
-        TextView ingredientCost = view.findViewById(R.id.cost_text);
+        TextView description = view.findViewById(R.id.description_text);
+        TextView count = view.findViewById(R.id.count_text);
+        TextView cost = view.findViewById(R.id.cost_text);
+        TextView unit = view.findViewById(R.id.unit_text);
+        TextView location = view.findViewById(R.id.location_text);
+        TextView bestBefore = view.findViewById(R.id.best_before_text);
 
-        ingredientDescription.setText(ingredient.getDescription());
-        ingredientCount.setText("x" + Integer.toString(ingredient.getCount()));
-        ingredientCost.setText(
-                "$" + Integer.toString(ingredient.getUnitCost()));
+        description.setText(ingredient.getDescription());
+        count.setText(Integer.toString(ingredient.getCount()));
+        unit.setText(ingredient.getUnit() + " stored in:");
+        location.setText(ingredient.getLocation());
+        cost.setText("$" + Integer.toString(ingredient.getUnitCost()));
+        Date date = ingredient.getBestBefore();
+
+        /*
+         * Date class measures year-1900, month-1, so fix here for display
+         * https://docs.oracle.com/javase/8/docs/api/java/util/Date.html
+         */
+        String displayText = "Best Before: " + (date.getYear()+1900)
+                + "-" + (date.getMonth()+1) + "-" + date.getDate();
+        bestBefore.setText(displayText);
         return view;
     }
 }
