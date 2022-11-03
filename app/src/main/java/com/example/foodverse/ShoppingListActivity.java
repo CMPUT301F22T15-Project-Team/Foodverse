@@ -1,6 +1,5 @@
 package com.example.foodverse;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,13 +33,21 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
+/**
+ * ShoppingListActivity
+ * This class displays the shopping list which is constructed based on the users
+ * meal plan and ingredient storage.
+ *
+ * @version 1.0
+ *
+ */
 public class ShoppingListActivity extends AppCompatActivity implements
         ShoppingListFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
     // Declare the variables so that you will be able to reference it later.
     ListView shoppingListView;
-    ArrayAdapter<Ingredient> shoppingListAdapter;
-    ArrayList<Ingredient> shoppingArrayList;
+    ArrayAdapter<ShoppingListIngredient> shoppingListAdapter;
+    ArrayList<ShoppingListIngredient> shoppingArrayList;
     int selectedIngredientIndex = -1;
     FirebaseFirestore db;
     final String TAG = "ShoppingListActivity";
@@ -52,22 +59,25 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private DrawerLayout drawerLayout;
     private NavigationView navView;
 
+
+    /**
+     * The startup function that is called when the activity is launched.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shopping_list);
 
+        // Retrieving the respective layouts.
+        setContentView(R.layout.activity_shopping_list);
         shoppingListView = findViewById(R.id.shopping_list_view);
         addButton = findViewById(R.id.add_ingredient_to_storage_button);
         sortSpinner = findViewById(R.id.sort_Spinner);
 
+        // Creating the array list and attaching it to the adapter.
         shoppingArrayList = new ArrayList<>();
-        Calendar calendar = new GregorianCalendar(2019, 7, 7);
-        StoredIngredient newIng1 = new StoredIngredient("Ingredient 1", 2, calendar.getTime(), "Pantry", "Boxes",3);
-
-        //shoppingArrayList.add(new Ingredient("Ingredient 1", 2));
-        //shoppingArrayList.add(new Ingredient("Ingredient 2", 4));
-
+        shoppingArrayList.add(new ShoppingListIngredient("Ingredient 1", 2, "Box", "Lunch"));
+        shoppingArrayList.add(new ShoppingListIngredient("Ingredient 2", 4, "mL", "Dinner"));
         shoppingListAdapter = new ShoppingList(this, shoppingArrayList);
         shoppingListView.setAdapter(shoppingListAdapter);
         shoppingListAdapter.notifyDataSetChanged();
@@ -90,10 +100,14 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
         // Get our database
         db = FirebaseFirestore.getInstance();
-
         collectionReference = db.collection("ShoppingList");
 
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            /**
+             * Updates the shopping list with all the documents on firebase everytime it is updated.
+             * @param queryDocumentSnapshots Firebase documents
+             * @param error Error message received when retrieving documents(if applicable)
+             */
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
@@ -105,17 +119,15 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     String hashCode = doc.getId();
                     String description = (String) doc.getData().get("Description");
                     Long count = (Long) doc.getData().get("Count");
+                    String unit = (String) doc.getData().get("Unit");
+                    String category = (String) doc.getData().get("Category");
                     shoppingArrayList.add(
-                            new Ingredient(description, count.intValue()));
+                            new ShoppingListIngredient(description, count.intValue(), unit, category));
                 }
                 // Update with new cloud data
                 shoppingListAdapter.notifyDataSetChanged();
             }
         });
-
-
-        //ingredientAdded(new Ingredient("Ingredient 1", 2));
-        //ingredientAdded(new Ingredient("Ingredient 2", 4));
 
         /*
          * Learned how to do this using the following link:
@@ -137,11 +149,17 @@ public class ShoppingListActivity extends AppCompatActivity implements
         shoppingListView.setOnItemClickListener(
                 (adapterView, view, i, l) -> selectedIngredientIndex = i);
 
-
         shoppingListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * Launches an edit fragment when an item on the shopping list is clicked.
+             * @param parent The parent of the view.
+             * @param view The view that was clicked.
+             * @param position The position of the view that was clicked.
+             * @param id
+             */
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Ingredient ingredient = shoppingListAdapter.getItem(position);
+                ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
                 selectedIngredientIndex = position;
                 new ShoppingListFragment(ingredient).show(
                         getSupportFragmentManager(), "EDIT_INGREDIENT");
@@ -149,6 +167,10 @@ public class ShoppingListActivity extends AppCompatActivity implements
         });
 
         addButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Launches the fragment when the add ingredient to storage is clicked.
+             * @param v The view that was clicked.
+             */
             @Override
             public void onClick(View v){
                 new ShoppingListFragment().show(
@@ -156,28 +178,25 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
         });
 
-//        sortSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                // Add code for sorting here
-//            }
-//        });
     }
 
 
     /**
-     * Called when the user clicks confirms a new {@link Ingredient}
+     * Called when the user clicks confirms a new {@link ShoppingListIngredient}
      * object in the shopping list. Adds the ingredient to Firebase, with a key
-     * value using the {@link Ingredient#hashCode()} method.
+     * value using the {@link ShoppingListIngredient#hashCode()} method.
      *
-     * @param ingredient The {@link Ingredient} object that was edited.
+     * @param ingredient The {@link ShoppingListIngredient} object that was edited.
      */
     @Override
-    public void ingredientAdded(Ingredient ingredient) {
+    public void ingredientAdded(ShoppingListIngredient ingredient) {
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
         data.put("Description", ingredient.getDescription());
         data.put("Count", ingredient.getCount());
+        data.put("Unit", ingredient.getUnit());
+        data.put("Category", ingredient.getCategory());
+
         /*
          * Store all data under the hash code of the ingredient, so we can
          * store multiple similar ingredients.
@@ -203,14 +222,13 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
 
     /**
-     * Called when the user chooses to delete an {@link Ingredient} object from
+     * Called when the user chooses to delete an {@link ShoppingListIngredient} object from
      * the shopping list. Removes the associated object from Firebase.
      */
     @Override
     public void ingredientDeleted() {
         if (selectedIngredientIndex != -1) {
-            Ingredient oldIngredient = shoppingArrayList.get(
-                    selectedIngredientIndex);
+            ShoppingListIngredient oldIngredient = shoppingArrayList.get(selectedIngredientIndex);
             // Remove ingredient from database
             collectionReference
                     .document(String.valueOf(oldIngredient.hashCode()))
@@ -237,21 +255,23 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
 
     /**
-     * Called when the user edits an {@link Ingredient} object in the shopping
+     * Called when the user edits an {@link ShoppingListIngredient} object in the shopping
      * list. Will first delete the old object from Firebase, then add a new
-     * object so that the {@link Ingredient#hashCode()} is updated.
+     * object so that the {@link ShoppingListIngredient#hashCode()} is updated.
      *
-     * @param ingredient The {@link Ingredient} object that was edited.
+     * @param ingredient The {@link ShoppingListIngredient} object that was edited.
      */
     @Override
-    public void ingredientEdited(Ingredient ingredient) {
+    public void ingredientEdited(ShoppingListIngredient ingredient) {
         HashMap<String, Object> data = new HashMap<>();
-        Ingredient oldIngredient = shoppingArrayList.get(
+        ShoppingListIngredient oldIngredient = shoppingArrayList.get(
                 selectedIngredientIndex);
 
         // Grab data from the updated ingredient
         data.put("Description", ingredient.getDescription());
         data.put("Count", ingredient.getCount());
+        data.put("Unit", ingredient.getUnit());
+        data.put("Category", ingredient.getCategory());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldIngredient.hashCode()))
