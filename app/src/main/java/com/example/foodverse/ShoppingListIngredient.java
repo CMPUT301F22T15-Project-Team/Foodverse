@@ -32,8 +32,11 @@ public class ShoppingListIngredient extends Ingredient {
     }
 
     /**
-     * Calculates the hash code of the ingredient.
-     * @return The hash code of the ingredient.
+     * Calculates the hash code of the ingredient. Just calls the
+     * {@link Ingredient#hashCode()} method. Should be equal for equal
+     * {@link ShoppingListIngredient} objects.
+     *
+     * @return The hash code of the object.
      */
     public int hashCode() {
         return (super.hashCode());

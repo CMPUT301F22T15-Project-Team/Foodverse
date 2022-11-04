@@ -37,8 +37,10 @@ public class Meal {
     }
 
     /**
-     * Generates a hash code for the meal
-     * @return An {@link int} representing the hash code for the
+     * Generates a hash code for the meal by summing the hash codes of its
+     * members. Should be equal for equal meal objects.
+     *
+     * @return An integer primitive representing the hash code for the meal.
      */
     public int hashCode() {
         // TODO: Add recipe hashCode when complete

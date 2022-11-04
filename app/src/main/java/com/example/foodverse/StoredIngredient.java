@@ -72,10 +72,10 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Sums the hashCode()s of all the class' members and calls super.hashCode()
-     * to generate the hashcode for this object. Does not include the count of
-     * ingredient in the hashcode. Should be equal for StoredIngredient objects
-     * that are considered equal.
+     * Sums the hashCode()s of all the class' members and calls
+     * {@link Ingredient#hashCode()} to generate the hashcode for this object.
+     * Does not include the count of ingredient in the hashcode. Should be equal
+     * for StoredIngredient objects that are considered equal.
      *
      * @returns Returns the hash code of this object.
      */
