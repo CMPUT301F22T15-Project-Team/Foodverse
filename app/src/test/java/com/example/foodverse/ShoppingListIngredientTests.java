@@ -156,19 +156,19 @@ public class ShoppingListIngredientTests {
         assertEquals(ing.hashCode(), hash);
     }
 
-//    /**
-//     * Test the equals method from {@link ShoppingListIngredient}.
-//     */
-//    @Test
-//    public void testEquals() {
-//        ShoppingListIngredient ing = mockIngredient();
-//        ShoppingListIngredient ingEqual = new ShoppingListIngredient("Test",
-//                1, new Date(), "Pantry", "Cups", 1);
-//        ShoppingListIngredient ingNotEqual = new ShoppingListIngredient("Test",
-//                1, new Date(), "Fridge", "Cups", 1);
-//        Object obj = new Object();
-//        assertTrue(ing.equals(ingEqual));
-//        assertFalse(ing.equals(ingNotEqual));
-//        assertFalse(ing.equals(obj));
-//    }
+    /**
+     * Test the equals method from {@link Ingredient}.
+     */
+    @Test
+    public void testEquals() {
+        ShoppingListIngredient ing = mockIngredient();
+        ShoppingListIngredient ingEqual = new ShoppingListIngredient("Test", 1,
+                "Cups", "Test Category");
+        ShoppingListIngredient ingNotEqual = new ShoppingListIngredient("Test", 7,
+                "Grams", "Test 2 Category");
+        Object obj = new Object();
+        assertTrue(ing.equals(ingEqual));
+        assertFalse(ing.equals(ingNotEqual));
+        assertFalse(ing.equals(obj));
+    }
 }
