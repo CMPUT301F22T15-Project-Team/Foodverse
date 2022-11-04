@@ -61,42 +61,93 @@ public class Recipe implements Serializable {
         return hash;
     }
 
+
+    /**
+     * Getter for the title of the {@link Recipe}.
+     *
+     * @return A {@link String} storing the title.
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Setter for the title of the {@link Ingredient}.
+     *
+     * @param title A {@link String} to set the title to.
+     */
     public void setTitle(String title) {
         this.title = title;
     }
 
+    /**
+     * Getter for the prep time of the {@link Recipe}.
+     *
+     * @return An integer primitive storing the time in minutes.
+     */
     public int getPrepTime() {
         return prep_time;
     }
 
+    /**
+     * Setter for the prep time of the {@link Ingredient}.
+     *
+     * @param prep_time An integer primitive to set the prep time to in minutes.
+     */
     public void setPrepTime(int prep_time) {
         this.prep_time = prep_time;
     }
 
+    /**
+     * Getter for the serving count of the {@link Recipe}.
+     *
+     * @return An integer primitive storing the servings.
+     */
     public int getServings() {
         return servings;
     }
 
+    /**
+     * Setter for the serving count of the {@link Ingredient}.
+     *
+     * @param servings An integer primitive to set the serving count to.
+     */
     public void setServings(int servings) {
         this.servings = servings;
     }
 
+    /**
+     * Getter for the category of the {@link Recipe}.
+     *
+     * @return A {@link String} storing the category.
+     */
     public String getCategory() {
         return category;
     }
 
+    /**
+     * Setter for the category of the {@link Ingredient}.
+     *
+     * @param category A {@link String} to set the category to.
+     */
     public void setCategory(String category) {
         this.category = category;
     }
 
+    /**
+     * Getter for the comments of the {@link Recipe}.
+     *
+     * @return A {@link String} storing the comments.
+     */
     public String getComments() {
         return comments;
     }
 
+    /**
+     * Setter for the comments of the {@link Ingredient}.
+     *
+     * @param comments A {@link String} to set the comments to.
+     */
     public void setComments(String comments) {
         this.comments = comments;
     }
