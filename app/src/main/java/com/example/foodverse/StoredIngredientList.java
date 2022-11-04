@@ -49,12 +49,14 @@ public class StoredIngredientList extends ArrayAdapter<StoredIngredient> {
         TextView unit = view.findViewById(R.id.unit_text);
         TextView location = view.findViewById(R.id.location_text);
         TextView bestBefore = view.findViewById(R.id.best_before_text);
+        TextView category = view.findViewById(R.id.category_text_view);
 
         description.setText(ingredient.getDescription());
         count.setText(Integer.toString(ingredient.getCount()));
         unit.setText(ingredient.getUnit() + " stored in:");
         location.setText(ingredient.getLocation());
         cost.setText("$" + Integer.toString(ingredient.getUnitCost()));
+        //category.setText(ingredient.getCategory());
         Date date = ingredient.getBestBefore();
 
         /*

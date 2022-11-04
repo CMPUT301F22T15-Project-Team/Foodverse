@@ -144,6 +144,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                     String unit = (String) doc.getData().get("Unit");
                     Long count = (Long) doc.getData().get("Count");
                     Long unitCost = (Long) doc.getData().get("Cost");
+                    String category = (String) doc.getData().get("Category");
                     Ingredient ing = new StoredIngredient(description, count.intValue(),
                             bestBefore, location, unit, unitCost.intValue());
                     if (!set.contains(ing)) {

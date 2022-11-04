@@ -8,37 +8,47 @@ package com.example.foodverse;
  * Since there are certain restrictions on the attributes, they have been made protected
  * to enforce these requirements through the setters, but still allow derived classes to access
  *
- * @Version 1.0
- *
- * 2022-10-22
+ * @version 1.0
  */
 public class Ingredient {
     protected String description;
     protected int count;
     protected String unit;
+    protected String category;
 
 
     public Ingredient() {
         description = "";
         count = 0;
-        this.unit = "";
+        unit = "";
+        category = "";
     }
 
     public Ingredient(String description, int count) {
         this.description = description;
         this.count = count;
         this.unit = "";
+        this.category = "";
     }
 
     public Ingredient(String description, int count, String unit) {
         this.description = description;
         this.count = count;
         this.unit = unit;
+        this.category = "";
+    }
+
+    public Ingredient(String description, int count, String unit, String category) {
+        this.description = description;
+        this.count = count;
+        this.unit = unit;
+        this.category = category;
     }
 
     public int hashCode() {
         int hash = 0;
-        hash += count + description.hashCode() + unit.hashCode();
+        hash += count + description.hashCode() + unit.hashCode() +
+                category.hashCode();
         return hash;
     }
 
@@ -61,6 +71,10 @@ public class Ingredient {
         return unit;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
     public void setCount(int count) {
         if (count >= 0) {
             this.count = count;
@@ -79,5 +93,9 @@ public class Ingredient {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }
