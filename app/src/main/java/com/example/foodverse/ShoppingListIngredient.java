@@ -42,10 +42,18 @@ public class ShoppingListIngredient extends Ingredient {
         return (super.hashCode());
     }
 
+    /**
+     * Getter for purchased boolean
+     * @return Returns if the item is purchased or not
+     */
     public boolean isPurchased() {
         return purchased;
     }
 
+    /**
+     * Setter for purchased boolean
+     * @param purchased Boolean indicating if the item is purchased or not
+     */
     public void setPurchased(boolean purchased) {
         this.purchased = purchased;
     }
