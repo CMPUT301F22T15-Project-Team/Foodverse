@@ -9,7 +9,8 @@ public class DatabaseIngredientTests {
      * A helper method to make a new simple test ingredient.
      */
     public Ingredient mockIngredient() {
-        return new Ingredient("Test", 1);
+        return new Ingredient("Test",
+                1, "Unit");
     }
 
     /**
@@ -17,7 +18,7 @@ public class DatabaseIngredientTests {
      * mock ingredient.
      */
     public String mockString() {
-        return "Test|1";
+        return "Test|1|Unit";
     }
 
 
@@ -28,6 +29,8 @@ public class DatabaseIngredientTests {
     public void testIngredientToString() {
         assertEquals(mockString(),
                 DatabaseIngredient.ingredientToString(mockIngredient()));
+        assertEquals("Test|1", DatabaseIngredient.ingredientToString(
+                        new Ingredient("Test", 1)));
     }
 
 
@@ -38,5 +41,9 @@ public class DatabaseIngredientTests {
     public void testStringToIngredient() {
         assertEquals(mockIngredient(),
                 DatabaseIngredient.stringToIngredient(mockString()));
+        // Test with only description and count
+        Ingredient ing = new Ingredient("Test", 1);
+        assertEquals(ing,
+                DatabaseIngredient.stringToIngredient("Test|1"));
     }
 }

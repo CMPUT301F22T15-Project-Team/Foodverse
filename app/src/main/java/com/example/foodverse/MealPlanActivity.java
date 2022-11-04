@@ -54,7 +54,7 @@ public class MealPlanActivity extends AppCompatActivity implements
     //private ArrayList<Meal> mealList;
     private FirebaseFirestore db;
     private final String TAG = "MealPlanActivity";
-    private CollectionReference collectionReference, ingRef, storedRef;
+    private CollectionReference collectionReference, storedRef;
     private ArrayList<Meal> mealArrayList;
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
     private HashSet<Ingredient> set = new HashSet<>();
@@ -123,30 +123,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                 mealAdapter.notifyDataSetChanged();
             }
         });
-
-        ingRef = db.collection("Ingredients");
         storedRef = db.collection("StoredIngredients");
-
-        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Log.d("MEALFRAG", description);
-                    Long count = (Long) doc.getData().get("Count");
-                    String unit = (String) doc.getData().get("Unit");
-                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
-                    if (!set.contains(ing)) {
-                        databaseIngredients.add(ing);
-                        set.add(ing);
-                        Log.d("MEALFRAG", "Added ing");
-                    }
-                }
-            }
-        });
 
         storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -156,14 +133,23 @@ public class MealPlanActivity extends AppCompatActivity implements
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
                     String description = (String) doc.getData().get("Description");
-                    Log.d("MEALFRAG", description);
-                    Long count = (Long) doc.getData().get("Count");
+                    /*
+                     * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
+                     * Answer by Niyas, February 23, 2019. Reference on casting
+                     * from firebase.timestamp to java.date.
+                     */
+                    Date bestBefore = ((Timestamp)doc.getData().get("Best Before"))
+                            .toDate();
+                    String location = (String) doc.getData().get("Location");
                     String unit = (String) doc.getData().get("Unit");
-                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
+                    Long count = (Long) doc.getData().get("Count");
+                    Long unitCost = (Long) doc.getData().get("Cost");
+                    String category = (String) doc.getData().get("Category");
+                    Ingredient ing = new StoredIngredient(description, count.intValue(),
+                            bestBefore, location, unit, unitCost.intValue());
                     if (!set.contains(ing)) {
                         databaseIngredients.add(ing);
                         set.add(ing);
-                        Log.d("MEALFRAG", "Added ing");
                     }
                 }
             }
