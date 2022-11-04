@@ -34,6 +34,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/**
+ * RecipeActivity
+ * This class displays a list of recipes which is constructed based on the users
+ * input of recipe title, comments, serving size, preparation time, and a list of ingredients.
+ * This class also allows the user to push buttons to edit, add and delete recipe items.
+ * Currently, the recipe does not display and can not modify the ingredients list.
+ * @version 1.0
+ *
+ */
+
 public class RecipeActivity  extends AppCompatActivity implements
         RecipeFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
@@ -53,6 +63,19 @@ public class RecipeActivity  extends AppCompatActivity implements
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
 
+    public RecipeActivity(ListView recipeList) {
+        RecipeList = recipeList;
+    }
+
+    public RecipeActivity(int contentLayoutId, ListView recipeList) {
+        super(contentLayoutId);
+        RecipeList = recipeList;
+    }
+
+    /**
+     * The startup function that is called when the activity is launched.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +91,7 @@ public class RecipeActivity  extends AppCompatActivity implements
          * https://www.geeksforgeeks.org/navigation-drawer-in-android/
          * by adityamshidlyali, 2020
          */
+
         drawerLayout = findViewById(R.id.recipe_drawer);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
 
@@ -133,13 +157,6 @@ public class RecipeActivity  extends AppCompatActivity implements
                     }
                     RecipeDataList.add(new Recipe(title, prep.intValue(),
                             servings.intValue(), category, comments, ingredients));
-//                    for (String ingString : ingStrings) {
-//                        Ingredient ing =
-//                                DatabaseIngredient.stringToIngredient(ingString);
-//                        ingredients.add(ing);
-//                    }
-//                    RecipeDataList.add(new Recipe(title, prep.intValue(),
-//                            servings.intValue(), category, comments,ingredients ));
                 }
                 // Update with new cloud data
                 RecAdapter.notifyDataSetChanged();
@@ -150,6 +167,11 @@ public class RecipeActivity  extends AppCompatActivity implements
         storedRef = db.collection("StoredIngredients");
 
         ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            /**
+             * Updates the recipe list with all the documents on firebase everytime it is updated.
+             * @param queryDocumentSnapshots Firebase documents
+             * @param error Error message received when retrieving documents(if applicable)
+             */
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
@@ -187,8 +209,16 @@ public class RecipeActivity  extends AppCompatActivity implements
         Button edit_btn = findViewById(R.id.id_edit_recipe_button);
 
         RecipeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /**
+             * Launches a fragment when an item on the recipe list is clicked.
+             * @param adapterView The parent of the view.
+             * @param view The view that was clicked.
+             * @param i The position of the view that was clicked.
+             * @param l The id of the view that was clicked
+             */
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //changes the color of the item based on if it was clicked or not
                 if (clickedElement != null) {
                     clickedElement.setBackgroundColor(Color.WHITE);
                 }
@@ -198,6 +228,10 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
         btn_del.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Launches the fragment when the add recipe to storage is clicked.
+             * @param view The view that was clicked.
+             */
             @Override
             public void onClick(View view) {
                 if (clickedElement != null) {

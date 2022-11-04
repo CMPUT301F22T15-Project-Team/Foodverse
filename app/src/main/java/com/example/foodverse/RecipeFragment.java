@@ -19,7 +19,16 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 
-
+/**
+ * RecipeFragment
+ * The fragment responsible for allowing the user to add or edit recipes.
+ * Currently, the recipe fragment does not support adding or deleting ingredients to
+ * the recipe. It also does not provide the functionality of changing/uploading a recipe
+ * image.
+ *
+ * @version 1.0
+ *
+ */
 public class RecipeFragment extends DialogFragment {
     private EditText rec_title;
     private EditText rec_comments;
@@ -37,12 +46,18 @@ public class RecipeFragment extends DialogFragment {
     private ListView ingredientList;
 
 
-
+    /**
+     * Interface for interacting with recipe entries in the list.
+     */
     public interface OnFragmentInteractionListener{
         void onOkPressed(Recipe newRec);
         void onOkEditPressed(Recipe newRec);
     }
 
+    /**
+     * Called when fragment is attached to the context.
+     * @param context The context being attached to.
+     */
     //the function is what keeps track of the state of the system and the variables
     @Override
     public void onAttach(Context context) {
@@ -53,6 +68,12 @@ public class RecipeFragment extends DialogFragment {
             throw new RuntimeException(context.toString()+ "must implement OnFragmentInteractionListener");
         }
     }
+
+    /**
+     * Initializes the components when the fragment is created.
+     * @param savedInstanceState
+     * @return a dialog with details of recipe
+     */
     //The dialog box is what takes in the values for the attributes and displays them when in edit mode
     @NonNull
     @Override
@@ -109,7 +130,6 @@ public class RecipeFragment extends DialogFragment {
                 .setTitle("Add Recipe")
                 .setNegativeButton("Cancel",null)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String recipe_title = rec_title.getText().toString();
@@ -140,7 +160,7 @@ public class RecipeFragment extends DialogFragment {
                             prepare_time = Integer.parseInt(rec_preptime.getText().toString());
                         }
 
-                        //update the values of each attribute by getting and setting the values of the food item
+                        //update the values of each attribute by getting and setting the values of the recipe item
                         // have the context be updated when the Ok button is pressed
                         if (edit_text == Boolean.TRUE){
                             Recipe edited = new Recipe(recipe_title,
@@ -161,7 +181,8 @@ public class RecipeFragment extends DialogFragment {
                 }).create(); //creates the dialog box
     }
 
-    //Bundles are utilized to pass data attributes into foodObjects
+
+    //Bundles are utilized to pass data attributes into recipeObject
     static RecipeFragment newInstance(Recipe recipe){
         Bundle args = new Bundle();
         args.putSerializable("recipe", recipe);

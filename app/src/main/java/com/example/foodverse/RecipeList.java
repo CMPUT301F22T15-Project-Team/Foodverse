@@ -12,16 +12,37 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
+/**
+ * An array adapter to allow for recipe to be displayed in a listview.
+ * Most of this code was adapted from assignment 1 code.
+ *
+ * @version 1.0
+ */
 public class RecipeList extends ArrayAdapter<Recipe> {
     private ArrayList<Recipe> recipes;
     private Context context;
 
+
+    /**
+     * A constructor to make an array adapter for meals.
+     * @param context
+     * @param recipe The {@link ArrayList<Recipe>} of recipe to be linked to the listview
+     * */
     public RecipeList(Context context,ArrayList<Recipe> recipe) {
         super(context, 0, recipe);
         this.recipes = recipe;
         this.context = context;
     }
 
+
+
+    /**
+     * Returns the view of the {@link RecipeList} after updating it.
+     * @param position Position of the item within the data set.
+     * @param convertView
+     * @param parent
+     * @return view of the {@link RecipeList}
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
