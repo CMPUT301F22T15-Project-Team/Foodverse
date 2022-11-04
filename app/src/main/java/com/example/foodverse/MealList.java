@@ -12,10 +12,22 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
+/**
+ * An array adapter to allow for meals to be displayed in a listview.
+ * Most of this code was adapted from an earlier version of the StoredIngredientList
+ * class.
+ *
+ * @version 1.0
+ */
 public class MealList extends ArrayAdapter<Meal> {
     private ArrayList<Meal> meals;
     private Context context;
 
+    /**
+     * A constructor to make an array adapter for meals.
+     * @param context
+     * @param meals The {@link ArrayList<Meal>} of meals to be linked to the listview
+     */
     public MealList(Context context, ArrayList<Meal> meals) {
         super(context, 0, meals);
         this.meals = meals;
