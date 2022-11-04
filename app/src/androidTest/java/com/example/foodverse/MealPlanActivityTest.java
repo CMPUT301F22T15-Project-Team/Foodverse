@@ -327,7 +327,7 @@ public class MealPlanActivityTest {
     }
 
     /**
-     * Test all ingredient actions, defined above. Due to firebase functions,
+     * Test all meal actions, defined above. Due to firebase functions,
      * we expect these to be sequential actions, so that extra data is not
      * left over after tests and the same test can be expanded upon. A dummy
      * ingredient is created to add to the meal, and is also cleaned up, but is
