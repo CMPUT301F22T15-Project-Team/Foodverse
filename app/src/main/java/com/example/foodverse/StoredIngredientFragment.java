@@ -42,11 +42,20 @@ public class StoredIngredientFragment extends DialogFragment {
     private OnFragmentInteractionListener listener;
     private Date expiryDate;
 
+    /**
+     * Default constructor for StoredIngredientFragment.
+     */
     public StoredIngredientFragment() {
         super();
         this.ingredient = null;
     }
 
+    /**
+     * Constructor for StoredIngredientFragment with a given ingredient.
+     *
+     * @param ingredient A StoredIngredient representing the ingredient for
+     * for which we want to see the details of.
+     */
     public StoredIngredientFragment(StoredIngredient ingredient) {
         super();
         this.ingredient = ingredient;

@@ -27,6 +27,15 @@ public class StoredIngredientList extends ArrayAdapter<StoredIngredient> {
     private ArrayList<StoredIngredient> ingredients;
     private Context context;
 
+    /**
+     * Constructor for StoredIngredientList, which is an ArrayAdapter and must
+     * have the following parameters:
+     *
+     * @param context A Context object containing the relevant details for the
+     * object.
+     * @param ingredients An ArrayList<StoredIngredient> representing the
+     * ingredients in the list.
+     */
     public StoredIngredientList(Context context, ArrayList<StoredIngredient> ingredients) {
         super(context, 0, ingredients);
         this.ingredients = ingredients;
