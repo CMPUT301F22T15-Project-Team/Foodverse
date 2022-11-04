@@ -17,8 +17,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -90,7 +92,14 @@ public class MealPlanActivity extends AppCompatActivity implements
         // Get db, the MealPlan collection
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
-        db.enableNetwork();
+        // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
+        db.enableNetwork()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Firebase online");
+                    }
+                });
 
         collectionReference = db.collection("MealPlan");
 
