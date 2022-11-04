@@ -63,14 +63,14 @@ public class RecipeActivity  extends AppCompatActivity implements
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
 
-    public RecipeActivity(ListView recipeList) {
+    /*public RecipeActivity(ListView recipeList) {
         RecipeList = recipeList;
     }
 
     public RecipeActivity(int contentLayoutId, ListView recipeList) {
         super(contentLayoutId);
         RecipeList = recipeList;
-    }
+    }*/
 
     /**
      * The startup function that is called when the activity is launched.

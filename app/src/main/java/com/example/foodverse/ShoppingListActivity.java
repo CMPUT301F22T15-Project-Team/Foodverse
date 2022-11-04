@@ -477,8 +477,13 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
             if(addToList){
                 mealIngredient.setCount(count);
-                shoppingArrayList.add(new ShoppingListIngredient(mealIngredient.getDescription(),
+                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
                         count, mealIngredient.getUnit(), mealIngredient.getCategory()));
+            } else {
+                // If ingredient is no longer required, delete it
+                shoppingListCollectionReference
+                        .document(String.valueOf(mealIngredient.hashCode()))
+                        .delete();
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
