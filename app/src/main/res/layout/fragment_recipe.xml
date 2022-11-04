@@ -164,7 +164,7 @@
             android:ems="10"
             android:hint="Serving Size"
             android:inputType="numberDecimal"
-            android:text="Serving Size"/>
+            android:text="1"/>
     </LinearLayout>
 
     <LinearLayout
@@ -190,7 +190,7 @@
             android:hint="Prep Time in Minutes"
             android:layout_weight="1"
             android:inputType="number"
-            android:text="Prep Time"/>
+            android:text="60"/>
     </LinearLayout>
 
     <LinearLayout
