@@ -36,7 +36,7 @@ public class IngredientSpinnerAdapter extends ArrayAdapter<String> {
                 R.id.spinner_description_text);
 
         //ingredientDescription.setText(ingredient.getDescription());
-        ingredientDescription.setText("Hello");
+        //ingredientDescription.setText("Hello");
         return ingredientDescription;
     }
 }

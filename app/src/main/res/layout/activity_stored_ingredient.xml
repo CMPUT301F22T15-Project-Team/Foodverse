@@ -1,53 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
+    android:id="@+id/stored_ingredient_drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".StoredIngredientActivity">
-
-    <Button
-        android:id="@+id/add_ingredient_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add Ingredient" />
-
-    <ListView
-        android:id="@+id/ingredient_list"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:paddingTop="50dp"
-        android:paddingBottom="50dp"
-        android:layout_weight="1">
-
-    </ListView>
-
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/stored_ingredient_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_gravity="bottom">
+        tools:context=".StoredIngredientActivity">
 
-        <TextView
-            android:id="@+id/total_label_text_view"
-            android:layout_width="fill_parent"
+
+
+        <ListView
+            android:id="@+id/ingredient_list"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:paddingBottom="50dp">
+
+        </ListView>
+
+        <Button
+            android:id="@+id/add_ingredient_button"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_gravity="bottom"
-            android:text="Total Cost"
-            android:textSize="30dp"
-            android:textColor="@color/black" />
+            android:text="@string/add_stored_ing" />
 
-        <TextView
-            android:id="@+id/total_text_view"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:text="$0"
-            android:textSize="30dp"
-            android:textColor="@color/black" />
-    </LinearLayout>
 
-</FrameLayout>
+    </FrameLayout>
+    <!-- https://www.geeksforgeeks.org/navigation-drawer-in-android/
+         by adityamshidlyali, 2020 -->
+    <com.google.android.material.navigation.NavigationView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:id="@+id/nav_menu_ingredients"
+        app:menu="@menu/nav_menu_options"/>
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -3,60 +3,59 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/description_text"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingHorizontal = "10dp"
-        android:text="Ingredient Description"
-        android:textSize="30sp">
-
-    </TextView>
+    android:orientation="horizontal">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="match_parent"
+        android:layout_weight="7"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/description_text"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingHorizontal = "10dp"
+            android:text="Ingredient Description"
+            android:textSize="30sp">
+
+        </TextView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
+
             <TextView
-                android:id="@+id/cost_value"
+                android:id="@+id/category_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="0"
-                android:paddingLeft = "20dp"
-                android:textSize="20sp">
-            </TextView>
+                android:layout_weight="5.5"
+                android:paddingLeft="20dp"
+                android:text="Category: Rice"
+                android:textSize="20sp"></TextView>
+
             <TextView
                 android:id="@+id/amount_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="0"
-                android:textSize="20sp">
-            </TextView>
+                android:textSize="20sp"></TextView>
+
             <TextView
                 android:id="@+id/unit_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Unit:Box"
-                android:textSize="20sp">
-            </TextView>
+                android:layout_weight="4"
+                android:text="Box"
+                android:textSize="20sp"></TextView>
         </LinearLayout>
-<!--        <CheckBox android:id="@+id/checkbox_cheese"-->
-<!--            android:layout_width="wrap_content"-->
+    </LinearLayout>
+<!--        <CheckBox android:id="@+id/ingredient_checkbox"-->
+<!--            android:layout_width="0dp"-->
 <!--            android:layout_height="wrap_content"-->
 <!--            android:layout_weight="1"-->
 <!--            android:onClick="onCheckboxClicked"/>-->
-    </LinearLayout>
+
 </LinearLayout>

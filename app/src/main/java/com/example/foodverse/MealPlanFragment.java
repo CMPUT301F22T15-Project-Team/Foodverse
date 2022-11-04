@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -23,52 +24,61 @@ import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Set;
 
-public class MealPlanFragment extends DialogFragment  {
+/**
+ * MealPlanFragment
+ * The fragment responsible for allowing the user to add or edit meals.
+ * Currently, the meal plan fragment does not support adding a recipe to
+ * a meal or deleting an ingredient from a meal once it is added.
+ *
+ * @version 1.0
+ *
+ */
+
+public class MealPlanFragment extends DialogFragment implements AdapterView.OnItemSelectedListener {
     private Meal meal;
     private EditText date;
     // Recipe-related elements still need to be implemented
     private ListView ingredientList;
     private EditText servings;
 
-    private Button mealDate;
-    private Button addButton;
-    private Date date2;
-    private Spinner recipeSpinner;
-    private Spinner ingredientSpinner;
+    private Button mealDate; // Date selector
+    private Button addButton; // Button to add ingredient to meal
+    private Date date2; // The date which is added to a new or edited meal
+    //private Spinner recipeSpinner;
+    private Spinner ingredientSpinner; // Spinner for ingredients
     private ArrayList<Ingredient> mealIngredients = new ArrayList<>();
-    private ArrayList<Ingredient> addedIngredients = new ArrayList<>();
-    private ArrayList<String> listedIngredients = new ArrayList<>();
+    private ArrayList<String> ingredientStringList = new ArrayList<>();
+    private ArrayAdapter<String> ingAdapter;
     private FirebaseFirestore db;
-    private CollectionReference ingRef, storedRef;
-    private HashSet<Ingredient> set = new HashSet<>();
+    private ArrayAdapter<Ingredient> listViewAdapter;
+    private MealPlanActivity act;
 
     private MealPlanFragment.OnFragmentInteractionListener listener;
 
+    /**
+     * A constructor for the fragment when a new meal is being created
+     */
     public MealPlanFragment() {
         super();
         this.meal = null;
     }
 
+    /**
+     * A constructor for the fragment when a meal is being edited
+     * @param meal A {@link Meal} that is being edited
+     */
     public MealPlanFragment(Meal meal) {
         super();
         this.meal = meal;
     }
+
 
     public interface OnFragmentInteractionListener {
         void mealAdded(Meal meal);
@@ -94,15 +104,18 @@ public class MealPlanFragment extends DialogFragment  {
 
         // Initialize Components
         mealDate = view.findViewById(R.id.date_button);
-        recipeSpinner = view.findViewById(R.id.recipe_spinner);
+        //recipeSpinner = view.findViewById(R.id.recipe_spinner);
         ingredientSpinner = view.findViewById(R.id.meal_ingredient_spinner);
         addButton = view.findViewById(R.id.add_meal_ingredient_button);
-        ingredientList = view.findViewById(R.id.meal_list);
+        ingredientList = view.findViewById(R.id.meal_fragment_list);
+        listViewAdapter = new IngredientAdapter(getActivity(), mealIngredients);
+        ingredientList.setAdapter(listViewAdapter);
+        ingredientSpinner.setOnItemSelectedListener(this);
 
-        ArrayAdapter<String> listedAdapter = new ArrayAdapter<String>(getActivity(), R.layout.content_stored_ingredient, listedIngredients);
-        //ingredientList.setAdapter(listedAdapter);
 
         DatePickerDialog.OnDateSetListener dateSetListener;
+
+        // Connect the DatePickerDialog with the date button
         dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month,
@@ -113,99 +126,55 @@ public class MealPlanFragment extends DialogFragment  {
             }
         };
 
+        ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
         db = FirebaseFirestore.getInstance();
         db.enableNetwork();
-        ingRef = db.collection("Ingredients");
-        storedRef = db.collection("StoredIngredients");
 
-        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Clear the old list
-                mealIngredients.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        mealIngredients.add(ing);
-                        set.add(ing);
-                    }
-                }
-            }
-        });
-
-        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Clear the old list
-                mealIngredients.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        mealIngredients.add(ing);
-                        set.add(ing);
-                    }
-                }
-            }
-        });
-
-        ArrayList<String> arraySpinner = new ArrayList<>();
-
-        for (Ingredient ingredient : mealIngredients) {
-            arraySpinner.add(ingredient.getDescription());
+        act = (MealPlanActivity) getActivity();
+        // The ingredients from the database are added to the spinner
+        for (int i = 0; i < act.getDatabaseIngredients().size(); i++) {
+            ingredientStringList.add(
+                    act.getDatabaseIngredients().get(i).getDescription());
         }
 
-        arraySpinner.add("Add New Ingredient");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_item, arraySpinner);
-
-        ingredientSpinner.setAdapter(adapter);
+        // The spinner is set up to connect with the list of ingredients
+        ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+        ingredientSpinner.setAdapter(ingAdapter);
 
 
-
+        // Set the start date to the current date
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        //setNewExpiryDate(calendar);
+        setNewExpiryDate(calendar);
 
+        // If a meal is being edited and not added, meal won't be null
         if (meal != null) {
             // Set the values for the various fields
-            //ingredientDescription.setText(ingredient.getDescription());
-            //ingredientCount.setText(Integer.toString(ingredient.getCount()));
-            //ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
 
             // Load the time information
-            //calendar.setTime(ingredient.getBestBefore());
+            calendar.setTime(meal.getDate());
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
 
+            // Get all the ingredients from the meal and add them to
+            // an array list to be displayed on a listview
+            for (int i = 0; i < meal.getIngredients().size(); i++) {
+                mealIngredients.add(meal.getIngredients().get(i));
+            }
+            listViewAdapter.notifyDataSetChanged();
         }
 
+        // The DatePickerDialog allows for the user to select a date for
+        // the meal.
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this.getActivity(), AlertDialog.THEME_HOLO_LIGHT,
                 dateSetListener, year, month, day);
 
-
-        //ingredientExpiry.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //        datePickerDialog.show();
-        //    }
-        //});
-
+        // When the user clicks on the button to set the date of a meal
         mealDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -213,48 +182,60 @@ public class MealPlanFragment extends DialogFragment  {
             }
         });
 
-        //ArrayList<String> listedIngredients = new ArrayList<>();
-
 
 
         // When the user clicks on the plus button to add an ingredient
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //addedIngredients.add((Ingredient) ingredientSpinner.getSelectedItem());
-                listedIngredients.add((String) ingredientSpinner.getSelectedItem());
-                listedAdapter.notifyDataSetChanged();
+                int ingIndex;
+                Log.d("MealFrag", "Adding ingredient");
+                ingIndex = ingredientSpinner.getSelectedItemPosition();
+                mealIngredients.add(act.getDatabaseIngredients().get(ingIndex));
+
+                listViewAdapter.notifyDataSetChanged();
             }
         });
-
-        //IngredientAdapter addedAdapter = new IngredientAdapter(getActivity(), addedIngredients);
-        //ingredientList.setAdapter(listedAdapter);
-
-        //ArrayList<String> listedIngredients = new ArrayList<String>();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
                 .setTitle("Add/Edit Meal")
+                // Nothing happens when the user selects 'Cancel'
                 .setNeutralButton("Cancel", null)
-                .setNegativeButton("Delete", null)
+                // The meal currently being viewed is deleted when 'Delete' is selected
+                .setNegativeButton("Delete", (dialog, which) -> {
+                    listener.mealDeleted();
+                })
+                // The meal is added or edited when 'Confirm' is selected
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //String city = cityName.getText().toString();
-                        //String province = provinceName.getText().toString();
-                        //listener.onOkPressed(new City(city, province));
-                        Meal meal = new Meal();
-                        LocalDate date = date2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                        meal.setDate(date);
-                        // Add Recipe Stuff
+                        Meal newMeal = new Meal();
+                        newMeal.setDate(date2);
                         // Add array of ingredients to meal
-                        meal.setIngredients(mealIngredients);
+                        newMeal.setIngredients(mealIngredients);
+                        if (meal == null) {
+                            listener.mealAdded(newMeal);
+                        } else {
+                            listener.mealEdited(newMeal);
+                        }
+
                     }
                 }).create();
     }
 
+    /**
+     * This function changes the text displayed on the "expiry_button" to
+     * match the time represented by calendar and updates the date2 global
+     * variable to match.
+     *
+     * While it is called setNewExpiryDate, it does not refer to an expiry
+     * date here. Here, it is used to get a date for a meal.
+     *
+     * @param calendar A calendar object representing the new expiry time.
+     */
     private void setNewExpiryDate(Calendar calendar) {
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
@@ -279,5 +260,13 @@ public class MealPlanFragment extends DialogFragment  {
         date2 = calendar.getTime();
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+    }
 
 }

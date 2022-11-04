@@ -35,17 +35,27 @@ public class StoredIngredientFragment extends DialogFragment {
     private StoredIngredient ingredient;
     private EditText ingredientDescription;
     private EditText ingredientCount;
+    private EditText ingredientUnit;
     private EditText ingredientCost;
     private Spinner ingredientLocation;
     private Button ingredientExpiry;
     private OnFragmentInteractionListener listener;
     private Date expiryDate;
 
+    /**
+     * Default constructor for StoredIngredientFragment.
+     */
     public StoredIngredientFragment() {
         super();
         this.ingredient = null;
     }
 
+    /**
+     * Constructor for StoredIngredientFragment with a given ingredient.
+     *
+     * @param ingredient A StoredIngredient representing the ingredient for
+     * for which we want to see the details of.
+     */
     public StoredIngredientFragment(StoredIngredient ingredient) {
         super();
         this.ingredient = ingredient;
@@ -83,6 +93,7 @@ public class StoredIngredientFragment extends DialogFragment {
         ingredientDescription = view.findViewById(R.id.description_edit_text);
         ingredientCount = view.findViewById(R.id.count_edit_text);
         ingredientCost = view.findViewById(R.id.cost_edit_text);
+        ingredientUnit = view.findViewById(R.id.unit_edit_text);
         ingredientLocation = view.findViewById(R.id.location_spinner);
         ingredientExpiry = view.findViewById(R.id.expiry_button);
 
@@ -113,6 +124,7 @@ public class StoredIngredientFragment extends DialogFragment {
             ingredientDescription.setText(ingredient.getDescription());
             ingredientCount.setText(Integer.toString(ingredient.getCount()));
             ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
+            ingredientUnit.setText(ingredient.getUnit());
 
             // Load the time information
             calendar.setTime(ingredient.getBestBefore());
@@ -164,6 +176,8 @@ public class StoredIngredientFragment extends DialogFragment {
                                     .getText().toString();
                             String locationStr = ingredientLocation
                                     .getSelectedItem().toString();
+                            String unitStr = ingredientUnit
+                                    .getText().toString();
 
                             // Load the data into the Ingredient object
                             newIngredient.setDescription(descriptionStr);
@@ -173,6 +187,7 @@ public class StoredIngredientFragment extends DialogFragment {
                                     (int) Math.ceil(roundedCost));
                             newIngredient.setLocation(locationStr);
                             newIngredient.setBestBefore(expiryDate);
+                            newIngredient.setUnit(unitStr);
 
                             /* Determine if a ingredient was added or edited
                             based on if there was a previous value. */

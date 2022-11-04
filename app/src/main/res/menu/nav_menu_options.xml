@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- https://developer.android.com/guide/fragments/appbar -->
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/ingredients"
+        android:title="Ingredients"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/recipes"
+        android:title="Recipes"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/meals"
+        android:title="Meal Planner"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/shopping"
+        android:title="Shopping List"
+        app:showAsAction="ifRoom" />
+
+</menu>

@@ -60,7 +60,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:padding="20dp"
-            android:text="Ingredients" />
+            android:text="" />
 
         <Spinner
             android:id="@+id/meal_ingredient_spinner"
@@ -71,7 +71,7 @@
         <Button
             android:id="@+id/add_meal_ingredient_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:backgroundTint="#00FF00"
             android:textColor="#FFFFFF"
             android:text="+" />
@@ -91,7 +91,7 @@
         android:id="@+id/meal_ingredient_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete Ingredient" />
+        android:text="Remove Ingredient" />
 
 
 </LinearLayout>

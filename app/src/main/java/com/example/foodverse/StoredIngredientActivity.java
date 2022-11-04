@@ -1,7 +1,9 @@
 package com.example.foodverse;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -10,10 +12,16 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -27,18 +35,19 @@ import java.util.Date;
 import java.util.HashMap;
 
 /**
- * IngredientActivity
+ * StoredIngredientActivity
  * This class is used to run the app and is responsible for managing all of the
  * other components within it.
  *
- * @Version 1.0
+ * @version 1.0
  *
  * 2022-09-24
  *
  */
 
 public class StoredIngredientActivity extends AppCompatActivity
-        implements StoredIngredientFragment.OnFragmentInteractionListener {
+        implements StoredIngredientFragment.OnFragmentInteractionListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
     // Declare the variables so that you will be able to reference it later.
     private ListView ingredientListView;
@@ -48,6 +57,10 @@ public class StoredIngredientActivity extends AppCompatActivity
     private FirebaseFirestore db;
     private final String TAG = "IngredientActivity";
     private CollectionReference collectionReference;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private DrawerLayout drawerLayout;
+    private NavigationView navView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +73,33 @@ public class StoredIngredientActivity extends AppCompatActivity
         ingredientAdapter = new StoredIngredientList(this, ingredientArrayList);
         ingredientListView.setAdapter(ingredientAdapter);
 
+        /*
+         * https://www.geeksforgeeks.org/navigation-drawer-in-android/
+         * by adityamshidlyali, 2020
+         */
+        drawerLayout = findViewById(R.id.stored_ingredient_drawer);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
+
+        // Allow menu to be toggleable, always display.
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Setup listeners for the navigation view
+        navView = findViewById(R.id.nav_menu_ingredients);
+        navView.setNavigationItemSelectedListener(this);
+
         // Get our database
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
-        db.enableNetwork();
+        // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
+        db.enableNetwork()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Firebase online");
+                    }
+                });
 
         collectionReference = db.collection("StoredIngredients");
 
@@ -77,20 +113,38 @@ public class StoredIngredientActivity extends AppCompatActivity
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
+                    String description = "", location = "", unit = "";
+                    Long count = 0l, unitCost = 0l;
+                    Date bestBefore = new Date();
+
+                    if (doc.getData().get("Description") != null) {
+                        description =
+                                (String) doc.getData().get("Description");
+                    }
                     /*
                      * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
                      * Answer by Niyas, February 23, 2019. Reference on casting
                      * from firebase.timestamp to java.date.
                      */
-                    Date bestBefore = ((Timestamp)doc.getData().get("Best Before"))
-                            .toDate();
-                    String location = (String) doc.getData().get("Location");
-                    Long count = (Long) doc.getData().get("Count");
-                    Long unitCost = (Long) doc.getData().get("Cost");
+                    if (doc.getData().get("Best Before") != null) {
+                        bestBefore = ((Timestamp) doc.getData().get("Best Before"))
+                                .toDate();
+                    }
+                    if (doc.getData().get("Location") != null) {
+                        location = (String) doc.getData().get("Location");
+                    }
+                    if (doc.getData().get("Unit") != null) {
+                        unit = (String) doc.getData().get("Unit");
+                    }
+                    if (doc.getData().get("Count") != null) {
+                        count = (Long) doc.getData().get("Count");
+                    }
+                    if (doc.getData().get("Cost") != null) {
+                        unitCost = (Long) doc.getData().get("Cost");
+                    }
                     ingredientArrayList.add(
                             new StoredIngredient(description, count.intValue(),
-                                    bestBefore, location, unitCost.intValue()));
+                                    bestBefore, location, unit, unitCost.intValue()));
                 }
                 // Update with new cloud data
                 ingredientAdapter.notifyDataSetChanged();
@@ -148,6 +202,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Location", ingredient.getLocation());
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
+        data.put("Unit", ingredient.getUnit());
         /*
          * Store all data under the hash code of the ingredient, so we can
          * store multiple similar ingredients.
@@ -225,10 +280,10 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Location", ingredient.getLocation());
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
+        data.put("Unit", ingredient.getUnit());
 
         // Delete old ingredient and set new since hashCode() will return different result
-        collectionReference.document(String.valueOf(oldIngredient.hashCode()))
-                        .delete();
+        ingredientDeleted();
         collectionReference
             .document(String.valueOf(ingredient.hashCode()))
             .set(data)
@@ -246,5 +301,62 @@ public class StoredIngredientActivity extends AppCompatActivity
                     Log.d(TAG, "Data could not be updated!" + e.toString());
                 }
             });
+    }
+
+    /**
+     * Implemented to allow for the opening and closing of the navigation menu.
+     *
+     * Code from: https://www.geeksforgeeks.org/navigation-drawer-in-android/
+     * By adityamshidlyali, posted 2020, accessed October 28, 2022.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    /**
+     * Overridden from NavigationView.OnNavigationItemSelectedListener.
+     * Navigate to the selected activity, if we are not already on it, otherwise
+     * close the menu. Possible destinations are {@link StoredIngredientActivity},
+     * {@link MealPlanActivity}, {@link RecipeActivity}, and
+     * {@link ShoppingListActivity}.
+     *
+     * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
+     * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
+     *
+     * @returns Always true, iff the selected item is the calling activity.
+     */
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menu) {
+        // Go to activity selected, based on title.
+        String destination = (String) menu.getTitle();
+        switch(destination) {
+            case "Recipes": {
+                Intent intent = new Intent(this, RecipeActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case "Meal Planner": {
+                Intent intent = new Intent(this, MealPlanActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case "Shopping List": {
+                Intent intent = new Intent(this, ShoppingListActivity.class);
+                startActivity(intent);
+                break;
+            }
+            default: break;
+        }
+
+        // Close navigation drawer if we selected the current activity.
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
