@@ -151,7 +151,7 @@ public class ShoppingListIngredientTests {
     public void testHashCode() {
         ShoppingListIngredient ing = mockIngredient();
         int hash = 0;
-        hash += ing.getCount() + ing.getDescription().hashCode()
+        hash += ing.getDescription().hashCode()
                 + ing.getUnit().hashCode() + ing.getCategory().hashCode();
         assertEquals(ing.hashCode(), hash);
     }

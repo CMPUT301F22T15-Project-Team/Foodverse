@@ -145,16 +145,27 @@ public class StoredIngredientTests {
 
 
     /**
+     * Test the setUnitCost method from {@link StoredIngredient}
+     */
+    @Test
+    public void testSetUnitCostInvalid() {
+        StoredIngredient ing = mockIngredient();
+        ing.setUnitCost(-10);
+        assertEquals(ing.getUnitCost(), 0);
+    }
+
+
+    /**
      * Test the hashCode method from {@link StoredIngredient}. Expected to
      * return the sum of hash codes of its members.
      */
     @Test
     public void testHashCode() {
         StoredIngredient ing = mockIngredient();
-        int hash = ing.getCount() + ing.getDescription().hashCode()
-                + ing.getUnitCost() + ing.getLocation().hashCode()
-                /*+ ing.getUnit().hashCode()*/ + ing.getBestBefore().getMonth()
-                + ing.getBestBefore().getYear() + ing.getBestBefore().getDate();
+        int hash = ing.getDescription().hashCode() + ing.getUnit().hashCode()
+                + ing.getCategory().hashCode() + ing.getUnitCost() + ing.getLocation().hashCode()
+                + ing.getBestBefore().getMonth() + ing.getBestBefore().getYear()
+                + ing.getBestBefore().getDate();
         assertEquals(ing.hashCode(), hash);
     }
 
@@ -168,6 +179,22 @@ public class StoredIngredientTests {
                 1, new Date(), "Pantry", "Cups", 1);
         StoredIngredient ingNotEqual = new StoredIngredient("Test",
                 1, new Date(), "Fridge", "Cups", 1);
+        Object obj = new Object();
+        assertTrue(ing.equals(ingEqual));
+        assertFalse(ing.equals(ingNotEqual));
+        assertFalse(ing.equals(obj));
+    }
+
+    /**
+     * Test the equals method from {@link StoredIngredient}.
+     */
+    @Test
+    public void testEquals2() {
+        StoredIngredient ing = mockIngredient();
+        StoredIngredient ingEqual = new StoredIngredient("Test",
+                1, new Date(), "Pantry", "Cups", 1);
+        StoredIngredient ingNotEqual = new StoredIngredient("Test",
+                0, new Date(), "Pantry", "Cups", 2);
         Object obj = new Object();
         assertTrue(ing.equals(ingEqual));
         assertFalse(ing.equals(ingNotEqual));

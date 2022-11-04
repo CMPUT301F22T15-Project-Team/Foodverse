@@ -17,8 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -90,7 +92,14 @@ public class StoredIngredientActivity extends AppCompatActivity
         // Get our database
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
-        db.enableNetwork();
+        // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
+        db.enableNetwork()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Firebase online");
+                    }
+                });
 
         collectionReference = db.collection("StoredIngredients");
 
@@ -104,18 +113,35 @@ public class StoredIngredientActivity extends AppCompatActivity
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
+                    String description = "", location = "", unit = "";
+                    Long count = 0l, unitCost = 0l;
+                    Date bestBefore = new Date();
+
+                    if (doc.getData().get("Description") != null) {
+                        description =
+                                (String) doc.getData().get("Description");
+                    }
                     /*
                      * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
                      * Answer by Niyas, February 23, 2019. Reference on casting
                      * from firebase.timestamp to java.date.
                      */
-                    Date bestBefore = ((Timestamp)doc.getData().get("Best Before"))
-                            .toDate();
-                    String location = (String) doc.getData().get("Location");
-                    String unit = (String) doc.getData().get("Unit");
-                    Long count = (Long) doc.getData().get("Count");
-                    Long unitCost = (Long) doc.getData().get("Cost");
+                    if (doc.getData().get("Best Before") != null) {
+                        bestBefore = ((Timestamp) doc.getData().get("Best Before"))
+                                .toDate();
+                    }
+                    if (doc.getData().get("Location") != null) {
+                        location = (String) doc.getData().get("Location");
+                    }
+                    if (doc.getData().get("Unit") != null) {
+                        unit = (String) doc.getData().get("Unit");
+                    }
+                    if (doc.getData().get("Count") != null) {
+                        count = (Long) doc.getData().get("Count");
+                    }
+                    if (doc.getData().get("Cost") != null) {
+                        unitCost = (Long) doc.getData().get("Cost");
+                    }
                     ingredientArrayList.add(
                             new StoredIngredient(description, count.intValue(),
                                     bestBefore, location, unit, unitCost.intValue()));
