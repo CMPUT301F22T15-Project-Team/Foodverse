@@ -113,15 +113,20 @@ public class MealPlanActivity extends AppCompatActivity implements
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
+                    Date date = new Date();
                     ArrayList<String> ingStrings =
                             (ArrayList<String>) doc.getData().get("Ingredients");
-                    Date date = ((Timestamp) doc.getData().get("Date")).toDate();
+                    if (doc.getData().get("Date") != null) {
+                        date = ((Timestamp) doc.getData().get("Date")).toDate();
+                    }
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
-                    for (String ingString : ingStrings) {
-                        Ingredient ing =
-                                DatabaseIngredient.stringToIngredient(ingString);
-                        ingredients.add(ing);
+                    if (ingStrings != null) {
+                        for (String ingString : ingStrings) {
+                            Ingredient ing =
+                                    DatabaseIngredient.stringToIngredient(ingString);
+                            ingredients.add(ing);
+                        }
                     }
                     mealArrayList.add(new Meal(ingredients, date));
                 }
@@ -130,28 +135,7 @@ public class MealPlanActivity extends AppCompatActivity implements
             }
         });
 
-        ingRef = db.collection("Ingredients");
         storedRef = db.collection("StoredIngredients");
-
-        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Log.d("MEALFRAG", description);
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        databaseIngredients.add(ing);
-                        set.add(ing);
-                        Log.d("MEALFRAG", "Added ing");
-                    }
-                }
-            }
-        });
 
         storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -160,15 +144,24 @@ public class MealPlanActivity extends AppCompatActivity implements
                 // Add ingredients from the cloud
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Log.d("MEALFRAG", description);
-                    Long count = (Long) doc.getData().get("Count");
-                    Ingredient ing = new Ingredient(description, count.intValue());
-                    if (!set.contains(ing)) {
-                        databaseIngredients.add(ing);
-                        set.add(ing);
-                        Log.d("MEALFRAG", "Added ing");
+                    String description = "", unit = "";
+                    Long count = 0l;
+                    if (doc.getData().get("Description") != null) {
+                        description =
+                                (String) doc.getData().get("Description");
                     }
+                    Log.d("MEALFRAG", description);
+                    if (doc.getData().get("Count") != null) {
+                        count = (Long) doc.getData().get("Count");
+                    }
+                    if (doc.getData().get("Unit") != null) {
+                        unit = (String) doc.getData().get("Unit");
+                    }
+                    Ingredient ing = new Ingredient(description, count.intValue(),
+                            unit);
+                    databaseIngredients.add(ing);
+                    set.add(ing);
+                    Log.d("MEALFRAG", "Added ing");
                 }
             }
         });

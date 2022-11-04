@@ -134,12 +134,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
-
-                    for(String s: ingStrings){
-                        mealPlanArrayList.add(DatabaseIngredient.stringToIngredient(s));
+                    if (ingStrings != null) {
+                        for (String s : ingStrings) {
+                            mealPlanArrayList.add(DatabaseIngredient.stringToIngredient(s));
+                        }
                     }
                 }
-
                 updateShoppingList();
             }
         });
@@ -151,9 +151,19 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    storedIngredientsArrayList.add(new Ingredient(description, count.intValue()));
+                    String description = "", unit = "";
+                    Long count = 0l;
+                    if (doc.getData().get("Description") != null) {
+                        description = (String) doc.getData().get("Description");
+                    }
+                    if (doc.getData().get("Count") != null) {
+                        count = (Long) doc.getData().get("Count");
+                    }
+                    if (doc.getData().get("Unit") != null) {
+                        unit = (String) doc.getData().get("Unit");
+                    }
+                    storedIngredientsArrayList.add(new Ingredient(description,
+                            count.intValue(), unit));
                 }
                 updateShoppingList();
             }

@@ -104,11 +104,23 @@ public class RecipeActivity  extends AppCompatActivity implements
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    String title = (String) doc.getData().get("Title");
-                    String category = (String) doc.getData().get("Category");
-                    String comments = (String) doc.getData().get("Comments");
-                    Long prep = (Long) doc.getData().get("Prep Time");
-                    Long servings = (Long) doc.getData().get("Servings");
+                    String title = "", category = "", comments = "";
+                    Long prep = 0l, servings = 0l;
+                    if (doc.getData().get("Title") != null) {
+                        title = (String) doc.getData().get("Title");
+                    }
+                    if (doc.getData().get("Category") != null) {
+                        category = (String) doc.getData().get("Category");
+                    }
+                    if (doc.getData().get("Comments") != null) {
+                        comments = (String) doc.getData().get("Comments");
+                    }
+                    if (doc.getData().get("Prep Time") != null) {
+                        prep = (Long) doc.getData().get("Prep Time");
+                    }
+                    if (doc.getData().get("Servings") != null) {
+                        servings = (Long) doc.getData().get("Servings");
+                    }
                     ArrayList<String> ingStrings =
                             (ArrayList<String>) doc.getData().get("Ingredients");
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
@@ -144,10 +156,18 @@ public class RecipeActivity  extends AppCompatActivity implements
                 // Add ingredients from the cloud
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Log.d("RECFRAG", description);
-                    Long count = (Long) doc.getData().get("Count");
-                    String unit = (String) doc.getData().get("Unit");
+                    String description = "", unit = "";
+                    Long count = 0l;
+                    if (doc.getData().get("Description") != null) {
+                        description = (String) doc.getData().get("Description");
+                        Log.d("RECFRAG", description);
+                    }
+                    if (doc.getData().get("Count") != null) {
+                        count = (Long) doc.getData().get("Count");
+                    }
+                    if (doc.getData().get("Unit") != null) {
+                        unit = (String) doc.getData().get("Unit");
+                    }
                     Ingredient ing = new Ingredient(description, count.intValue(), unit);
                     if (!set.contains(ing)) {
                         databaseIngredients.add(ing);
