@@ -184,4 +184,20 @@ public class StoredIngredientTests {
         assertFalse(ing.equals(ingNotEqual));
         assertFalse(ing.equals(obj));
     }
+
+    /**
+     * Test the equals method from {@link StoredIngredient}.
+     */
+    @Test
+    public void testEquals2() {
+        StoredIngredient ing = mockIngredient();
+        StoredIngredient ingEqual = new StoredIngredient("Test",
+                1, new Date(), "Pantry", "Cups", 1);
+        StoredIngredient ingNotEqual = new StoredIngredient("Test",
+                0, new Date(), "Pantry", "Cups", 2);
+        Object obj = new Object();
+        assertTrue(ing.equals(ingEqual));
+        assertFalse(ing.equals(ingNotEqual));
+        assertFalse(ing.equals(obj));
+    }
 }

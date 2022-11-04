@@ -90,7 +90,7 @@ public class RecipeTests {
      * Test the getCategory method from {@link Recipe}
      */
     @Test
-    public void testGetLocation() {
+    public void testGetCategory() {
         Recipe rec = mockRecipe();
         assertEquals(rec.getCategory(), "Test Category");
     }
@@ -100,7 +100,7 @@ public class RecipeTests {
      * Test the setCategory method from {@link Recipe}
      */
     @Test
-    public void testSetLocation() {
+    public void testSetCategory() {
         Recipe rec = mockRecipe();
         rec.setCategory("New Category");
         assertEquals(rec.getCategory(), "New Category");
