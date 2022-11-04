@@ -162,10 +162,10 @@ public class StoredIngredientTests {
     @Test
     public void testHashCode() {
         StoredIngredient ing = mockIngredient();
-        int hash = ing.getCount() + ing.getDescription().hashCode() + ing.getUnit().hashCode()
+        int hash = ing.getDescription().hashCode() + ing.getUnit().hashCode()
                 + ing.getCategory().hashCode() + ing.getUnitCost() + ing.getLocation().hashCode()
-                /*+ ing.getUnit().hashCode()*/ + ing.getBestBefore().getMonth()
-                + ing.getBestBefore().getYear() + ing.getBestBefore().getDate();
+                + ing.getBestBefore().getMonth() + ing.getBestBefore().getYear()
+                + ing.getBestBefore().getDate();
         assertEquals(ing.hashCode(), hash);
     }
 

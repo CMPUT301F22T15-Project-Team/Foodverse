@@ -147,7 +147,7 @@ public class IngredientTests {
     @Test
     public void testHashCode() {
         Ingredient ing = mockIngredient();
-        int hash = ing.getCount() + ing.getDescription().hashCode() + ing.getUnit().hashCode()
+        int hash = ing.getDescription().hashCode() + ing.getUnit().hashCode()
                 + ing.getCategory().hashCode();
         assertEquals(ing.hashCode(), hash);
     }

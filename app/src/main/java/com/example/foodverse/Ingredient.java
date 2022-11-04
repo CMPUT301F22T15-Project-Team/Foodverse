@@ -47,7 +47,7 @@ public class Ingredient {
 
     public int hashCode() {
         int hash = 0;
-        hash += count + description.hashCode() + unit.hashCode() +
+        hash += description.hashCode() + unit.hashCode() +
                 category.hashCode();
         return hash;
     }
