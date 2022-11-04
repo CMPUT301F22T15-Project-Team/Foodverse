@@ -20,6 +20,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Date;
+
 @RunWith(AndroidJUnit4.class)
 public class MealPlanActivityTest {
     private Solo solo;
@@ -168,50 +170,24 @@ public class MealPlanActivityTest {
     }
 
     /**
-     * Test adding a new ingredient. Check to ensure it is still there after
-     * an activity restart. Run as part of testIngredientActions.
+     * Test adding a new meal. Check to ensure it is still there after
+     * an activity restart. Run as part of testMealActions.
      */
     public void testAddMeal() {
-        solo.assertCurrentActivity("Wrong Activity", StoredIngredientActivity.class);
-        solo.clickOnButton("Add Ingredient");
-        // Add ingredient
-        solo.clearEditText((EditText) solo.getView(R.id.description_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.count_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.cost_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.unit_edit_text));
-        solo.enterText((EditText) solo.getView(R.id.description_edit_text),
-                "IntentTest Ingredient");
-        solo.enterText((EditText) solo.getView(R.id.count_edit_text),
-                "1");
-        solo.enterText((EditText) solo.getView(R.id.cost_edit_text),
-                "2");
-        solo.enterText((EditText) solo.getView(R.id.unit_edit_text),
-                "cups");
-        solo.pressSpinnerItem(0, 1);
-        solo.clickOnButton("Confirm");
-        // Assert ingredient does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Ingredient", true));
-
-        // Assert ingredient members are as we have entered
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        solo.clickOnButton("Add Meal");
+        solo.clickOnView(solo.getView(R.id.meal_ingredient_spinner));
         solo.clickOnText("IntentTest Ingredient");
-        assertTrue(solo.searchText("IntentTest Ingredient", true));
-        assertTrue(solo.searchText("1", true));
-        assertTrue(solo.searchText("2", true));
-        assertTrue(solo.searchText("cups", true));
-        assertTrue(solo.searchText("Fridge", true));
-        solo.clickOnButton("Cancel");
-
-        // Navigate off activity and back to check to make sure Firebase worked.
-        solo.clickOnImageButton(0);
-        solo.clickOnText("Shopping List");
-        solo.clickOnImageButton(0);
-        solo.clickOnText("Ingredients");
-        assertTrue(solo.searchText("IntentTest Ingredient", true));
+        solo.clickOnButton("Confirm");
+        Date date = new Date();
+        // Assert meal does appear in list, look for description
+        solo.clickOnText(date.toString());
+        solo.sleep(10000);
     }
 
     /**
-     * Test editing an ingredient. Check to ensure edit persists after
-     * an activity restart. Run as part of testIngredientActions.
+     * Test editing an meal. Check to ensure edit persists after
+     * an activity restart. Run as part of testMealActions.
      */
     public void testEditMeal() {
         solo.assertCurrentActivity("Wrong Activity", StoredIngredientActivity.class);
@@ -257,10 +233,10 @@ public class MealPlanActivityTest {
     }
 
     /**
-     * Test deleting an ingredient. Check to ensure ingredient does not
-     * reappear after an activity restart. Run as part of testIngredientActions.
+     * Test deleting an meal. Check to ensure ingredient does not
+     * reappear after an activity restart. Run as part of testMealActions.
      */
-    public void testDeleteMeal() {
+   public void testDeleteMeal() {
         solo.assertCurrentActivity("Wrong Activity", StoredIngredientActivity.class);
         // Assert ingredient does appear in list, look for description
         assertTrue(solo.searchText("IntentTest Edit", true));
@@ -282,15 +258,69 @@ public class MealPlanActivityTest {
     }
 
     /**
+     * Adds a test ingredient we can add to the meal for testing.
+     */
+    public void addTestIng() {
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        /*
+         * Open up navigation drawer, with reference to:
+         * https://stackoverflow.com/questions/23053593/correct-way-to-open-navigationdrawer-and-select-items-in-robotium
+         * Answer by Vassilis Zafeiris (2015). Accessed 2022-11-02.
+         */
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Ingredients");
+        solo.clickOnButton("Add Ingredient");
+        // Add ingredient
+        solo.clearEditText((EditText) solo.getView(R.id.description_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.count_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.cost_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.unit_edit_text));
+        solo.enterText((EditText) solo.getView(R.id.description_edit_text),
+                "IntentTest Ingredient");
+        solo.enterText((EditText) solo.getView(R.id.count_edit_text),
+                "1");
+        solo.enterText((EditText) solo.getView(R.id.cost_edit_text),
+                "2");
+        solo.enterText((EditText) solo.getView(R.id.unit_edit_text),
+                "cups");
+        solo.clickOnButton("Confirm");
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Meal Planner");
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+    }
+
+
+    /**
+     * Cleans up the test ingredient.
+     */
+    public void deleteTestIng() {
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        /*
+         * Open up navigation drawer, with reference to:
+         * https://stackoverflow.com/questions/23053593/correct-way-to-open-navigationdrawer-and-select-items-in-robotium
+         * Answer by Vassilis Zafeiris (2015). Accessed 2022-11-02.
+         */
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Ingredients");
+        solo.clickOnText("IntentTest Ingredient");
+        solo.clickOnButton("Delete");
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Meal Planner");
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+    }
+
+    /**
      * Test all ingredient actions, defined above. Due to firebase functions,
      * we expect these to be sequential actions, so that extra data is not
      * left over after tests and the same test can be expanded upon.
      */
     @Test
     public void testMealActions() {
+        addTestIng();
         testAddMeal();
-        testEditMeal();
-        testDeleteMeal();
+        //testEditMeal();
+        //testDeleteMeal();
+        deleteTestIng();
     }
 
     /**

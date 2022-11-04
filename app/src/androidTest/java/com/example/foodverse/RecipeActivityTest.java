@@ -171,13 +171,13 @@ public class RecipeActivityTest {
         solo.clickOnButton("Add Recipe");
         // Add recipe
         solo.clearEditText((EditText) solo.getView(R.id.recipe_title_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.comments_editText));
+        solo.clearEditText((EditText) solo.getView(R.id.comment_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.serving_size_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.prep_time_edit_text));
 
         solo.enterText((EditText) solo.getView(R.id.recipe_title_edit_text),
                 "IntentTest Recipe");
-        solo.enterText((EditText) solo.getView(R.id.comments_editText),
+        solo.enterText((EditText) solo.getView(R.id.comment_edit_text),
                 "IntentTest Comment");
         solo.clickOnRadioButton(1);
         solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),
@@ -185,12 +185,12 @@ public class RecipeActivityTest {
         solo.enterText((EditText) solo.getView(R.id.prep_time_edit_text),
                 "5");
 
-        solo.clickOnButton("Ok");
+        solo.clickOnButton("OK");
         // Assert the recipe does appear in list, look for description
         assertTrue(solo.searchText("IntentTest Recipe", true));
-
         // Assert ingredient members are as we have entered
         solo.clickOnText("IntentTest Recipe");
+        solo.clickOnButton("Edit");
         assertTrue(solo.searchText("IntentTest Recipe", true));
         assertTrue(solo.searchText("IntentTest Comment", true));
         solo.isRadioButtonChecked(1);
@@ -216,28 +216,30 @@ public class RecipeActivityTest {
         assertTrue(solo.searchText("IntentTest Recipe", true));
 
         solo.clickOnText("IntentTest Recipe");
+        solo.clickOnButton("Edit");
         solo.clearEditText((EditText) solo.getView(R.id.recipe_title_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.comments_editText));
+        solo.clearEditText((EditText) solo.getView(R.id.comment_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.serving_size_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.prep_time_edit_text));
 
         solo.enterText((EditText) solo.getView(R.id.recipe_title_edit_text),
                 "IntentTest Edit");
-        solo.enterText((EditText) solo.getView(R.id.comments_editText),
+        solo.enterText((EditText) solo.getView(R.id.comment_edit_text),
                 "IntentTest Comment Edit");
         solo.clickOnRadioButton(2);
         solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),
                 "20");
         solo.enterText((EditText) solo.getView(R.id.prep_time_edit_text),
                 "50");
-        solo.clickOnButton("Ok");
+        solo.clickOnButton("OK");
 
         // Assert recipe does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Edit", true));
-        assertFalse(solo.searchText("IntentTest Recipe", true));
+        assertTrue(solo.searchText("IntentTest Edit"));
+        assertFalse(solo.searchText("IntentTest Recipe"));
 
         // Assert recipe members are as we have entered
         solo.clickOnText("IntentTest Edit");
+        solo.clickOnButton("Edit");
         assertTrue(solo.searchText("IntentTest Edit", true));
         assertTrue(solo.searchText("IntentTest Comment Edit", true));
         solo.isRadioButtonChecked(2);
@@ -250,8 +252,8 @@ public class RecipeActivityTest {
         solo.clickOnText("Shopping List");
         solo.clickOnImageButton(0);
         solo.clickOnText("Recipes");
-        assertTrue(solo.searchText("IntentTest Edit", true));
-        assertFalse(solo.searchText("IntentTest Recipe", true));
+        assertTrue(solo.searchText("IntentTest Edit"));
+        assertFalse(solo.searchText("IntentTest Recipe"));
     }
 
     /**
