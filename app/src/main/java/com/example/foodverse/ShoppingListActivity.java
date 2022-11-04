@@ -21,8 +21,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -51,8 +53,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
     // Declare the variables so that you will be able to reference it later.
     private ListView shoppingListView;
     private ArrayAdapter<ShoppingListIngredient> shoppingListAdapter;
-    private ArrayList<ShoppingListIngredient> mealPlanArrayList;
-    private ArrayList<ShoppingListIngredient> storedIngredientsArrayList;
+    private ArrayList<Ingredient> mealPlanArrayList;
+    private ArrayList<Ingredient> storedIngredientsArrayList;
     private ArrayList<ShoppingListIngredient> shoppingArrayList;
     private int selectedIngredientIndex = -1;
     private FirebaseFirestore db;
@@ -109,6 +111,16 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
         // Get our database
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestore.setLoggingEnabled(true);
+        // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
+        db.enableNetwork()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.d(TAG, "Firebase online");
+            }
+        });
+
         shoppingListCollectionReference = db.collection("ShoppingList");
         mealPlanCollectionReference = db.collection("MealPlan");
         storedIngredientsCollectionReference = db.collection("StoredIngredients");
@@ -122,14 +134,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
-
-                    for(String s: ingStrings){
-                        Ingredient ingredient = DatabaseIngredient.stringToIngredient(s);
-                        mealPlanArrayList.add(new ShoppingListIngredient(ingredient.getDescription(),
-                                ingredient.getCount(), ingredient.getUnit(), ingredient.getCategory()));
+                    if (ingStrings != null) {
+                        for (String s : ingStrings) {
+                            mealPlanArrayList.add(DatabaseIngredient.stringToIngredient(s));
+                        }
                     }
                 }
-
                 updateShoppingList();
             }
         });
@@ -141,11 +151,19 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    String unit = (String) doc.getData().get("Unit");
-                    String category = (String) doc.getData().get("Category");
-                    storedIngredientsArrayList.add(new ShoppingListIngredient(description, count.intValue(), unit, category));
+                    String description = "", unit = "";
+                    Long count = 0l;
+                    if (doc.getData().get("Description") != null) {
+                        description = (String) doc.getData().get("Description");
+                    }
+                    if (doc.getData().get("Count") != null) {
+                        count = (Long) doc.getData().get("Count");
+                    }
+                    if (doc.getData().get("Unit") != null) {
+                        unit = (String) doc.getData().get("Unit");
+                    }
+                    storedIngredientsArrayList.add(new Ingredient(description,
+                            count.intValue(), unit));
                 }
                 updateShoppingList();
             }
@@ -422,7 +440,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
      */
     public void updateShoppingList() {
         shoppingArrayList.clear();
-        for (ShoppingListIngredient mealIngredient : mealPlanArrayList) {
+        for (Ingredient mealIngredient : mealPlanArrayList) {
             boolean addToList = true;
             int count = mealIngredient.getCount();
 

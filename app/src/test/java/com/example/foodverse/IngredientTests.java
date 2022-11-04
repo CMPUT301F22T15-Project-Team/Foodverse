@@ -2,6 +2,7 @@ package com.example.foodverse;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import static java.sql.Types.NULL;
 
 public class IngredientTests {
 
@@ -108,6 +109,16 @@ public class IngredientTests {
     }
 
     /**
+     * Test the setCount method from {@link Ingredient}.
+     */
+    @Test
+    public void testSetCountZero() {
+        Ingredient ing = mockIngredient();
+        ing.setCount(0);
+        assertEquals(ing.getCount(), 0);
+    }
+
+    /**
      * Test the setCount method with an invalid num from {@link Ingredient}.
      */
     @Test
@@ -117,6 +128,18 @@ public class IngredientTests {
         assertEquals(ing.getCount(), 0);
     }
 
+
+    /**
+     * Test the setCount method with a NULL from {@link Ingredient}.
+     */
+    @Test
+    public void testSetCountNull() {
+        Ingredient ing = mockIngredient();
+        ing.setCount(NULL);
+        assertEquals(ing.getCount(), 0);
+    }
+
+
     /**
      * Test the hashCode method from {@link Ingredient}. Expected to return the
      * sum of hash codes of its members.
@@ -124,10 +147,11 @@ public class IngredientTests {
     @Test
     public void testHashCode() {
         Ingredient ing = mockIngredient();
-        int hash = ing.getCount() + ing.getDescription().hashCode() + ing.getUnit().hashCode()
+        int hash = ing.getDescription().hashCode() + ing.getUnit().hashCode()
                 + ing.getCategory().hashCode();
         assertEquals(ing.hashCode(), hash);
     }
+
 
     /**
      * Test the equals method from {@link Ingredient}.
@@ -135,7 +159,7 @@ public class IngredientTests {
     @Test
     public void testEquals() {
         Ingredient ing = mockIngredient();
-        Ingredient ingEqual = new Ingredient("Test", 1, "Cups","Test Category");
+        Ingredient ingEqual = new Ingredient("Test", 1, "Cups", "Test Category");
         Ingredient ingNotEqual = new Ingredient("NE", 3);
         Object obj = new Object();
         assertTrue(ing.equals(ingEqual));
