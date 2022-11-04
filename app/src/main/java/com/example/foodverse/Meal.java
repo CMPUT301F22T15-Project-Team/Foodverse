@@ -21,7 +21,8 @@ public class Meal {
      * @since version 1.0
      */
     public Meal() {
-
+        this.ingredients = new ArrayList<Ingredient>();
+        this.date = new Date();
     }
 
     /**
