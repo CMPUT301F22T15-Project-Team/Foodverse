@@ -13,15 +13,15 @@ public class Recipe implements Serializable {
    private int servings;
    private String category;
    private String comments;
-   //private ArrayList<Ingredient> ingredientArrayList;
+   private ArrayList<Ingredient> ingredientArrayList;
 
-    public Recipe(String title, int prep_time, int servings, String category, String comments) {
+    public Recipe(String title, int prep_time, int servings, String category, String comments, ArrayList<Ingredient> ingredientArrayList) {
         this.title = title; //add char limit
         this.prep_time = prep_time;
         this.servings = servings;
         this.category = category;
         this.comments = comments; //add limit
-        //this.ingredientArrayList = ingredientArrayList;
+        this.ingredientArrayList = ingredientArrayList;
     }
 
     /**

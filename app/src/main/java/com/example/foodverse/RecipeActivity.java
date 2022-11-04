@@ -30,14 +30,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class RecipeActivity  extends AppCompatActivity implements
         RecipeFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
     private ListView RecipeList;
-    ArrayAdapter<Recipe> RecAdapter;
-    ArrayList<Recipe> RecipeDataList;
-    View clickedElement;
+    private ArrayAdapter<Recipe> RecAdapter;
+    private ArrayList<Recipe> RecipeDataList;
+    private View clickedElement;
+    private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private int selectedRecipeIndex;
     private FirebaseFirestore db;
     private CollectionReference collectionReference;
@@ -45,6 +47,9 @@ public class RecipeActivity  extends AppCompatActivity implements
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
+    private CollectionReference ingRef, storedRef;
+    private HashSet<Ingredient> set = new HashSet<>();
+    private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,11 +98,52 @@ public class RecipeActivity  extends AppCompatActivity implements
                     String comments = (String) doc.getData().get("Comments");
                     Long prep = (Long) doc.getData().get("Prep Time");
                     Long servings = (Long) doc.getData().get("Servings");
+                    ArrayList<String> ingStrings =
+                            (ArrayList<String>) doc.getData().get("Ingredients");
+                    ArrayList<Ingredient> ingredients = new ArrayList<>();
+                    if (ingStrings != null) {
+                        for (String ingString : ingStrings) {
+                            Ingredient ing =
+                                    DatabaseIngredient.stringToIngredient(ingString);
+                            ingredients.add(ing);
+                        }
+                    }
                     RecipeDataList.add(new Recipe(title, prep.intValue(),
-                            servings.intValue(), category, comments));
+                            servings.intValue(), category, comments, ingredients));
+//                    for (String ingString : ingStrings) {
+//                        Ingredient ing =
+//                                DatabaseIngredient.stringToIngredient(ingString);
+//                        ingredients.add(ing);
+//                    }
+//                    RecipeDataList.add(new Recipe(title, prep.intValue(),
+//                            servings.intValue(), category, comments,ingredients ));
                 }
                 // Update with new cloud data
                 RecAdapter.notifyDataSetChanged();
+            }
+        });
+
+        ingRef = db.collection("Ingredients");
+        storedRef = db.collection("StoredIngredients");
+
+        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                // Add ingredients from the cloud
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Log.d("RECFRAG", description);
+                    Long count = (Long) doc.getData().get("Count");
+                    String unit = (String) doc.getData().get("Unit");
+                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
+                    if (!set.contains(ing)) {
+                        databaseIngredients.add(ing);
+                        set.add(ing);
+                        Log.d("RECFRAG", "Added ing");
+                    }
+                }
             }
         });
 
@@ -321,4 +367,11 @@ public class RecipeActivity  extends AppCompatActivity implements
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public ArrayList<Ingredient> getDatabaseIngredients(){
+        return databaseIngredients;
+    }
+
+
+
 }
