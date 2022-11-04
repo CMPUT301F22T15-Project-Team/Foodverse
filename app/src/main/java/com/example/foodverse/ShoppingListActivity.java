@@ -71,7 +71,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
     /**
      * The startup function that is called when the activity is launched.
-     * @param savedInstanceState
+     * @param savedInstanceState Any data that needs to be passed into the activity
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +127,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
         // Auto populate the shopping list by checking the meal plan and ingredient storage
         mealPlanCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+
+            /**
+             * Updates the local meal plan ingredient list everytime firebase is updated
+             * @param queryDocumentSnapshots The meal plans stored in firebase
+             * @param error The error message from firebase
+             */
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 mealPlanArrayList.clear();
@@ -145,6 +151,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
         });
 
         storedIngredientsCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+
+            /**
+             * Updates the local stored ingredient list everytime firebase is updated
+             * @param queryDocumentSnapshots The stored ingredients stored in firebase
+             * @param error The error message from firebase
+             */
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 storedIngredientsArrayList.clear();
@@ -224,7 +236,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
              * @param parent The parent of the view.
              * @param view The view that was clicked.
              * @param position The position of the view that was clicked.
-             * @param id
+             * @param id The id of the view that was clicked.
              */
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -250,6 +262,10 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * The function called when a checkbox is clicked.
+     * @param view The view that was clicked.
+     */
     public void onCheckboxClicked(View view){
         System.out.println(view);
 //        ColorDrawable color = (ColorDrawable) view.getBackground();
