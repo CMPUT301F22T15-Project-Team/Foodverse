@@ -422,21 +422,29 @@ public class ShoppingListActivity extends AppCompatActivity implements
      */
     public void updateShoppingList() {
         shoppingArrayList.clear();
-        for (Ingredient storedIngredient : storedIngredientsArrayList) {
-            for (Ingredient mealIngredient : mealPlanArrayList) {
+        for (ShoppingListIngredient mealIngredient : mealPlanArrayList) {
+            boolean addToList = true;
+            int count = mealIngredient.getCount();
+
+            for (Ingredient storedIngredient : storedIngredientsArrayList) {
                 // We check if a required ingredient already exists in storage
                 if (mealIngredient.getDescription().equals(storedIngredient.getDescription()) &&
                         mealIngredient.getUnit().equals(storedIngredient.getUnit()) &&
                         mealIngredient.getCategory().equals(storedIngredient.getCategory())) {
 
                     // We check how many units are actually needed
-                    if (mealIngredient.getCount() < storedIngredient.getCount()) {
-                        String description = mealIngredient.getDescription();
-                        int count = storedIngredient.getCount() - mealIngredient.getCount();
-                        shoppingArrayList.add(new ShoppingListIngredient(description, count, "", ""));
+                    if (mealIngredient.getCount() > storedIngredient.getCount()) {
+                        count = storedIngredient.getCount() - mealIngredient.getCount();
+                        break;
                     }
-                    break;
+                    addToList = false;
                 }
+            }
+
+            if(addToList){
+                mealIngredient.setCount(count);
+                shoppingArrayList.add(new ShoppingListIngredient(mealIngredient.getDescription(),
+                        count, mealIngredient.getUnit(), mealIngredient.getCategory()));
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
