@@ -51,8 +51,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
     // Declare the variables so that you will be able to reference it later.
     private ListView shoppingListView;
     private ArrayAdapter<ShoppingListIngredient> shoppingListAdapter;
-    private ArrayList<Ingredient> mealPlanArrayList;
-    private ArrayList<Ingredient> storedIngredientsArrayList;
+    private ArrayList<ShoppingListIngredient> mealPlanArrayList;
+    private ArrayList<ShoppingListIngredient> storedIngredientsArrayList;
     private ArrayList<ShoppingListIngredient> shoppingArrayList;
     private int selectedIngredientIndex = -1;
     private FirebaseFirestore db;
@@ -124,7 +124,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
 
                     for(String s: ingStrings){
-                        mealPlanArrayList.add(DatabaseIngredient.stringToIngredient(s));
+                        Ingredient ingredient = DatabaseIngredient.stringToIngredient(s);
+                        mealPlanArrayList.add(new ShoppingListIngredient(ingredient.getDescription(),
+                                ingredient.getCount(), ingredient.getUnit(), ingredient.getCategory()));
                     }
                 }
 
@@ -141,7 +143,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     String hashCode = doc.getId();
                     String description = (String) doc.getData().get("Description");
                     Long count = (Long) doc.getData().get("Count");
-                    storedIngredientsArrayList.add(new Ingredient(description, count.intValue()));
+                    String unit = (String) doc.getData().get("Unit");
+                    String category = (String) doc.getData().get("Category");
+                    storedIngredientsArrayList.add(new ShoppingListIngredient(description, count.intValue(), unit, category));
                 }
                 updateShoppingList();
             }
@@ -413,14 +417,20 @@ public class ShoppingListActivity extends AppCompatActivity implements
     }
 
     /**
-     *
+     * Updates the shopping list based on the ingredients needed in the meal plan
+     * and the ingredients already contained in the storage.
      */
-    public void updateShoppingList(){
+    public void updateShoppingList() {
         shoppingArrayList.clear();
-        for(Ingredient storedIngredient: storedIngredientsArrayList){
-            for(Ingredient mealIngredient: mealPlanArrayList){
-                if(mealIngredient.getDescription().equals(storedIngredient.getDescription())){
-                    if(mealIngredient.getCount() < storedIngredient.getCount()){
+        for (Ingredient storedIngredient : storedIngredientsArrayList) {
+            for (Ingredient mealIngredient : mealPlanArrayList) {
+                // We check if a required ingredient already exists in storage
+                if (mealIngredient.getDescription().equals(storedIngredient.getDescription()) &&
+                        mealIngredient.getUnit().equals(storedIngredient.getUnit()) &&
+                        mealIngredient.getCategory().equals(storedIngredient.getCategory())) {
+
+                    // We check how many units are actually needed
+                    if (mealIngredient.getCount() < storedIngredient.getCount()) {
                         String description = mealIngredient.getDescription();
                         int count = storedIngredient.getCount() - mealIngredient.getCount();
                         shoppingArrayList.add(new ShoppingListIngredient(description, count, "", ""));
@@ -430,7 +440,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
-        
+    }
 
     /**
      * Implemented to allow for the opening and closing of the navigation menu.
