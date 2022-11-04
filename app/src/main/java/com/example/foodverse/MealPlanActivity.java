@@ -89,6 +89,8 @@ public class MealPlanActivity extends AppCompatActivity implements
 
         // Get db, the MealPlan collection
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestore.setLoggingEnabled(true);
+        db.enableNetwork();
 
         collectionReference = db.collection("MealPlan");
 

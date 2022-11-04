@@ -80,6 +80,8 @@ public class RecipeActivity  extends AppCompatActivity implements
 
         // Connect to the database, grab the Recipes collection.
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestore.setLoggingEnabled(true);
+        db.enableNetwork();
 
         collectionReference = db.collection("Recipes");
 

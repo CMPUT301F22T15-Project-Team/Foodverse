@@ -109,6 +109,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
         // Get our database
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestore.setLoggingEnabled(true);
+        db.enableNetwork();
+
         shoppingListCollectionReference = db.collection("ShoppingList");
         mealPlanCollectionReference = db.collection("MealPlan");
         storedIngredientsCollectionReference = db.collection("StoredIngredients");
