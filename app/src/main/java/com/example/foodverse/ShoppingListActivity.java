@@ -415,12 +415,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
     /**
      *
      */
-    public void updateShoppingList(){
+    public void updateShoppingList() {
         shoppingArrayList.clear();
-        for(Ingredient storedIngredient: storedIngredientsArrayList){
-            for(Ingredient mealIngredient: mealPlanArrayList){
-                if(mealIngredient.getDescription().equals(storedIngredient.getDescription())){
-                    if(mealIngredient.getCount() < storedIngredient.getCount()){
+        for (Ingredient storedIngredient : storedIngredientsArrayList) {
+            for (Ingredient mealIngredient : mealPlanArrayList) {
+                if (mealIngredient.getDescription().equals(storedIngredient.getDescription())) {
+                    if (mealIngredient.getCount() < storedIngredient.getCount()) {
                         String description = mealIngredient.getDescription();
                         int count = storedIngredient.getCount() - mealIngredient.getCount();
                         shoppingArrayList.add(new ShoppingListIngredient(description, count, "", ""));
@@ -430,6 +430,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
+    }
         
 
     /**

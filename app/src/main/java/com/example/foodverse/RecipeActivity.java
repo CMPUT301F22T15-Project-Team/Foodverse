@@ -101,15 +101,15 @@ public class RecipeActivity  extends AppCompatActivity implements
                     ArrayList<String> ingStrings =
                             (ArrayList<String>) doc.getData().get("Ingredients");
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
-                    if (ingStrings != null){
+                    if (ingStrings != null) {
                         for (String ingString : ingStrings) {
                             Ingredient ing =
                                     DatabaseIngredient.stringToIngredient(ingString);
                             ingredients.add(ing);
                         }
-                        RecipeDataList.add(new Recipe(title, prep.intValue(),
-                                servings.intValue(), category, comments,ingredients ));
                     }
+                    RecipeDataList.add(new Recipe(title, prep.intValue(),
+                            servings.intValue(), category, comments, ingredients));
 //                    for (String ingString : ingStrings) {
 //                        Ingredient ing =
 //                                DatabaseIngredient.stringToIngredient(ingString);
