@@ -5,6 +5,8 @@ import static org.junit.Assert.assertFalse;
 
 import android.app.Activity;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -177,12 +179,33 @@ public class MealPlanActivityTest {
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
         solo.clickOnButton("Add Meal");
         solo.clickOnView(solo.getView(R.id.meal_ingredient_spinner));
-        solo.clickOnText("IntentTest Ingredient");
+        solo.clickOnText("IntentTest Meal");
+        solo.clickOnButton("+");
+        /*
+         * Set date to something easy to grab for testing. Referenced:
+         * https://stackoverflow.com/questions/6837012/robotium-how-to-set-a-date-in-date-picker-using-robotium
+         * Answer by Jean-Philippe Roy (2012).
+         */
+        solo.clickOnView(solo.getView(R.id.date_button));
+        solo.setDatePicker(0, 1900, 0, 1);
+        solo.clickOnButton("OK");
         solo.clickOnButton("Confirm");
-        Date date = new Date();
-        // Assert meal does appear in list, look for description
-        solo.clickOnText(date.toString());
-        solo.sleep(10000);
+        // Assert meal does appear in list, look for year
+        assertTrue(solo.searchText("1900", true));
+        solo.clickOnText("1900");
+
+        // Make sure meal date is as we entered, has the IntentTest Meal.
+        assertTrue(solo.searchText("1900-01-01", true));
+        assertTrue(solo.searchText("IntentTest Meal", true));
+        solo.clickOnButton("Cancel");
+
+        // Make sure meal persists with change in activity
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Shopping List");
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Meal Planner");
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        assertTrue(solo.searchText("1900", true));
     }
 
     /**
@@ -190,46 +213,39 @@ public class MealPlanActivityTest {
      * an activity restart. Run as part of testMealActions.
      */
     public void testEditMeal() {
-        solo.assertCurrentActivity("Wrong Activity", StoredIngredientActivity.class);
-        // Assert ingredient does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Ingredient", true));
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        // Assert meal does appear in list, search for year
+        assertTrue(solo.searchText("1900", true));
 
-        solo.clickOnText("IntentTest Ingredient");
-        solo.clearEditText((EditText) solo.getView(R.id.description_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.count_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.cost_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.unit_edit_text));
-        solo.enterText((EditText) solo.getView(R.id.description_edit_text),
-                "IntentTest Edit");
-        solo.enterText((EditText) solo.getView(R.id.count_edit_text),
-                "5");
-        solo.enterText((EditText) solo.getView(R.id.cost_edit_text),
-                "3");
-        solo.enterText((EditText) solo.getView(R.id.unit_edit_text),
-                "bags");
-        solo.pressSpinnerItem(0, 1);
+        solo.clickOnText("1900");
+        /*
+         * Set date to something easy to grab for testing. Referenced:
+         * https://stackoverflow.com/questions/6837012/robotium-how-to-set-a-date-in-date-picker-using-robotium
+         * Answer by Jean-Philippe Roy (2012).
+         */
+        solo.clickOnView(solo.getView(R.id.date_button));
+        solo.setDatePicker(0, 1901, 1, 2);
+        solo.clickOnButton("OK");
         solo.clickOnButton("Confirm");
 
-        // Assert ingredient does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Edit", true));
-        assertFalse(solo.searchText("IntentTest Ingredient", true));
+        // Assert meal does appear in list, look for year
+        assertTrue(solo.searchText("1901", true));
+        assertFalse(solo.searchText("1900", true));
 
-        // Assert ingredient members are as we have entered
-        solo.clickOnText("IntentTest Edit");
-        assertTrue(solo.searchText("IntentTest Edit", true));
-        assertTrue(solo.searchText("5", true));
-        assertTrue(solo.searchText("3", true));
-        assertTrue(solo.searchText("bags", true));
-        assertTrue(solo.searchText("Pantry", true));
+        // Assert meal members are as we have entered
+        solo.clickOnText("1901");
+        assertTrue(solo.searchText("1901-02-02", true));
+        assertTrue(solo.searchText("IntentTest Meal", true));
         solo.clickOnButton("Cancel");
 
         // Navigate off activity and back to check to make sure Firebase worked.
         solo.clickOnImageButton(0);
         solo.clickOnText("Shopping List");
         solo.clickOnImageButton(0);
-        solo.clickOnText("Ingredients");
-        assertTrue(solo.searchText("IntentTest Edit", true));
-        assertFalse(solo.searchText("IntentTest Ingredient", true));
+        solo.clickOnText("Meal Planner");
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        assertTrue(solo.searchText("1901", true));
+        assertFalse(solo.searchText("1900", true));
     }
 
     /**
@@ -237,24 +253,25 @@ public class MealPlanActivityTest {
      * reappear after an activity restart. Run as part of testMealActions.
      */
    public void testDeleteMeal() {
-        solo.assertCurrentActivity("Wrong Activity", StoredIngredientActivity.class);
-        // Assert ingredient does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Edit", true));
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        // Assert meal does appear in list, look for year
+        assertTrue(solo.searchText("1901", true));
 
-        solo.clickOnText("IntentTest Edit");
+        solo.clickOnText("1901");
         solo.clickOnButton("Delete");
 
-        // Assert ingredient does appear in list, look for description
-        assertFalse(solo.searchText("IntentTest Edit", true));
-        assertFalse(solo.searchText("IntentTest Ingredient", true));
+        // Assert meal does not appear in list, look for year
+        assertFalse(solo.searchText("1900", true));
+        assertFalse(solo.searchText("1901", true));
 
         // Navigate off activity and back to check to make sure Firebase worked.
         solo.clickOnImageButton(0);
         solo.clickOnText("Shopping List");
         solo.clickOnImageButton(0);
-        solo.clickOnText("Ingredients");
-        assertFalse(solo.searchText("IntentTest Edit", true));
-        assertFalse(solo.searchText("IntentTest Ingredient", true));
+        solo.clickOnText("Meal Planner");
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
+        assertFalse(solo.searchText("1900", true));
+        assertFalse(solo.searchText("1901", true));
     }
 
     /**
@@ -276,7 +293,7 @@ public class MealPlanActivityTest {
         solo.clearEditText((EditText) solo.getView(R.id.cost_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.unit_edit_text));
         solo.enterText((EditText) solo.getView(R.id.description_edit_text),
-                "IntentTest Ingredient");
+                "IntentTest Meal");
         solo.enterText((EditText) solo.getView(R.id.count_edit_text),
                 "1");
         solo.enterText((EditText) solo.getView(R.id.cost_edit_text),
@@ -302,7 +319,7 @@ public class MealPlanActivityTest {
          */
         solo.clickOnImageButton(0);
         solo.clickOnText("Ingredients");
-        solo.clickOnText("IntentTest Ingredient");
+        solo.clickOnText("IntentTest Meal");
         solo.clickOnButton("Delete");
         solo.clickOnImageButton(0);
         solo.clickOnText("Meal Planner");
@@ -312,15 +329,19 @@ public class MealPlanActivityTest {
     /**
      * Test all ingredient actions, defined above. Due to firebase functions,
      * we expect these to be sequential actions, so that extra data is not
-     * left over after tests and the same test can be expanded upon.
+     * left over after tests and the same test can be expanded upon. A dummy
+     * ingredient is created to add to the meal, and is also cleaned up, but is
+     * not the focus of the tests.
      */
     @Test
     public void testMealActions() {
         addTestIng();
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
         testAddMeal();
-        //testEditMeal();
-        //testDeleteMeal();
+        testEditMeal();
+        testDeleteMeal();
         deleteTestIng();
+        solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
     }
 
     /**

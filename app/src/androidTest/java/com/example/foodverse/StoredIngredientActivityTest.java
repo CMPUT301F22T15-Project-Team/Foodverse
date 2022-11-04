@@ -190,6 +190,14 @@ public class StoredIngredientActivityTest {
         solo.enterText((EditText) solo.getView(R.id.unit_edit_text),
                 "cups");
         solo.pressSpinnerItem(0, 1);
+        /*
+         * Set date to something unique for testing. Referenced:
+         * https://stackoverflow.com/questions/6837012/robotium-how-to-set-a-date-in-date-picker-using-robotium
+         * Answer by Jean-Philippe Roy (2012).
+         */
+        solo.clickOnView(solo.getView(R.id.expiry_button));
+        solo.setDatePicker(0, 1900, 0, 1);
+        solo.clickOnButton("OK");
         solo.clickOnButton("Confirm");
         // Assert ingredient does appear in list, look for description
         assertTrue(solo.searchText("IntentTest Ingredient", true));
@@ -201,6 +209,7 @@ public class StoredIngredientActivityTest {
         assertTrue(solo.searchText("2", true));
         assertTrue(solo.searchText("cups", true));
         assertTrue(solo.searchText("Fridge", true));
+        assertTrue(solo.searchText("1900-01-01", true));
         solo.clickOnButton("Cancel");
 
         // Navigate off activity and back to check to make sure Firebase worked.
@@ -234,6 +243,14 @@ public class StoredIngredientActivityTest {
         solo.enterText((EditText) solo.getView(R.id.unit_edit_text),
                 "bags");
         solo.pressSpinnerItem(0, 1);
+        /*
+         * Set date to something unique for testing. Referenced:
+         * https://stackoverflow.com/questions/6837012/robotium-how-to-set-a-date-in-date-picker-using-robotium
+         * Answer by Jean-Philippe Roy (2012).
+         */
+        solo.clickOnView(solo.getView(R.id.expiry_button));
+        solo.setDatePicker(0, 1901, 1, 2);
+        solo.clickOnButton("OK");
         solo.clickOnButton("Confirm");
 
         // Assert ingredient does appear in list, look for description
@@ -247,6 +264,7 @@ public class StoredIngredientActivityTest {
         assertTrue(solo.searchText("3", true));
         assertTrue(solo.searchText("bags", true));
         assertTrue(solo.searchText("Pantry", true));
+        assertTrue(solo.searchText("1901-02-02", true));
         solo.clickOnButton("Cancel");
 
         // Navigate off activity and back to check to make sure Firebase worked.
@@ -270,7 +288,7 @@ public class StoredIngredientActivityTest {
         solo.clickOnText("IntentTest Edit");
         solo.clickOnButton("Delete");
 
-        // Assert ingredient does appear in list, look for description
+        // Assert ingredient does not appear in list, look for description
         assertFalse(solo.searchText("IntentTest Edit", true));
         assertFalse(solo.searchText("IntentTest Ingredient", true));
 
