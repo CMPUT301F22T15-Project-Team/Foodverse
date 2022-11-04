@@ -187,12 +187,12 @@ public class RecipeActivityTest {
 
         solo.clickOnButton("OK");
         // Assert the recipe does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Recipe", 1, true));
+        assertTrue(solo.searchText("IntentTest Recipe", 1, true, true));
         // Assert ingredient members are as we have entered
         solo.clickOnText("IntentTest Recipe");
         solo.clickOnButton("Edit");
-        assertTrue(solo.searchText("IntentTest Recipe", 1, true));
-        assertTrue(solo.searchText("IntentTest Comment", 1, true));
+        assertTrue(solo.searchText("IntentTest Recipe", 1, true, true));
+        assertTrue(solo.searchText("IntentTest Comment", 1, true, true));
         solo.isRadioButtonChecked(1);
         assertTrue(solo.searchText("2",1, true));
         assertTrue(solo.searchText("5", 1, true));
@@ -203,7 +203,7 @@ public class RecipeActivityTest {
         solo.clickOnText("Shopping List");
         solo.clickOnImageButton(0);
         solo.clickOnText("Recipes");
-        assertTrue(solo.searchText("IntentTest Recipe", 1, true));
+        assertTrue(solo.searchText("IntentTest Recipe", 1, true, true));
     }
 
     /**
@@ -213,7 +213,7 @@ public class RecipeActivityTest {
     public void testEditRecipe() {
         solo.assertCurrentActivity("Wrong Activity", RecipeActivity.class);
         // Assert recipe does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Recipe", 1, true));
+        assertTrue(solo.searchText("IntentTest Recipe", 1, true, true));
 
         solo.clickOnText("IntentTest Recipe");
         solo.clickOnButton("Edit");
@@ -234,17 +234,17 @@ public class RecipeActivityTest {
         solo.clickOnButton("OK");
 
         // Assert recipe does appear in list, look for description
-        assertTrue(solo.searchText("IntentTest Edit"));
-        assertFalse(solo.searchText("IntentTest Recipe"));
+        assertTrue(solo.searchText("IntentTest Edit", 1, true, true));
+        assertFalse(solo.searchText("IntentTest Recipe", true));
 
         // Assert recipe members are as we have entered
         solo.clickOnText("IntentTest Edit");
         solo.clickOnButton("Edit");
-        assertTrue(solo.searchText("IntentTest Edit", 1, true));
-        assertTrue(solo.searchText("IntentTest Comment Edit", 1, true));
+        assertTrue(solo.searchText("IntentTest Edit", 1, true, true));
+        assertTrue(solo.searchText("IntentTest Comment Edit", 1, true, true));
         solo.isRadioButtonChecked(2);
-        assertTrue(solo.searchText("20", 1, true));
-        assertTrue(solo.searchText("50", 1, true));
+        assertTrue(solo.searchText("20", 1, true, true));
+        assertTrue(solo.searchText("50", 1, true, true));
         solo.clickOnButton("Cancel");
 
         // Navigate off activity and back to check to make sure Firebase worked.
@@ -252,8 +252,8 @@ public class RecipeActivityTest {
         solo.clickOnText("Shopping List");
         solo.clickOnImageButton(0);
         solo.clickOnText("Recipes");
-        assertTrue(solo.searchText("IntentTest Edit"));
-        assertFalse(solo.searchText("IntentTest Recipe"));
+        assertTrue(solo.searchText("IntentTest Edit", 1, true, true));
+        assertFalse(solo.searchText("IntentTest Recipe", 1, true, true));
     }
 
     /**
@@ -269,16 +269,16 @@ public class RecipeActivityTest {
         solo.clickOnButton("Delete");
 
         // Assert ingredient does appear in list, look for description
-        assertFalse(solo.searchText("IntentTest Edit", 1, true));
-        assertFalse(solo.searchText("IntentTest Ingredient", 1, true));
+        assertFalse(solo.searchText("IntentTest Edit", 1, true, true));
+        assertFalse(solo.searchText("IntentTest Recipe", 1, true, true));
 
         // Navigate off activity and back to check to make sure Firebase worked.
         solo.clickOnImageButton(0);
         solo.clickOnText("Shopping List");
         solo.clickOnImageButton(0);
-        solo.clickOnText("Ingredients");
-        assertFalse(solo.searchText("IntentTest Edit", 1, true));
-        assertFalse(solo.searchText("IntentTest Ingredient", 1, true));
+        solo.clickOnText("Recipes");
+        assertFalse(solo.searchText("IntentTest Edit", 1, true, true));
+        assertFalse(solo.searchText("IntentTest Recipe", 1, true, true));
     }
 
     /**
