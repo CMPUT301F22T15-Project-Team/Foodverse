@@ -24,6 +24,12 @@ public class Recipe implements Serializable {
         //this.ingredientArrayList = ingredientArrayList;
     }
 
+    /**
+     * Sums the hash codes of all the class' members, to get the hash code for
+     * this object.
+     *
+     * @returns Returns the hash code of this object.
+     */
     public int hashCode() {
         int hash = 0;
         hash += title.hashCode() + category.hashCode() + comments.hashCode()
