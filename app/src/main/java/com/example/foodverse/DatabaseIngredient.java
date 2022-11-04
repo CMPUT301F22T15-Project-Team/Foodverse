@@ -27,6 +27,12 @@ public class DatabaseIngredient {
     public static String ingredientToString(@NonNull Ingredient ingredient) {
         String ingString = ingredient.getDescription();
         ingString += "|" + String.valueOf(ingredient.getCount());
+        if (ingredient.getUnit() != "") {
+            ingString += "|" + ingredient.getUnit();
+        }
+        if (ingredient.getCategory() != "") {
+            ingString += "|" + ingredient.getCategory();
+        }
         return ingString;
     }
 
@@ -46,8 +52,24 @@ public class DatabaseIngredient {
          * https://stackoverflow.com/questions/7683448/in-java-how-to-get-substring-from-a-string-till-a-character-c
          * For nicely splitting the string. Answer by Chad Schouggins (2011)
          */
-        String description = ingString.split("\\|")[0];
-        int count = Integer.parseInt(ingString.split("\\|")[1]);
-        return new Ingredient(description, count);
+        String []ingredientMembers = ingString.split("\\|");
+        if (ingredientMembers.length < 2) {
+            return new Ingredient();
+        } else if (ingredientMembers.length == 2) {
+            String description = ingredientMembers[0];
+            int count = Integer.parseInt(ingredientMembers[1]);
+            return new Ingredient(description, count);
+        } else if (ingredientMembers.length == 3) {
+            String description = ingredientMembers[0];
+            int count = Integer.parseInt(ingredientMembers[1]);
+            String unit = ingredientMembers[2];
+            return new Ingredient(description, count, unit);
+        } else {
+            String description = ingredientMembers[0];
+            int count = Integer.parseInt(ingredientMembers[1]);
+            String unit = ingredientMembers[2];
+            String category = ingredientMembers[3];
+            return new Ingredient(description, count, unit, category);
+        }
     }
 }

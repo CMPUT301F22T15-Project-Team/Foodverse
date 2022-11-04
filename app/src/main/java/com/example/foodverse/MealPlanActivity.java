@@ -10,7 +10,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -29,10 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,16 +42,15 @@ import java.util.HashSet;
 
 
 public class MealPlanActivity extends AppCompatActivity implements
-        MealTestFragment.OnFragmentInteractionListener,
+        MealPlanFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
-    private ListView mealListView;
+    private ListView mealListView; // The list that displays the meals
     private ArrayAdapter<Meal> mealAdapter;
-    //private ArrayList<Meal> mealList;
     private FirebaseFirestore db;
     private final String TAG = "MealPlanActivity";
     private CollectionReference collectionReference, ingRef, storedRef;
-    private ArrayList<Meal> mealArrayList;
+    private ArrayList<Meal> mealArrayList; // The array list that stores the meals
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
     private HashSet<Ingredient> set = new HashSet<>();
     private int selectedMealIndex;
@@ -137,8 +132,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                     String description = (String) doc.getData().get("Description");
                     Log.d("MEALFRAG", description);
                     Long count = (Long) doc.getData().get("Count");
-                    String unit = (String) doc.getData().get("Unit");
-                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
+                    Ingredient ing = new Ingredient(description, count.intValue());
                     if (!set.contains(ing)) {
                         databaseIngredients.add(ing);
                         set.add(ing);
@@ -158,8 +152,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                     String description = (String) doc.getData().get("Description");
                     Log.d("MEALFRAG", description);
                     Long count = (Long) doc.getData().get("Count");
-                    String unit = (String) doc.getData().get("Unit");
-                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
+                    Ingredient ing = new Ingredient(description, count.intValue());
                     if (!set.contains(ing)) {
                         databaseIngredients.add(ing);
                         set.add(ing);
@@ -176,7 +169,7 @@ public class MealPlanActivity extends AppCompatActivity implements
         addMealButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new MealTestFragment().show(getSupportFragmentManager(), "TEST");
+                new MealPlanFragment().show(getSupportFragmentManager(), "TEST");
             }
         });
 
@@ -190,7 +183,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                         // to the fragment.
                         Meal meal = mealAdapter.getItem(position);
                         selectedMealIndex = position;
-                        new MealTestFragment(meal).show(
+                        new MealPlanFragment(meal).show(
                                 getSupportFragmentManager(), "EDIT_MEAL");
                     }
                 });
@@ -320,6 +313,11 @@ public class MealPlanActivity extends AppCompatActivity implements
     }
 
 
+    /**
+     * Implemented to allow the list of database ingredients to be passed directly
+     * to MealPlanFragment.
+     * @return An {@link ArrayList<Ingredient>} that contains all the ingredients stored in the database
+     */
     public ArrayList<Ingredient> getDatabaseIngredients() {
         return databaseIngredients;
     }

@@ -27,6 +27,15 @@ public class StoredIngredientList extends ArrayAdapter<StoredIngredient> {
     private ArrayList<StoredIngredient> ingredients;
     private Context context;
 
+    /**
+     * Constructor for StoredIngredientList, which is an ArrayAdapter and must
+     * have the following parameters:
+     *
+     * @param context A Context object containing the relevant details for the
+     * object.
+     * @param ingredients An ArrayList<StoredIngredient> representing the
+     * ingredients in the list.
+     */
     public StoredIngredientList(Context context, ArrayList<StoredIngredient> ingredients) {
         super(context, 0, ingredients);
         this.ingredients = ingredients;
@@ -49,12 +58,14 @@ public class StoredIngredientList extends ArrayAdapter<StoredIngredient> {
         TextView unit = view.findViewById(R.id.unit_text);
         TextView location = view.findViewById(R.id.location_text);
         TextView bestBefore = view.findViewById(R.id.best_before_text);
+        TextView category = view.findViewById(R.id.category_text_view);
 
         description.setText(ingredient.getDescription());
         count.setText(Integer.toString(ingredient.getCount()));
         unit.setText(ingredient.getUnit() + " stored in:");
         location.setText(ingredient.getLocation());
         cost.setText("$" + Integer.toString(ingredient.getUnitCost()));
+        //category.setText(ingredient.getCategory());
         Date date = ingredient.getBestBefore();
 
         /*
