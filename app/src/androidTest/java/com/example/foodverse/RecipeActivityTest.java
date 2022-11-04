@@ -163,122 +163,133 @@ public class RecipeActivityTest {
     }
 
     /**
-     * Test adding a new ingredient. Check to ensure it is still there after
-     * an activity restart.
+     * Test adding a new recipe. Check to ensure it is still there after
+     * an activity restart. Run as part of testRecipeActions.
      */
-    @Test
-    public void testAddIngredient() {
-        solo.clickOnButton("Add Ingredient");
-        solo.sleep(1000);
-        solo.enterText((EditText) solo.getView(R.id.description_edit_text),
-                "IntentTest Ingredient");
-        solo.enterText((EditText) solo.getView(R.id.count_text_view),
-                "IntentTest Ingredient");
+    public void testAddRecipe() {
+        solo.assertCurrentActivity("Wrong Activity", RecipeActivity.class);
+        solo.clickOnButton("Add Recipe");
+        // Add recipe
+        solo.clearEditText((EditText) solo.getView(R.id.recipe_title_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.comments_editText));
+        solo.clearEditText((EditText) solo.getView(R.id.serving_size_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.prep_time_edit_text));
+
+        solo.enterText((EditText) solo.getView(R.id.recipe_title_edit_text),
+                "IntentTest Recipe");
+        solo.enterText((EditText) solo.getView(R.id.comments_editText),
+                "IntentTest Comment");
+        solo.clickOnRadioButton(1);
+        solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),
+                "2");
+        solo.enterText((EditText) solo.getView(R.id.prep_time_edit_text),
+                "5");
+
+        solo.clickOnButton("Ok");
+        // Assert the recipe does appear in list, look for description
+        assertTrue(solo.searchText("IntentTest Recipe", true));
+
+        // Assert ingredient members are as we have entered
+        solo.clickOnText("IntentTest Recipe");
+        assertTrue(solo.searchText("IntentTest Recipe", true));
+        assertTrue(solo.searchText("IntentTest Comment", true));
+        solo.isRadioButtonChecked(1);
+        assertTrue(solo.searchText("2", true));
+        assertTrue(solo.searchText("5", true));
+        solo.clickOnButton("Cancel");
+
+        // Navigate off activity and back to check to make sure Firebase worked.
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Shopping List");
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Recipes");
+        assertTrue(solo.searchText("IntentTest Recipe", true));
     }
 
     /**
-     * Test editing an ingredient. Check to ensure edit persists after
-     * an activity restart.
+     * Test editing an recipe. Check to ensure edit persists after
+     * an activity restart. Run as part of testRecipeActions.
      */
-    @Test
-    public void testEditIngredient() {
+    public void testEditRecipe() {
+        solo.assertCurrentActivity("Wrong Activity", RecipeActivity.class);
+        // Assert recipe does appear in list, look for description
+        assertTrue(solo.searchText("IntentTest Recipe", true));
 
+        solo.clickOnText("IntentTest Recipe");
+        solo.clearEditText((EditText) solo.getView(R.id.recipe_title_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.comments_editText));
+        solo.clearEditText((EditText) solo.getView(R.id.serving_size_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.prep_time_edit_text));
+
+        solo.enterText((EditText) solo.getView(R.id.recipe_title_edit_text),
+                "IntentTest Edit");
+        solo.enterText((EditText) solo.getView(R.id.comments_editText),
+                "IntentTest Comment Edit");
+        solo.clickOnRadioButton(2);
+        solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),
+                "20");
+        solo.enterText((EditText) solo.getView(R.id.prep_time_edit_text),
+                "50");
+        solo.clickOnButton("Ok");
+
+        // Assert recipe does appear in list, look for description
+        assertTrue(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest Recipe", true));
+
+        // Assert recipe members are as we have entered
+        solo.clickOnText("IntentTest Edit");
+        assertTrue(solo.searchText("IntentTest Edit", true));
+        assertTrue(solo.searchText("IntentTest Comment Edit", true));
+        solo.isRadioButtonChecked(2);
+        assertTrue(solo.searchText("20", true));
+        assertTrue(solo.searchText("50", true));
+        solo.clickOnButton("Cancel");
+
+        // Navigate off activity and back to check to make sure Firebase worked.
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Shopping List");
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Recipes");
+        assertTrue(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest Recipe", true));
     }
 
     /**
-     * Test deleting an ingredient. Check to ensure ingredient does not
-     * reappear after an activity restart.
+     * Test deleting a recipe. Check to ensure recipe does not
+     * reappear after an activity restart. Run as part of testRecipeActions.
      */
-    @Test
-    public void testDeleteIngredient() {
+    public void testDeleteRecipe() {
+        solo.assertCurrentActivity("Wrong Activity", RecipeActivity.class);
+        // Assert ingredient does appear in list, look for description
+        assertTrue(solo.searchText("IntentTest Edit", true));
 
+        solo.clickOnText("IntentTest Edit");
+        solo.clickOnButton("Delete");
+
+        // Assert ingredient does appear in list, look for description
+        assertFalse(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest Ingredient", true));
+
+        // Navigate off activity and back to check to make sure Firebase worked.
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Shopping List");
+        solo.clickOnImageButton(0);
+        solo.clickOnText("Ingredients");
+        assertFalse(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest Ingredient", true));
     }
 
-
     /**
-     * Check item taken from the listview
+     * Test all recipe actions, defined above. Due to firebase functions,
+     * we expect these to be sequential actions, so that extra data is not
+     * left over after tests and the same test can be expanded upon.
      */
-    /*@Test
-    public void checkCiyListItem(){
-        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("ADD CITY");
-        solo.enterText((EditText) solo.getView(R.id.editText_name), "Edmonton");
-        solo.clickOnButton("CONFIRM");
-        solo.waitForText("Edmonton", 1, 2000);
-        // Get MainActivity to access its variables and methods.
-        MainActivity activity = (MainActivity) solo.getCurrentActivity();
-        final ListView cityList = activity.cityList; // Get the listview
-        String city = (String) cityList.getItemAtPosition(0); // Get item from first position
-        assertEquals("Edmonton", city);
-    }*/
-
-    /**
-     * Check that we switch to the showActivity when clicking a city
-     */
-    /*@Test
-    public void checkSwitchActivity() {
-        // Setup a city, click to switch
-        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("ADD CITY");
-        solo.enterText((EditText) solo.getView(R.id.editText_name), "Edmonton");
-        solo.clickOnButton("CONFIRM");
-        solo.waitForText("Edmonton", 1, 2000);
-        solo.clickOnText("Edmonton");
-        solo.assertCurrentActivity("Did not switch", showActivity.class);
-    }*/
-
-    /**
-     * Check that the city displayed is the same as the one clicked
-     */
-    /*@Test
-    public void checkConsistentCity() {
-        // Setup two cities, click one to switch
-        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("ADD CITY");
-        solo.enterText((EditText) solo.getView(R.id.editText_name), "Edmonton");
-        solo.clickOnButton("CONFIRM");
-        solo.waitForText("Edmonton", 1, 2000);
-        solo.clickOnButton("ADD CITY");
-        solo.enterText((EditText) solo.getView(R.id.editText_name), "Calgary");
-        solo.clickOnButton("CONFIRM");
-        solo.waitForText("Calgary", 1, 2000);
-        solo.clickOnText("Edmonton");
-        solo.assertCurrentActivity("Did not switch", showActivity.class);
-
-        // Only Edmonton should be displayed. Only check in current activity view
-        assertTrue(solo.searchText("Edmonton", true));
-        assertFalse(solo.searchText("Calgary", true));
-    }*/
-
-    /**
-     * Check that the back button works, that is we return to the MainActivity
-     * and the cities displayed are the same
-     */
-    /*@Test
-    public void checkBackButton() {
-        // Setup two cities, click one to switch
-        solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
-        solo.clickOnButton("ADD CITY");
-        solo.enterText((EditText) solo.getView(R.id.editText_name), "Edmonton");
-        solo.clickOnButton("CONFIRM");
-        solo.waitForText("Edmonton", 1, 2000);
-        solo.clickOnButton("ADD CITY");
-        solo.enterText((EditText) solo.getView(R.id.editText_name), "Calgary");
-        solo.clickOnButton("CONFIRM");
-        solo.waitForText("Calgary", 1, 2000);
-        solo.clickOnText("Edmonton");
-        solo.assertCurrentActivity("Did not switch", showActivity.class);
-
-        // Only Edmonton should be displayed. Only check current activity
-        assertTrue(solo.searchText("Edmonton", true));
-        assertFalse(solo.searchText("Calgary", true));
-        solo.clickOnButton("Back");
-
-        // Check activity, cities displayed in main activity
-        solo.assertCurrentActivity("Did not go back", MainActivity.class);
-        assertTrue(solo.searchText("Edmonton", true));
-        assertTrue(solo.searchText("Calgary", true));
-    }*/
+    @Test
+    public void testRecipeActions() {
+        testAddRecipe();
+        testEditRecipe();
+        testDeleteRecipe();
+    }
 
     /**
      * Closes the activity after each test
