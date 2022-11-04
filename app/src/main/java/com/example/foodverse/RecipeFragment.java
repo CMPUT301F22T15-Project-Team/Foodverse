@@ -7,13 +7,17 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import java.util.ArrayList;
 
 
 public class RecipeFragment extends DialogFragment {
@@ -28,6 +32,9 @@ public class RecipeFragment extends DialogFragment {
     private RecipeFragment.OnFragmentInteractionListener listener;
     private Recipe chosenRecipe;
     public Boolean edit_text = Boolean.FALSE;
+    private ArrayAdapter<Ingredient> listViewAdapter;
+    private ArrayList<Ingredient> recIngredients = new ArrayList<>();
+    private ListView ingredientList;
 
 
 
@@ -61,6 +68,10 @@ public class RecipeFragment extends DialogFragment {
         mexican_op = view.findViewById(R.id.mexican_op);
         rec_servings = view.findViewById(R.id.serving_size_edit_text);
         rec_preptime = view.findViewById(R.id.prep_time_edit_text);
+        ingredientList = view.findViewById(R.id.ing_list);
+        listViewAdapter = new IngredientAdapter(getActivity(), recIngredients);
+        ingredientList.setAdapter(listViewAdapter);
+
 
         //if in edit mode, get the values of each attribute that stored for the recipe item entry
         // and populate them on the dialog box to allow the user to edit - this is done using the getters
@@ -134,16 +145,15 @@ public class RecipeFragment extends DialogFragment {
                         if (edit_text == Boolean.TRUE){
                             Recipe edited = new Recipe(recipe_title,
                                     prepare_time, serving_size,
-                                    recipeCategory, recipe_comments);
-
+                                    recipeCategory, recipe_comments,recIngredients );
                             listener.onOkEditPressed(edited);
 
                         }
-                        //context updated by creating a new food item entry
+                        //context updated by creating a new recipe item entry
                         else{
                             listener.onOkPressed(new Recipe(recipe_title,
                                     prepare_time,serving_size,recipeCategory,
-                                    recipe_comments));
+                                    recipe_comments,recIngredients));
                         }
 
 

@@ -2,8 +2,11 @@ package com.example.foodverse;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import android.graphics.LinearGradient;
+
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class RecipeTests {
@@ -12,8 +15,11 @@ public class RecipeTests {
      * A helper method to make a new simple test recipe.
      */
     public Recipe mockRecipe() {
+        Ingredient testIng = new Ingredient("Lettuce",2,"cups");
+        ArrayList<Ingredient> testlist = new ArrayList<>();
+        testlist.add(testIng);
         return new Recipe("Test Recipe", 1, 3,
-                "Test Category", "Test Comment");
+                "Test Category", "Test Comment",testlist);
     }
 
 
