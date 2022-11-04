@@ -11,8 +11,6 @@ package com.example.foodverse;
  * 2022-10-30
  */
 public class ShoppingListIngredient extends Ingredient {
-    private String unit;
-    private String category;
     private boolean purchased;
 
     /**
@@ -20,8 +18,6 @@ public class ShoppingListIngredient extends Ingredient {
      */
     public ShoppingListIngredient() {
         super();
-        unit = "N/A";
-        category = "N/A";
     }
 
     /**
@@ -32,9 +28,7 @@ public class ShoppingListIngredient extends Ingredient {
      * @param category The ingredient category.
      */
     public ShoppingListIngredient(String description, int count, String unit, String category) {
-        super(description, count);
-        this.unit = unit;
-        this.category = category;
+        super(description, count, unit, category);
     }
 
     /**
@@ -42,23 +36,7 @@ public class ShoppingListIngredient extends Ingredient {
      * @return The hash code of the ingredient.
      */
     public int hashCode() {
-        return (super.hashCode() + category.hashCode() + unit.hashCode());
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
+        return (super.hashCode());
     }
 
     public boolean isPurchased() {

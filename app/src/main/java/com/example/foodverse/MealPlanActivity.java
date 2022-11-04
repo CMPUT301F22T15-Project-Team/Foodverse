@@ -2,14 +2,24 @@ package com.example.foodverse;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Pair;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
@@ -18,27 +28,64 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
-public class MealPlanActivity extends AppCompatActivity {
+/**
+ * MealPlanActivity
+ * This activity allows the user to build a meal plan by
+ * adding, editing, or deleting meals.
+ */
 
+
+
+public class MealPlanActivity extends AppCompatActivity implements
+        MealPlanFragment.OnFragmentInteractionListener,
+        NavigationView.OnNavigationItemSelectedListener {
+
+    private ListView mealListView; // The list that displays the meals
+    private ArrayAdapter<Meal> mealAdapter;
     private FirebaseFirestore db;
     private final String TAG = "MealPlanActivity";
-    private CollectionReference collectionReference;
-    private ArrayList<Meal> mealArrayList;
+    private CollectionReference collectionReference, ingRef, storedRef;
+    private ArrayList<Meal> mealArrayList; // The array list that stores the meals
+    private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
+    private HashSet<Ingredient> set = new HashSet<>();
     private int selectedMealIndex;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private DrawerLayout drawerLayout;
+    private NavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meal_plan);
 
-        mealArrayList = new ArrayList<>();
         selectedMealIndex = -1;
+        mealListView = findViewById(R.id.meal_list);
+
+        // Initialize attributes
+        mealArrayList = new ArrayList<>();
+        mealAdapter = new MealList(this, mealArrayList);
+        mealListView.setAdapter(mealAdapter);
+
+        /*
+         * https://www.geeksforgeeks.org/navigation-drawer-in-android/
+         * by adityamshidlyali, 2020
+         */
+        drawerLayout = findViewById(R.id.meal_plan_drawer);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
+
+        // Allow menu to be toggleable, always display.
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Setup listeners for the navigation view
+        navView = findViewById(R.id.nav_menu_meals);
+        navView.setNavigationItemSelectedListener(this);
 
         // Get db, the MealPlan collection
         db = FirebaseFirestore.getInstance();
@@ -47,18 +94,17 @@ public class MealPlanActivity extends AppCompatActivity {
 
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException error) {
                 // Clear the old list
                 mealArrayList.clear();
                 // Add ingredients from the cloud
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    Float time = (Float) doc.getData().get("Time");
-                    Float servings = (Float) doc.getData().get("Servings");
-                    // TODO: This needs testing
-                    String[] ingStrings = (String[]) doc.getData().get("Ingredients");
+                    ArrayList<String> ingStrings =
+                            (ArrayList<String>) doc.getData().get("Ingredients");
+                    Date date = ((Timestamp) doc.getData().get("Date")).toDate();
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
                     for (String ingString : ingStrings) {
@@ -66,12 +112,83 @@ public class MealPlanActivity extends AppCompatActivity {
                                 DatabaseIngredient.stringToIngredient(ingString);
                         ingredients.add(ing);
                     }
-                    mealArrayList.add(new Meal(time, servings, ingredients));
+                    mealArrayList.add(new Meal(ingredients, date));
                 }
                 // Update with new cloud data
-                // mealAdapter.notifyDataSetChanged();
+                mealAdapter.notifyDataSetChanged();
             }
         });
+
+        ingRef = db.collection("Ingredients");
+        storedRef = db.collection("StoredIngredients");
+
+        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                // Add ingredients from the cloud
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
+                    Long count = (Long) doc.getData().get("Count");
+                    Ingredient ing = new Ingredient(description, count.intValue());
+                    if (!set.contains(ing)) {
+                        databaseIngredients.add(ing);
+                        set.add(ing);
+                        Log.d("MEALFRAG", "Added ing");
+                    }
+                }
+            }
+        });
+
+        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                // Add ingredients from the cloud
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Log.d("MEALFRAG", description);
+                    Long count = (Long) doc.getData().get("Count");
+                    Ingredient ing = new Ingredient(description, count.intValue());
+                    if (!set.contains(ing)) {
+                        databaseIngredients.add(ing);
+                        set.add(ing);
+                        Log.d("MEALFRAG", "Added ing");
+                    }
+                }
+            }
+        });
+
+        mealListView.setOnItemClickListener((adapterView, view, i, l) -> selectedMealIndex = i);
+
+        final Button addMealButton = findViewById(R.id.add_meal_button);
+
+        addMealButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new MealPlanFragment().show(getSupportFragmentManager(), "TEST");
+            }
+        });
+
+        mealListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view,
+                                            int position, long id) {
+                        // When a meal is selected from the list,
+                        // its index is taken and the meal is passed
+                        // to the fragment.
+                        Meal meal = mealAdapter.getItem(position);
+                        selectedMealIndex = position;
+                        new MealPlanFragment(meal).show(
+                                getSupportFragmentManager(), "EDIT_MEAL");
+                    }
+                });
+
+
     }
 
     /**
@@ -84,22 +201,19 @@ public class MealPlanActivity extends AppCompatActivity {
     public void mealAdded(Meal meal) {
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
-        data.put("Time", meal.getTime());
-        data.put("Servings", meal.getNumberOfServings());
+
 
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
-        for (Ingredient ingredient : meal.getIngredients()) {
-            String ingString =
-                    DatabaseIngredient.ingredientToString(ingredient);
+        String ingString;
+        for (int i = 0; i < meal.getIngredients().size(); i++) {
+            ingString = DatabaseIngredient.ingredientToString(
+                    meal.getIngredients().get(i));
             ingStrings.add(ingString);
         }
-        /*
-         * https://stackoverflow.com/questions/55100180/how-to-store-array-in-firestore-database-using-android
-         * Answer by Tamir Abutbul (2019) edited by Guy Luz (2019).
-         * For storing an ArrayList in Firebase
-         */
-        data.put("Ingredients", Arrays.asList(ingStrings));
+
+        data.put("Ingredients", ingStrings);
+        data.put("Date", meal.getDate());
         /*
          * Store all data under the hash code of the meal, so we can
          * store multiple similar meals.
@@ -167,15 +281,14 @@ public class MealPlanActivity extends AppCompatActivity {
         Meal oldMeal = mealArrayList.get(selectedMealIndex);
 
         // Grab data from the updated ingredient
-        data.put("Time", meal.getTime());
-        data.put("Servings", meal.getNumberOfServings());
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
         for (Ingredient ingredient : meal.getIngredients()) {
             String ingString = DatabaseIngredient.ingredientToString(ingredient);
             ingStrings.add(ingString);
         }
-        data.put("Ingredients", Arrays.asList(ingStrings));
+        data.put("Ingredients", ingStrings);
+        data.put("Date", meal.getDate());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldMeal.hashCode()))
@@ -197,5 +310,72 @@ public class MealPlanActivity extends AppCompatActivity {
                         Log.d(TAG, "Data could not be updated!" + e.toString());
                     }
                 });
+    }
+
+
+    /**
+     * Implemented to allow the list of database ingredients to be passed directly
+     * to MealPlanFragment.
+     * @return An {@link ArrayList<Ingredient>} that contains all the ingredients stored in the database
+     */
+    public ArrayList<Ingredient> getDatabaseIngredients() {
+        return databaseIngredients;
+    }
+
+    /**
+     * Implemented to allow for the opening and closing of the navigation menu.
+     *
+     * Code from: https://www.geeksforgeeks.org/navigation-drawer-in-android/
+     * By adityamshidlyali, posted 2020, accessed October 28, 2022.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    /**
+     * Overridden from NavigationView.OnNavigationItemSelectedListener.
+     * Navigate to the selected activity, if we are not already on it, otherwise
+     * close the menu. Possible destinations are {@link StoredIngredientActivity},
+     * {@link MealPlanActivity}, {@link RecipeActivity}, and
+     * {@link ShoppingListActivity}.
+     *
+     * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
+     * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
+     *
+     * @returns Always true, iff the selected item is the calling activity.
+     */
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menu) {
+        // Go to activity selected, based on title.
+        String destination = (String) menu.getTitle();
+        switch(destination) {
+            case "Recipes": {
+                Intent intent = new Intent(this, RecipeActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case "Ingredients": {
+                Intent intent = new Intent(this, StoredIngredientActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case "Shopping List": {
+                Intent intent = new Intent(this, ShoppingListActivity.class);
+                startActivity(intent);
+                break;
+            }
+            default: break;
+        }
+
+        // Close navigation drawer if we selected the current activity.
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
