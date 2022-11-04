@@ -3,13 +3,14 @@ package com.example.foodverse;
 import java.util.Date;
 
 /**
- * Ingredient
- * The ingredient class serves as a representation of the concept of ingredient
- * that you would purchase at a grocery store. As a result, it contains several
- * attributes that would be relevant to a customer such as a best before date,
- * description, and unit cost. Since there are certain restrictions on the
- * attributes, they have been made private to enforce these requirements through
- * the setters.
+ * StoredIngredient
+ * The StoredIngredient class serves as a representation of the concept of an
+ * ingredient that you would purchase at a grocery store, and currently own.
+ * As a result, it contains several attributes that would be relevant to a
+ * customer such as a best before date, description, and unit cost. Since there
+ * are certain restrictions on the attributes, they have been made private to
+ * enforce these requirements through the setters. This extends the generic
+ * {@link Ingredient} class.
  *
  * @version 1.1
  */
@@ -20,7 +21,7 @@ public class StoredIngredient extends Ingredient {
 
 
     /**
-     * Default constructor for StoredIngredient.
+     * Default constructor for {@link StoredIngredient}.
      */
     public StoredIngredient() {
         super();
@@ -30,8 +31,8 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Constructor for StoredIngredient with a given description, count, best
-     * before date, location, and unit cost.
+     * Constructor for {@link StoredIngredient} with a given description, count,
+     * best before date, location, and unit cost.
      *
      * @param description A string representing the description of the
      * ingredient.
@@ -50,8 +51,8 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Constructor for StoredIngredient with a given description, count, best
-     * before date, location, unit, and unit cost.
+     * Constructor for {@link StoredIngredient} with a given description, count,
+     * best before date, location, unit, and unit cost.
      *
      * @param description A string representing the description of the
      * ingredient.
@@ -71,8 +72,10 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Sums the hashcodes of all the class' members and calls super.hashCode()
-     * if applicable to generate the hashcode of this object.
+     * Sums the hashCode()s of all the class' members and calls super.hashCode()
+     * to generate the hashcode for this object. Does not include the count of
+     * ingredient in the hashcode. Should be equal for StoredIngredient objects
+     * that are considered equal.
      *
      * @returns Returns the hash code of this object.
      */
@@ -85,7 +88,7 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Getter for the best before date of the ingredient.
+     * Getter for the best before date of the {@link StoredIngredient}.
      *
      * @returns Returns the {@Link Date} representing the best before date of
      * the ingredient.
@@ -95,7 +98,7 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Getter for the storage location of the ingredient.
+     * Getter for the storage location of the {@link StoredIngredient}.
      *
      * @returns Returns the {@Link String} representing the location of the
      * ingredient.
@@ -105,7 +108,7 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Getter for the unit cost of the ingredient.
+     * Getter for the unit cost of the {@link StoredIngredient}.
      *
      * @returns Returns the {@Link int} representing the unit cost of the
      * ingredient.
@@ -115,7 +118,7 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Setter for the best before date of the ingredient.
+     * Setter for the best before date of the {@link StoredIngredient}.
      *
      * @param bestBefore A Date representing the best before date of the
      * ingredient.
@@ -125,7 +128,7 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Setter for the storage location of the ingredient.
+     * Setter for the storage location of the {@link StoredIngredient}.
      *
      * @param location A string representing the location of the ingredient.
      */
@@ -134,7 +137,7 @@ public class StoredIngredient extends Ingredient {
     }
 
     /**
-     * Setter for the unit cost of the ingredient.
+     * Setter for the unit cost of the {@link StoredIngredient}.
      *
      * @param unitCost An integer representing the unit cost of the ingredient.
      */
