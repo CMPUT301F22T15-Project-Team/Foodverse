@@ -1,5 +1,7 @@
 package com.example.foodverse;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,11 +46,15 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
     // Declare the variables so that you will be able to reference it later.
     private ListView shoppingListView;
     private ArrayAdapter<ShoppingListIngredient> shoppingListAdapter;
+    private ArrayList<Ingredient> mealPlanArrayList;
+    private ArrayList<Ingredient> storedIngredientsArrayList;
     private ArrayList<ShoppingListIngredient> shoppingArrayList;
     private int selectedIngredientIndex = -1;
     private FirebaseFirestore db;
     private final String TAG = "ShoppingListActivity";
-    private CollectionReference collectionReference;
+    private CollectionReference shoppingListCollectionReference;
+    private CollectionReference mealPlanCollectionReference;
+    private CollectionReference storedIngredientsCollectionReference;
     private Button addButton;
     private Spinner sortSpinner;
     private String[] sortingMethods = {"Sort by Purchased", "Short by Description", "Sort by Category"};
@@ -68,6 +75,8 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
 
         // Creating the array list and attaching it to the adapter.
         shoppingArrayList = new ArrayList<>();
+        mealPlanArrayList = new ArrayList<>();
+        storedIngredientsArrayList = new ArrayList<>();
         shoppingArrayList.add(new ShoppingListIngredient("Ingredient 1", 2, "Box", "Lunch"));
         shoppingArrayList.add(new ShoppingListIngredient("Ingredient 2", 4, "mL", "Dinner"));
         shoppingListAdapter = new ShoppingList(this, shoppingArrayList);
@@ -76,9 +85,45 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
 
         // Get our database
         db = FirebaseFirestore.getInstance();
-        collectionReference = db.collection("ShoppingList");
+        shoppingListCollectionReference = db.collection("ShoppingList");
+        mealPlanCollectionReference = db.collection("MealPlan");
+        storedIngredientsCollectionReference = db.collection("StoredIngredients");
 
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        // Auto populate the shopping list by checking the meal plan and ingredient storage
+        mealPlanCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                mealPlanArrayList.clear();
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    Log.d(TAG, String.valueOf(doc.getId()));
+                    String hashCode = doc.getId();
+                    ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
+
+                    for(String s: ingStrings){
+                        mealPlanArrayList.add(DatabaseIngredient.stringToIngredient(s));
+                    }
+                }
+
+                updateShoppingList();
+            }
+        });
+
+        storedIngredientsCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                storedIngredientsArrayList.clear();
+                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    Log.d(TAG, String.valueOf(doc.getId()));
+                    String hashCode = doc.getId();
+                    String description = (String) doc.getData().get("Description");
+                    Long count = (Long) doc.getData().get("Count");
+                    storedIngredientsArrayList.add(new Ingredient(description, count.intValue()));
+                }
+                updateShoppingList();
+            }
+        });
+
+        shoppingListCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the shopping list with all the documents on firebase everytime it is updated.
              * @param queryDocumentSnapshots Firebase documents
@@ -104,6 +149,8 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
                 shoppingListAdapter.notifyDataSetChanged();
             }
         });
+
+
 
         /*
          * Learned how to do this using the following link:
@@ -140,6 +187,7 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
                 new ShoppingListFragment(ingredient).show(
                         getSupportFragmentManager(), "EDIT_INGREDIENT");
             }
+
         });
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -156,6 +204,11 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
 
     }
 
+    public void onCheckboxClicked(View view){
+        System.out.println(view);
+//        ColorDrawable color = (ColorDrawable) view.getBackground();
+        view.setBackgroundColor(Color.GRAY);
+    }
 
     /**
      * Called when the user clicks confirms a new {@link ShoppingListIngredient}
@@ -177,7 +230,7 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
          * Store all data under the hash code of the ingredient, so we can
          * store multiple similar ingredients.
          */
-        collectionReference
+        shoppingListCollectionReference
                 .document(String.valueOf(ingredient.hashCode()))
                 .set(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -206,7 +259,7 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
         if (selectedIngredientIndex != -1) {
             ShoppingListIngredient oldIngredient = shoppingArrayList.get(selectedIngredientIndex);
             // Remove ingredient from database
-            collectionReference
+            shoppingListCollectionReference
                     .document(String.valueOf(oldIngredient.hashCode()))
                     .delete()
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -250,9 +303,9 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
         data.put("Category", ingredient.getCategory());
 
         // Delete old ingredient and set new since hashCode() will return different result
-        collectionReference.document(String.valueOf(oldIngredient.hashCode()))
+        shoppingListCollectionReference.document(String.valueOf(oldIngredient.hashCode()))
                 .delete();
-        collectionReference
+        shoppingListCollectionReference
                 .document(String.valueOf(ingredient.hashCode()))
                 .set(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -316,7 +369,7 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
                 });
         Ingredient toRemove =
                 new Ingredient(ingredient.getDescription(), ingredient.getCount());
-        collectionReference
+        shoppingListCollectionReference
                 .document(String.valueOf(toRemove.hashCode()))
                 .delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -333,5 +386,25 @@ public class ShoppingListActivity extends AppCompatActivity implements  Shopping
                         Log.d(TAG, "Data could not be deleted!" + e.toString());
                     }
                 });
+    }
+
+    /**
+     *
+     */
+    public void updateShoppingList(){
+        shoppingArrayList.clear();
+        for(Ingredient storedIngredient: storedIngredientsArrayList){
+            for(Ingredient mealIngredient: mealPlanArrayList){
+                if(mealIngredient.getDescription().equals(storedIngredient.getDescription())){
+                    if(mealIngredient.getCount() < storedIngredient.getCount()){
+                        String description = mealIngredient.getDescription();
+                        int count = storedIngredient.getCount() - mealIngredient.getCount();
+                        shoppingArrayList.add(new ShoppingListIngredient(description, count, "", ""));
+                    }
+                    break;
+                }
+            }
+        }
+        shoppingListAdapter.notifyDataSetChanged();
     }
 }
