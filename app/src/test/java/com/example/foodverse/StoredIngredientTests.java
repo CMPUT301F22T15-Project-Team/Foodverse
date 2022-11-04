@@ -145,14 +145,25 @@ public class StoredIngredientTests {
 
 
     /**
+     * Test the setUnitCost method from {@link StoredIngredient}
+     */
+    @Test
+    public void testSetUnitCostInvalid() {
+        StoredIngredient ing = mockIngredient();
+        ing.setUnitCost(-10);
+        assertEquals(ing.getUnitCost(), 0);
+    }
+
+
+    /**
      * Test the hashCode method from {@link StoredIngredient}. Expected to
      * return the sum of hash codes of its members.
      */
     @Test
     public void testHashCode() {
         StoredIngredient ing = mockIngredient();
-        int hash = ing.getCount() + ing.getDescription().hashCode()
-                + ing.getUnitCost() + ing.getLocation().hashCode()
+        int hash = ing.getCount() + ing.getDescription().hashCode() + ing.getUnit().hashCode()
+                + ing.getCategory().hashCode() + ing.getUnitCost() + ing.getLocation().hashCode()
                 /*+ ing.getUnit().hashCode()*/ + ing.getBestBefore().getMonth()
                 + ing.getBestBefore().getYear() + ing.getBestBefore().getDate();
         assertEquals(ing.hashCode(), hash);
