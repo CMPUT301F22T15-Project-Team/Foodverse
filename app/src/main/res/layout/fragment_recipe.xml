@@ -117,7 +117,7 @@
                     android:layout_height="28dp"
                     android:text="Mexican"></RadioButton>
 
-                <EditText
+                <!--<EditText
                     android:id="@+id/comment_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -126,12 +126,12 @@
                     android:hint="Comments"
                     android:inputType="textPersonName"
                     android:maxLength="30"
-                    android:text="aaron" />
+                    android:text="aaron" />-->
             </RadioGroup>
         </LinearLayout>
 
 
-        <EditText
+        <!--<EditText
             android:id="@+id/cat_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
             android:ems="10"
             android:hint="Category"
             android:inputType="textPersonName"
-            android:text="aaron"/>
+            android:text="aaron"/>-->
     </LinearLayout>
 
     <LinearLayout

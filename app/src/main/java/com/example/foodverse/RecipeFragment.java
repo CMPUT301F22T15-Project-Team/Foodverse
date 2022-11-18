@@ -82,7 +82,7 @@ public class RecipeFragment extends DialogFragment {
         // edit the values and display them on the screen through the RecipeList
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_recipe, null);
         rec_title = view.findViewById(R.id.recipe_title_edit_text);
-        rec_comments = view.findViewById(R.id.comment_edit_text);
+        rec_comments = view.findViewById(R.id.comments_editText);
         recCategory = view.findViewById(R.id.radioGroup);
         amercian_op = view.findViewById(R.id.american_op);
         italian_op = view.findViewById(R.id.italian_op);

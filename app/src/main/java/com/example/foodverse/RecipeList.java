@@ -57,7 +57,7 @@ public class RecipeList extends ArrayAdapter<Recipe> {
         TextView recipeTitle = view.findViewById(R.id.title);
         TextView recipeCategory = view.findViewById(R.id.category);
         TextView recipeServings = view.findViewById(R.id.serving_size);
-        TextView recipeComments = view.findViewById(R.id.comments);
+        TextView recipeComments = view.findViewById(R.id.comments_section);
         TextView recipePrep = view.findViewById(R.id.prep_time);
 
 
