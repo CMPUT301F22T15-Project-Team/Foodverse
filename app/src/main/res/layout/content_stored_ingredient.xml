@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:orientation="vertical">
@@ -13,65 +14,97 @@
             android:id="@+id/description_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description Text Here"
-            android:textColor="@color/black"
             android:maxWidth="325dp"
             android:maxHeight="67dp"
             android:padding="20dp"
+            android:text="Description Text Here"
+            android:textAlignment="center"
+            android:textColor="@color/black"
             android:textSize="20sp"
-            android:textAlignment="center" />
+            app:fontFamily="@font/arvo_bold" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/best_before_text"
-            android:padding="20dp"
-            android:text="BestBefore"
+            android:id="@+id/cost_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="20sp"
+            android:text="Cost"
             android:textColor="@color/black"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            app:fontFamily="@font/arvo" />
+
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/spacer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text=" "
+            android:textColor="@color/black"
+            android:textSize="17sp"
+            app:fontFamily="sans-serif-medium" />
+
+        <TextView
             android:id="@+id/count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="Count"
             android:textColor="@color/black"
             android:textSize="17sp"
-            android:textAlignment="center" />
+            app:fontFamily="sans-serif-medium" />
 
         <TextView
+            android:id="@+id/unit_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/unit_text"
             android:padding="10dp"
             android:text="Unit"
             android:textColor="@color/black"
-            android:textSize="17sp" />
+            android:textSize="17sp"
+            app:fontFamily="sans-serif-medium" />
 
         <TextView
+            android:id="@+id/location_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/location_text"
             android:padding="10sp"
             android:text="Location"
             android:textColor="@color/black"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            app:fontFamily="sans-serif-medium" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/spacer2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/cost_text"
-            android:padding="10sp"
-            android:text="Cost"
+            android:padding="10dp"
+            android:text=" "
             android:textColor="@color/black"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            app:fontFamily="sans-serif-medium" />
 
-
+        <TextView
+            android:id="@+id/best_before_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="BestBefore"
+            android:textColor="@color/black"
+            android:textSize="17sp" />
     </LinearLayout>
 </LinearLayout>
