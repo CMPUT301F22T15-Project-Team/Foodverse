@@ -50,6 +50,7 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
 
     private Button mealDate; // Date selector
     private Button addButton; // Button to add ingredient to meal
+    private Button deleteButton;
     private Date date2; // The date which is added to a new or edited meal
     //private Spinner recipeSpinner;
     private Spinner ingredientSpinner; // Spinner for ingredients
@@ -107,6 +108,7 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
         //recipeSpinner = view.findViewById(R.id.recipe_spinner);
         ingredientSpinner = view.findViewById(R.id.meal_ingredient_spinner);
         addButton = view.findViewById(R.id.add_meal_ingredient_button);
+        deleteButton = view.findViewById(R.id.meal_ingredient_button);
         ingredientList = view.findViewById(R.id.meal_fragment_list);
         listViewAdapter = new IngredientAdapter(getActivity(), mealIngredients);
         ingredientList.setAdapter(listViewAdapter);
@@ -197,6 +199,20 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
             }
         });
 
+        deleteButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+                        mealIngredients.remove(pos);
+                        listViewAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
+
+
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
@@ -258,6 +274,15 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
         String date = Integer.toString(year) + "-" + monthStr + "-" + dayStr;
         mealDate.setText(date);
         date2 = calendar.getTime();
+    }
+
+    public void deleteIngredient(View view) {
+        ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+                mealIngredients.remove(pos);
+                listViewAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
