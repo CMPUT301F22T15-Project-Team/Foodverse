@@ -11,7 +11,7 @@ import java.util.Date;
  *
  * @version 1.0
  */
-public class Meal {
+public class Meal implements Comparable<Meal> {
     ArrayList<Ingredient> ingredients;
     // Recipe recipe;
     Date date;
@@ -83,5 +83,10 @@ public class Meal {
      */
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    @Override
+    public int compareTo(Meal meal) {
+        return this.date.compareTo(meal.getDate());
     }
 }

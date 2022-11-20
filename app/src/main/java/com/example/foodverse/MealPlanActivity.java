@@ -31,6 +31,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -131,6 +133,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                     mealArrayList.add(new Meal(ingredients, date));
                 }
                 // Update with new cloud data
+                Collections.sort(mealArrayList);
                 mealAdapter.notifyDataSetChanged();
             }
         });
