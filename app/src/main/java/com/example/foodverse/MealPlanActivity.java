@@ -56,11 +56,15 @@ public class MealPlanActivity extends AppCompatActivity implements
     private CollectionReference collectionReference, ingRef, storedRef;
     private ArrayList<Meal> mealArrayList; // The array list that stores the meals
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
+    private ArrayList<Recipe> databaseRecipes = new ArrayList<>();
     private HashSet<Ingredient> set = new HashSet<>();
     private int selectedMealIndex;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
+
+    private ArrayList<Integer> recipeHashCodes = new ArrayList<Integer>();
+    private ArrayList<String> recipeTitleList = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,9 +136,52 @@ public class MealPlanActivity extends AppCompatActivity implements
                     }
                     mealArrayList.add(new Meal(ingredients, date));
                 }
+
+                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                    Log.d(TAG, String.valueOf(doc.getId()));
+                    String hashCode = doc.getId();
+                    String name = "";
+                    Integer code = 0;
+                    ArrayList<String> recStrings = (ArrayList<String>) doc.getData().get("Recipes");
+                    if (doc.getData().get("Title") != null) {
+                        name = (String) doc.getData().get("Title");
+                        code = Integer.parseInt(hashCode);
+                    }
+                    if (hashCode != null) {
+                        code = Integer.valueOf(hashCode);
+                    }
+
+                }
                 // Update with new cloud data
                 Collections.sort(mealArrayList);
                 mealAdapter.notifyDataSetChanged();
+            }
+        });
+
+        storedRef = db.collection("Recipes");
+
+        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                recipeHashCodes.clear();
+                recipeTitleList.clear();
+
+                for (QueryDocumentSnapshot doc: value) {
+                    Log.d(TAG, String.valueOf(doc.getId()));
+                    String hashCode = doc.getId();
+                    String name = "";
+                    Integer code = 0;
+                    ArrayList<String> recStrings = (ArrayList<String>) doc.getData().get("Recipes");
+                    if (doc.getData().get("Title") != null) {
+                        name = (String) doc.getData().get("Title");
+                        code = Integer.parseInt(hashCode);
+                    }
+                    if (hashCode != null) {
+                        code = Integer.valueOf(hashCode);
+                    }
+                    recipeHashCodes.add(code);
+                    recipeTitleList.add(name);
+                }
             }
         });
 
@@ -327,6 +374,15 @@ public class MealPlanActivity extends AppCompatActivity implements
      */
     public ArrayList<Ingredient> getDatabaseIngredients() {
         return databaseIngredients;
+    }
+
+    // Add it here
+    public ArrayList<String> getRecipeTitleList() {
+        return recipeTitleList;
+    }
+
+    public ArrayList<Integer> getRecipeHashCodes() {
+        return recipeHashCodes;
     }
 
     /**

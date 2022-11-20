@@ -15,6 +15,8 @@ public class Meal implements Comparable<Meal> {
     ArrayList<Ingredient> ingredients;
     // Recipe recipe;
     Date date;
+    int recipeHashCode = 0;
+    String recipeTitle = "No Recipe";
 
     /**
      * A constructor for meal taking no parameters.
@@ -83,6 +85,11 @@ public class Meal implements Comparable<Meal> {
      */
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public void addRecipe(int recipeHashCode, String name) {
+        this.recipeHashCode = recipeHashCode;
+        this.recipeTitle = name;
     }
 
     @Override
