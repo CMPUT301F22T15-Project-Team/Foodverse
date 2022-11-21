@@ -92,6 +92,14 @@ public class Meal implements Comparable<Meal> {
         this.recipeTitle = name;
     }
 
+    public String getRecipeTitle() {
+        return this.recipeTitle;
+    }
+
+    public int getRecipeHashCode() {
+        return this.recipeHashCode;
+    }
+
     @Override
     public int compareTo(Meal meal) {
         return this.date.compareTo(meal.getDate());

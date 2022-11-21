@@ -183,6 +183,10 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
+            recipeSpinner.setSelection(hashCodeList.indexOf(meal.getRecipeHashCode()));
+            Log.d("MEALFRAG", String.valueOf(hashCodeList.indexOf(meal.getRecipeHashCode())));
+            Log.d("MEALFRAG", String.valueOf(meal.getRecipeHashCode()));
+            //recipeSpinner.setSelection(1);
 
             // Get all the ingredients from the meal and add them to
             // an array list to be displayed on a listview
@@ -254,6 +258,9 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
                         newMeal.setDate(date2);
                         // Add array of ingredients to meal
                         newMeal.setIngredients(mealIngredients);
+                        String newMealTitle = (String) recipeSpinner.getSelectedItem();
+                        int newHash = hashCodeList.get(recipeSpinner.getSelectedItemPosition());
+                        newMeal.addRecipe(newHash, newMealTitle);
                         if (meal == null) {
                             listener.mealAdded(newMeal);
                         } else {

@@ -51,7 +51,10 @@ public class MealList extends ArrayAdapter<Meal> {
 
         TextView mealDate = view.findViewById(R.id.meal_date);
         //TextView mealName = view.findViewById(R.id.meal_name);
+        TextView mealRecipe = view.findViewById(R.id.meal_recipe);
         TextView mealServings = view.findViewById(R.id.meal_servings);
+
+        mealRecipe.setText(meal.getRecipeTitle());
 
 
         //mealDate.setText(meal.getDate().toString());
@@ -68,6 +71,7 @@ public class MealList extends ArrayAdapter<Meal> {
         int dateInt = calendar.get(Calendar.DAY_OF_MONTH);
         Integer toStringInt = new Integer(dateInt);
         mealDate.setText(dayString + " " + monthString + " " + toStringInt.toString());
+
 
         //mealDate.setText(calendar.getTime().toString());
         String dateString = meal.getDate().toString();
