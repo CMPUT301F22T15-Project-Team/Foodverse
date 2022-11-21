@@ -433,10 +433,14 @@ public class RecipeActivity  extends AppCompatActivity implements
         return true;
     }
 
-    public ArrayList<Ingredient> getDatabaseIngredients(){
+
+    /**
+     * Implemented to allow the list of database ingredients to be passed directly
+     * to MealPlanFragment.
+     * @return An {@link ArrayList<Ingredient>} that contains all the ingredients
+     *         stored in the database
+     */
+    public ArrayList<Ingredient> getDatabaseIngredients() {
         return databaseIngredients;
     }
-
-
-
 }

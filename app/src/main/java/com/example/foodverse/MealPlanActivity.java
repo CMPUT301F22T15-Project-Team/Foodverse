@@ -51,9 +51,10 @@ public class MealPlanActivity extends AppCompatActivity implements
     private ArrayAdapter<Meal> mealAdapter;
     private FirebaseFirestore db;
     private final String TAG = "MealPlanActivity";
-    private CollectionReference collectionReference, ingRef, storedRef;
+    private CollectionReference collectionReference, recipeRef, storedRef;
     private ArrayList<Meal> mealArrayList; // The array list that stores the meals
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
+    private ArrayList<Recipe> databaseRecipes = new ArrayList<>();
     private HashSet<Ingredient> set = new HashSet<>();
     private int selectedMealIndex;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -110,7 +111,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                 // Clear the old list
                 mealArrayList.clear();
                 // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     Date date = new Date();
@@ -142,7 +143,7 @@ public class MealPlanActivity extends AppCompatActivity implements
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
                 // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
                     String description = "", unit = "";
                     Long count = 0l;
@@ -162,6 +163,48 @@ public class MealPlanActivity extends AppCompatActivity implements
                     databaseIngredients.add(ing);
                     set.add(ing);
                     Log.d("MEALFRAG", "Added ing");
+                }
+            }
+        });
+
+        recipeRef = db.collection("Recipes");
+
+        recipeRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                databaseRecipes.clear();
+                // Get all recipes from the could
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    String title = "", category = "", comments = "";
+                    Long prep = 0L, servings = 0L;
+                    if (doc.getData().get("Title") != null) {
+                        title = (String) doc.getData().get("Title");
+                    }
+                    if (doc.getData().get("Category") != null) {
+                        category = (String) doc.getData().get("Category");
+                    }
+                    if (doc.getData().get("Comments") != null) {
+                        comments = (String) doc.getData().get("Comments");
+                    }
+                    if (doc.getData().get("Prep Time") != null) {
+                        prep = (Long) doc.getData().get("Prep Time");
+                    }
+                    if (doc.getData().get("Servings") != null) {
+                        servings = (Long) doc.getData().get("Servings");
+                    }
+                    ArrayList<String> ingStrings =
+                            (ArrayList<String>) doc.getData().get("Ingredients");
+                    ArrayList<Ingredient> ingredients = new ArrayList<>();
+                    if (ingStrings != null) {
+                        for (String ingString : ingStrings) {
+                            Ingredient ing =
+                                    DatabaseIngredient.stringToIngredient(ingString);
+                            ingredients.add(ing);
+                        }
+                    }
+                    databaseRecipes.add(new Recipe(title, prep.intValue(),
+                            servings.intValue(), category, comments, ingredients));
                 }
             }
         });
@@ -205,8 +248,6 @@ public class MealPlanActivity extends AppCompatActivity implements
     public void mealAdded(Meal meal) {
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
-
-
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
         String ingString;
@@ -325,6 +366,17 @@ public class MealPlanActivity extends AppCompatActivity implements
     public ArrayList<Ingredient> getDatabaseIngredients() {
         return databaseIngredients;
     }
+
+
+    /**
+     * Implemented to allow the list of database ingredients to be passed directly
+     * to MealPlanFragment.
+     * @return An {@link ArrayList<Recipe>} that contains all the recipes stored in the database
+     */
+    public ArrayList<Recipe> getDatabaseRecipes() {
+        return databaseRecipes;
+    }
+
 
     /**
      * Implemented to allow for the opening and closing of the navigation menu.

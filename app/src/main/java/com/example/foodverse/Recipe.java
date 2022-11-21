@@ -39,7 +39,8 @@ public class Recipe implements Serializable {
      *
      * @since version 1.0
      */
-    public Recipe(String title, int prep_time, int servings, String category, String comments, ArrayList<Ingredient> ingredientArrayList) {
+    public Recipe(String title, int prep_time, int servings, String category,
+                  String comments, ArrayList<Ingredient> ingredientArrayList) {
         this.title = title; //add char limit
         this.prep_time = prep_time;
         this.servings = servings;
@@ -47,6 +48,7 @@ public class Recipe implements Serializable {
         this.comments = comments; //add limit
         this.ingredientArrayList = ingredientArrayList;
     }
+
 
     /**
      * Sums the hash codes of all the class' members, to get the hash code for
@@ -71,6 +73,7 @@ public class Recipe implements Serializable {
         return title;
     }
 
+
     /**
      * Setter for the title of the {@link Ingredient}.
      *
@@ -79,6 +82,7 @@ public class Recipe implements Serializable {
     public void setTitle(String title) {
         this.title = title;
     }
+
 
     /**
      * Getter for the prep time of the {@link Recipe}.
@@ -89,6 +93,7 @@ public class Recipe implements Serializable {
         return prep_time;
     }
 
+
     /**
      * Setter for the prep time of the {@link Ingredient}.
      *
@@ -97,6 +102,7 @@ public class Recipe implements Serializable {
     public void setPrepTime(int prep_time) {
         this.prep_time = prep_time;
     }
+
 
     /**
      * Getter for the serving count of the {@link Recipe}.
@@ -107,6 +113,7 @@ public class Recipe implements Serializable {
         return servings;
     }
 
+
     /**
      * Setter for the serving count of the {@link Ingredient}.
      *
@@ -115,6 +122,7 @@ public class Recipe implements Serializable {
     public void setServings(int servings) {
         this.servings = servings;
     }
+
 
     /**
      * Getter for the category of the {@link Recipe}.
@@ -125,6 +133,7 @@ public class Recipe implements Serializable {
         return category;
     }
 
+
     /**
      * Setter for the category of the {@link Ingredient}.
      *
@@ -134,6 +143,7 @@ public class Recipe implements Serializable {
         this.category = category;
     }
 
+
     /**
      * Getter for the comments of the {@link Recipe}.
      *
@@ -142,6 +152,7 @@ public class Recipe implements Serializable {
     public String getComments() {
         return comments;
     }
+
 
     /**
      * Setter for the comments of the {@link Ingredient}.
