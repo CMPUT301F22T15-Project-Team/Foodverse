@@ -131,7 +131,7 @@
     <ListView
         android:id="@+id/ing_list"
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="50dp">
     </ListView>
     <Button
         android:id="@+id/recipe_delete_ingredient_button"

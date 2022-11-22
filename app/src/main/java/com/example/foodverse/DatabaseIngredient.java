@@ -11,27 +11,44 @@ import androidx.annotation.NonNull;
  * store a list of {@link Ingredient} objects in the Firestore database.
  *
  * @author Tyler
- * @version 1.0
+ * @version 1.1
  */
 public class DatabaseIngredient {
     /**
+     * A simple helper method for
+     * {@link DatabaseIngredient#ingredientToString(Ingredient)} to remove any
+     * "|" characters before combining into a string into a database.
+     *
+     * @param str The {@link String} object to remove "|" characters from.
+     * @return The {@link String} without any "|" characters.
+     * @since 1.1
+     */
+    @NonNull
+    private static String removePipes(String str) {
+        return String.join("", str.split("\\|"));
+    }
+
+
+    /**
      * A method used to take the data from a {@link Ingredient} and store it in
-     * a {@link String}, with fields separated by "|".
+     * a {@link String}, with fields separated by "|". Removes any "|"
+     * characters in any strings before adding so we don't hit errors when
+     * converting back.
      *
      * @param ingredient A {@link Ingredient} object to convert to a string
      *                   representation.
      * @return ingString, a {@link String} representing the {@link Ingredient}.
-     * @since 1.0
+     * @since 1.1
      */
     @NonNull
     public static String ingredientToString(@NonNull Ingredient ingredient) {
-        String ingString = ingredient.getDescription();
+        String ingString = removePipes(ingredient.getDescription());
         ingString += "|" + String.valueOf(ingredient.getCount());
         if (ingredient.getUnit() != "") {
-            ingString += "|" + ingredient.getUnit();
+            ingString += "|" + removePipes(ingredient.getUnit());
         }
         if (ingredient.getCategory() != "") {
-            ingString += "|" + ingredient.getCategory();
+            ingString += "|" + removePipes(ingredient.getCategory());
         }
         return ingString;
     }
@@ -39,7 +56,9 @@ public class DatabaseIngredient {
 
     /**
      * A method used to extract data from a {@link String} and return a new
-     * {@link Ingredient} object constructed from its contents.
+     * {@link Ingredient} object constructed from its contents. This method
+     * should only be called using {@link String} objects generated with the
+     * {@link DatabaseIngredient#ingredientToString(Ingredient)} method.
      *
      * @param ingString A {@link String} representing an {@link Ingredient}
      *                  object.

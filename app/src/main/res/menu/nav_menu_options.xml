@@ -6,22 +6,39 @@
 
     <item
         android:id="@+id/ingredients"
-        android:title="Ingredients"
+        android:title="@string/ingredients"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/recipes"
-        android:title="Recipes"
+        android:title="@string/recipes"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/meals"
-        android:title="Meal Planner"
+        android:title="@string/meal_plan"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/shopping"
-        android:title="Shopping List"
+        android:title="@string/shopping"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/location_manager"
+        android:title="@string/location_nav"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/ing_category_manager"
+        android:title="@string/ing_cat_nav"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/recipe_category_manager"
+        android:title="@string/rec_cat_nav"
+        app:showAsAction="ifRoom" />
+
+
 
 </menu>

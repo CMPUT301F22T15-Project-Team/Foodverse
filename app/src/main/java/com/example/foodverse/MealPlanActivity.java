@@ -56,7 +56,6 @@ public class MealPlanActivity extends AppCompatActivity implements
     private CollectionReference collectionReference, recRef, storedRef;
     private ArrayList<Meal> mealArrayList; // The array list that stores the meals
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
-    private ArrayList<Recipe> databaseRecipes = new ArrayList<>();
     private HashSet<Ingredient> set = new HashSet<>();
     private int selectedMealIndex;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -116,7 +115,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                 // Clear the old list
                 mealArrayList.clear();
                 // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     Date date = new Date();
@@ -190,7 +189,7 @@ public class MealPlanActivity extends AppCompatActivity implements
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
                 // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
                     String description = "", unit = "";
                     Long count = 0l;
@@ -253,8 +252,6 @@ public class MealPlanActivity extends AppCompatActivity implements
     public void mealAdded(Meal meal) {
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
-
-
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
         String ingString;
@@ -378,6 +375,7 @@ public class MealPlanActivity extends AppCompatActivity implements
         return databaseIngredients;
     }
 
+
     // Add it here
     public ArrayList<String> getRecipeTitleList() {
         return recipeTitleList;
@@ -386,6 +384,7 @@ public class MealPlanActivity extends AppCompatActivity implements
     public ArrayList<Integer> getRecipeHashCodes() {
         return recipeHashCodes;
     }
+
 
     /**
      * Implemented to allow for the opening and closing of the navigation menu.

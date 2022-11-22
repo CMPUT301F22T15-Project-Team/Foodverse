@@ -445,9 +445,10 @@ public class RecipeActivity  extends AppCompatActivity implements
         return true;
     }
 
+
     /**
      * A getter method for use in the RecipeFragment to get access to all
-     * currently stored ingredients to create meals.
+     * currently stored ingredients to create {@link Recipe} objects.
      *
      * @return An {@link ArrayList<Ingredient>} containing all ingredients
      *         known to the database.

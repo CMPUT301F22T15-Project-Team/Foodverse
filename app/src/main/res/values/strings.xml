@@ -13,4 +13,11 @@
     <string name="recipe_title_hint">Recipe Title</string>
     <string name="category">Category:</string>
     <string name="recipe_ingredients">Ingredients in Recipe</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="recipes">Recipes</string>
+    <string name="meal_plan">Meal Planner</string>
+    <string name="shopping">Shopping List</string>
+    <string name="location_nav">Manage Storage Locations</string>
+    <string name="ing_cat_nav">Manage Ingredient Categories</string>
+    <string name="rec_cat_nav">Manage Recipe Categories</string>
 </resources>
