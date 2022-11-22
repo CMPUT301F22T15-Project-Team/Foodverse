@@ -68,6 +68,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
+    private CategoryList catListRec = new CategoryList("Recipe");
+    private CategoryList catListIng = new CategoryList("Ingredient");
+    private LocationList locList = new LocationList();
 
     /**
      * The startup function that is called when the activity is launched.
@@ -538,11 +541,43 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 startActivity(intent);
                 break;
             }
+            case "Manage Storage Locations": {
+                new LocationCategoryManager("Location",
+                        locList.getLocations())
+                        .show(getSupportFragmentManager(), "LocMgr");
+                break;
+            }
+            case "Manage Ingredient Categories": {
+                new LocationCategoryManager("Ingredient Category",
+                        catListIng.getCategories())
+                        .show(getSupportFragmentManager(), "IngCatMgr");
+                break;
+            }
+            case "Manage Recipe Categories": {
+                new LocationCategoryManager("Recipe Category",
+                        catListRec.getCategories())
+                        .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
             default: break;
         }
 
         // Close navigation drawer if we selected the current activity.
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    /**
+     * A getter method for use in the {@link ShoppingListFragment} to get
+     * access to all currently stored categories to create
+     * {@link Ingredient} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all categories
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getCategories() {
+        return catListIng.getCategories();
     }
 }

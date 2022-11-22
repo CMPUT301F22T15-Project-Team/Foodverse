@@ -13,6 +13,7 @@
     <string name="recipe_title_hint">Recipe Title</string>
     <string name="category">Category:</string>
     <string name="recipe_ingredients">Ingredients in Recipe</string>
+    <string name="rm_ing">Remove Ingredient</string>
     <string name="ingredients">Ingredients</string>
     <string name="recipes">Recipes</string>
     <string name="meal_plan">Meal Planner</string>

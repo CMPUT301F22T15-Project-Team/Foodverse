@@ -46,6 +46,8 @@ public class CategoryList {
      *
      * @param caller a {@link String}, expected to be one of "Ingredient" or
      *               "Recipe". Set based on what activity this is used in.
+     * @throws IllegalArgumentException when caller is not one of "Ingredient"
+     *                                  or "Recipe".
      * @since 1.0
      */
     public CategoryList(String caller) {
@@ -60,6 +62,10 @@ public class CategoryList {
                         Log.d(TAG, "Firebase online");
                     }
                 });
+        if (!caller.equals("Recipe") && !caller.equals("Ingredient")) {
+            throw new IllegalArgumentException("Caller should be one of Recipe" +
+                    "or Ingredient.");
+        }
         String collPath = caller+"Categories";
         collectionReference = db.collection(collPath);
         update();

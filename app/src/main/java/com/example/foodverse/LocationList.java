@@ -92,7 +92,7 @@ public class LocationList {
      * @param location A {@link String} to represent the location to add.
      * @since 1.0
      */
-    public void addCategory(String location) {
+    public void addLocation(String location) {
         HashMap<String, Object> data = new HashMap<>();
         collectionReference
                 .document(location)
@@ -121,7 +121,7 @@ public class LocationList {
      * @param location The {@link String} representing the location to delete.
      * @since 1.0
      */
-    public void deleteCategory(String location) {
+    public void deleteLocation(String location) {
         collectionReference
                 .document(location)
                 .delete()
@@ -150,6 +150,7 @@ public class LocationList {
      * @since 1.0
      */
     public ArrayList<String> getLocations() {
+        update();
         return locations;
     }
 }

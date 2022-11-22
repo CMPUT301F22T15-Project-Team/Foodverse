@@ -39,7 +39,7 @@ import java.util.HashMap;
  * This class is used to run the app and is responsible for managing all of the
  * other components within it.
  *
- * @version 1.0
+ * @version 1.1
  *
  * 2022-09-24
  *
@@ -60,6 +60,9 @@ public class StoredIngredientActivity extends AppCompatActivity
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
+    private CategoryList catListRec = new CategoryList("Recipe");
+    private CategoryList catListIng = new CategoryList("Ingredient");
+    private LocationList locList = new LocationList();
 
 
     @Override
@@ -352,11 +355,57 @@ public class StoredIngredientActivity extends AppCompatActivity
                 startActivity(intent);
                 break;
             }
+            case "Manage Storage Locations": {
+                new LocationCategoryManager("Location",
+                        locList.getLocations())
+                        .show(getSupportFragmentManager(), "LocMgr");
+                break;
+            }
+            case "Manage Ingredient Categories": {
+                new LocationCategoryManager("Ingredient Category",
+                        catListIng.getCategories())
+                        .show(getSupportFragmentManager(), "IngCatMgr");
+                break;
+            }
+            case "Manage Recipe Categories": {
+                new LocationCategoryManager("Recipe Category",
+                        catListRec.getCategories())
+                        .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
             default: break;
         }
 
         // Close navigation drawer if we selected the current activity.
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    /**
+     * A getter method for use in the {@link StoredIngredientFragment} to get
+     * access to all currently stored categories to create
+     * {@link StoredIngredient} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all categories
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getCategories() {
+        return catListIng.getCategories();
+    }
+
+
+    /**
+     * A getter method for use in the {@link StoredIngredientFragment} to get
+     * access to all currently stored locations to create
+     * {@link StoredIngredient} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all locations
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getLocations() {
+        return locList.getLocations();
     }
 }

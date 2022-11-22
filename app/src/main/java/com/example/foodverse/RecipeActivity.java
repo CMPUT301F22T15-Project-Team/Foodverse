@@ -17,6 +17,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,6 +31,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.checkerframework.checker.units.qual.C;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,8 +42,8 @@ import java.util.HashSet;
  * This class displays a list of recipes which is constructed based on the users
  * input of recipe title, comments, serving size, preparation time, and a list of ingredients.
  * This class also allows the user to push buttons to edit, add and delete recipe items.
- * Currently, the recipe does not display and can not modify the ingredients list.
- * @version 1.0
+ *
+ * @version 1.1
  *
  */
 
@@ -62,6 +65,9 @@ public class RecipeActivity  extends AppCompatActivity implements
     private CollectionReference storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
+    private CategoryList catListRec = new CategoryList("Recipe");
+    private CategoryList catListIng = new CategoryList("Ingredient");
+    private LocationList locList = new LocationList();
 
 
     /**
@@ -415,7 +421,8 @@ public class RecipeActivity  extends AppCompatActivity implements
      * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
      * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
      *
-     * @returns Always true, iff the selected item is the calling activity.
+     * @return Always true, iff the selected item is the calling activity.
+     * @since 1.0
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menu) {
@@ -437,6 +444,24 @@ public class RecipeActivity  extends AppCompatActivity implements
                 startActivity(intent);
                 break;
             }
+            case "Manage Storage Locations": {
+                new LocationCategoryManager("Location",
+                        locList.getLocations())
+                        .show(getSupportFragmentManager(), "LocMgr");
+                break;
+            }
+            case "Manage Ingredient Categories": {
+                new LocationCategoryManager("Ingredient Category",
+                        catListIng.getCategories())
+                        .show(getSupportFragmentManager(), "IngCatMgr");
+                break;
+            }
+            case "Manage Recipe Categories": {
+                new LocationCategoryManager("Recipe Category",
+                        catListRec.getCategories())
+                        .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
             default: break;
         }
 
@@ -452,9 +477,35 @@ public class RecipeActivity  extends AppCompatActivity implements
      *
      * @return An {@link ArrayList<Ingredient>} containing all ingredients
      *         known to the database.
-     * @since 1.0
+     * @since 1.1
      */
-    public ArrayList<Ingredient> getDatabaseIngredients(){
+    public ArrayList<Ingredient> getDatabaseIngredients() {
         return databaseIngredients;
+    }
+
+
+    /**
+     * A getter method for use in the {@link RecipeFragment} to get access to
+     * all currently stored categories to create {@link Recipe} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all categories
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getCategories() {
+        return catListRec.getCategories();
+    }
+
+
+    /**
+     * A getter method for use in the {@link RecipeFragment} to get access to
+     * all currently stored categories to create {@link Ingredient} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all categories
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getIngCategories() {
+        return catListIng.getCategories();
     }
 }

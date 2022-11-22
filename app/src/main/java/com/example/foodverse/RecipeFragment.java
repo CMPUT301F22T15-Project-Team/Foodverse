@@ -23,6 +23,8 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 
+import kotlin.text.UStringsKt;
+
 /**
  * RecipeFragment
  * The fragment responsible for allowing the user to add or edit recipes.
@@ -46,8 +48,9 @@ public class RecipeFragment extends DialogFragment {
     private ArrayAdapter<Ingredient> listViewAdapter;
     private ArrayList<Ingredient> recIngredients = new ArrayList<>();
     private ArrayList<String> ingredientStringList = new ArrayList<>();
-    private ArrayAdapter<String> ingAdapter;
-    private Spinner ingredientSpinner; // Spinner for ingredients
+    private ArrayList<String> categoryList = new ArrayList<>();
+    private ArrayAdapter<String> ingAdapter, categoryAdapter;
+    private Spinner ingredientSpinner, categorySpinner;
     private ListView ingredientList;
     private RecipeActivity act;
 
@@ -96,14 +99,14 @@ public class RecipeFragment extends DialogFragment {
         ingredientList = view.findViewById(R.id.ing_list);
         listViewAdapter = new IngredientAdapter(getActivity(), recIngredients);
         ingredientSpinner = view.findViewById(R.id.recipe_ingredient_spinner);
+        categorySpinner = view.findViewById(R.id.recipe_category_spinner);
         ingredientList.setAdapter(listViewAdapter);
-        String recipeCategory = "tmp";
-
+        String recCategory = "";
 
         // if in edit mode, get the values of each attribute that stored for the recipe item entry
         // and populate them on the dialog box to allow the user to edit - this is done using the getters
         // and setters for the attributes
-        if (edit_text == Boolean.TRUE){
+        if (edit_text == Boolean.TRUE) {
             // obtain access to the Bundle's information inputted when
             // editing or creating a Recipe entry
             Bundle recipeVal = getArguments();
@@ -111,7 +114,7 @@ public class RecipeFragment extends DialogFragment {
             Recipe RecipeObject = (Recipe) recipeVal.get("recipe"); //accessing the value of the attribute passed
             rec_title.setText(RecipeObject.getTitle());
             rec_comments.setText(RecipeObject.getComments());
-            String StrCat = RecipeObject.getCategory();
+            recCategory = RecipeObject.getCategory();
             rec_servings.setText(Integer.toString(RecipeObject.getServings()));//switched w int refactor
             rec_preptime.setText(Integer.toString(RecipeObject.getPrepTime()));//switched w int refactor
             chosenRecipe = RecipeObject; //update on the object
@@ -121,9 +124,11 @@ public class RecipeFragment extends DialogFragment {
                 recIngredients.add(RecipeObject.getIngredients().get(i));
             }
             listViewAdapter.notifyDataSetChanged();
+
         }
 
         ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
+        categoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
 
         act = (RecipeActivity) getActivity();
         // The ingredients from the database are added to the spinner
@@ -132,16 +137,27 @@ public class RecipeFragment extends DialogFragment {
                     act.getDatabaseIngredients().get(i).getDescription());
         }
 
+        for (int i = 0; i < act.getCategories().size(); i++) {
+            categoryList.add(act.getCategories().get(i));
+        }
+
         // The spinner is set up to connect with the list of ingredients
         ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
         ingredientSpinner.setAdapter(ingAdapter);
+
+        categoryAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+        categorySpinner.setAdapter(categoryAdapter);
+
+        if (edit_text == Boolean.TRUE) {
+            categorySpinner.setSelection(categoryList.indexOf(recCategory));
+        }
 
         // When the user clicks on the plus button to add an ingredient
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int ingIndex;
-                Log.d("MealFrag", "Adding ingredient");
+                Log.d("RecFrag", "Adding ingredient");
                 ingIndex = ingredientSpinner.getSelectedItemPosition();
                 recIngredients.add(act.getDatabaseIngredients().get(ingIndex));
 
@@ -186,6 +202,11 @@ public class RecipeFragment extends DialogFragment {
                             prepare_time = Integer.parseInt(
                                     rec_preptime.getText().toString());
                         }
+
+                        String recipeCategory = "";
+                        int categoryInd;
+                        categoryInd = categorySpinner.getSelectedItemPosition();
+                        recipeCategory = categoryList.get(categoryInd);
 
                         // Send new edited recipe back to the activity
                         if (edit_text == Boolean.TRUE){

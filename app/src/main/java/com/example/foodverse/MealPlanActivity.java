@@ -64,6 +64,9 @@ public class MealPlanActivity extends AppCompatActivity implements
 
     private ArrayList<Integer> recipeHashCodes = new ArrayList<Integer>();
     private ArrayList<String> recipeTitleList = new ArrayList<String>();
+    private CategoryList catListRec = new CategoryList("Recipe");
+    private CategoryList catListIng = new CategoryList("Ingredient");
+    private LocationList locList = new LocationList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -433,6 +436,24 @@ public class MealPlanActivity extends AppCompatActivity implements
             case "Shopping List": {
                 Intent intent = new Intent(this, ShoppingListActivity.class);
                 startActivity(intent);
+                break;
+            }
+            case "Manage Storage Locations": {
+                new LocationCategoryManager("Location",
+                        locList.getLocations())
+                        .show(getSupportFragmentManager(), "LocMgr");
+                break;
+            }
+            case "Manage Ingredient Categories": {
+                new LocationCategoryManager("Ingredient Category",
+                        catListIng.getCategories())
+                        .show(getSupportFragmentManager(), "IngCatMgr");
+                break;
+            }
+            case "Manage Recipe Categories": {
+                new LocationCategoryManager("Recipe Category",
+                        catListRec.getCategories())
+                        .show(getSupportFragmentManager(), "RecCatMgr");
                 break;
             }
             default: break;
