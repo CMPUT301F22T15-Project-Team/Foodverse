@@ -5,4 +5,12 @@
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
     <string name="add_stored_ing">Add Ingredient</string>
+    <string name="prep_time">Prep Time (min):</string>
+    <string name="serving_size_hint">Serving Size</string>
+    <string name="serving_size">Serving Size:</string>
+    <string name="comments_hint">Comments</string>
+    <string name="comments">Comments:</string>
+    <string name="recipe_title_hint">Recipe Title</string>
+    <string name="category">Category:</string>
+    <string name="recipe_ingredients">Ingredients in Recipe</string>
 </resources>

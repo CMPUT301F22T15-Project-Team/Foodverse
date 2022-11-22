@@ -62,7 +62,6 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
     private ArrayList<Integer> hashCodeList = new ArrayList<>();
     private ArrayAdapter<String> ingAdapter;
     private ArrayAdapter<String> recAdapter;
-    private FirebaseFirestore db;
     private ArrayAdapter<Ingredient> listViewAdapter;
     private MealPlanActivity act;
 
@@ -140,8 +139,6 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
 
         ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
         recAdapter = new ArrayAdapter<String>(getActivity(), R.layout.recipe_spinner, recipeStringList);
-        db = FirebaseFirestore.getInstance();
-        db.enableNetwork();
 
         act = (MealPlanActivity) getActivity();
         // The ingredients from the database are added to the spinner

@@ -6,217 +6,143 @@
     android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<!--    <Button-->
-<!--        android:id="@+id/button_add"-->
-<!--        android:layout_width="75dp"-->
-<!--        android:layout_height="50dp"-->
-<!--        android:text="Add"-->
-<!--        android:layout_gravity="bottom"-->
-<!--        android:layout_margin="10dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        android:textSize="10dp"/>-->
-
-<!--    <Button-->
-<!--        android:id="@+id/button_del"-->
-<!--        android:layout_width="75dp"-->
-<!--        android:layout_height="50dp"-->
-<!--        android:text="Delete"-->
-<!--        android:layout_marginBottom="25dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        android:textSize="10dp"/>-->
-
-
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
 
     <EditText
         android:id="@+id/recipe_title_edit_text"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_weight="0.5"
-        android:hint="Recipe Title"
+        android:layout_height="wrap_content"
+        android:hint="@string/recipe_title_hint"
         android:inputType="textPersonName"
-        android:text="aaron"
+        android:padding="10dp"
         />
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:orientation="horizontal"
-        android:layout_weight="0.5">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="135dp"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="Comments:"
-            android:textSize="15dp" />
+            android:text="@string/comments"
+            android:textSize="15sp" />
         <EditText
-            android:id="@+id/comments_editText"
-            android:layout_width="250dp"
+            android:id="@+id/comments_edit_text"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="Comments:"
-            android:textSize="15dp" />
-
+            android:hint="@string/comments_hint"
+            android:textSize="15sp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.5"
         android:orientation="horizontal">
-
         <TextView
-            android:id="@+id/locTextView"
+            android:id="@+id/category_text_view"
             android:layout_width="135dp"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:text="Category:"
-            android:textSize="15dp" />
+            android:text="@string/category"
+            android:textSize="15sp" />
 
-        <!--Citation for RadioButton:
-                URL: https://www.geeksforgeeks.org/android-how-to-add-radio-buttons-in-an-android-application/
-                Author: GeeksforGeeks
-                Title: Android | How to add Radio Buttons in an Android Application?
-                Published: July 21, 2022
-                Date Retrieved: September 25, 2022
-                License: CCBY-SA -->
-
-
-        <LinearLayout
-
+        <Spinner
+            android:id="@+id/category_spinner"
             android:layout_width="match_parent"
-            android:layout_height="100dp">
-
-            <RadioGroup
-                android:id="@+id/radioGroup"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-
-                <RadioButton
-                    android:id="@+id/american_op"
-                    android:layout_width="fill_parent"
-                    android:layout_height="28dp"
-                    android:text="American"></RadioButton>
-
-                <RadioButton
-                    android:id="@+id/italian_op"
-                    android:layout_width="fill_parent"
-                    android:layout_height="35dp"
-                    android:text="Italian"></RadioButton>
-
-                <RadioButton
-                    android:id="@+id/mexican_op"
-                    android:layout_width="fill_parent"
-                    android:layout_height="28dp"
-                    android:text="Mexican"></RadioButton>
-
-                <!--<EditText
-                    android:id="@+id/comment_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_weight="2"
-                    android:hint="Comments"
-                    android:inputType="textPersonName"
-                    android:maxLength="30"
-                    android:text="aaron" />-->
-            </RadioGroup>
-        </LinearLayout>
-
-
-        <!--<EditText
-            android:id="@+id/cat_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:ems="10"
-            android:hint="Category"
-            android:inputType="textPersonName"
-            android:text="aaron"/>-->
+            android:layout_height="match_parent" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.5"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/serving_sizeTextView"
             android:layout_width="135dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="10dp"
-            android:text="Serving Size:"
-            android:textSize="15dp" />
+            android:text="@string/serving_size"
+            android:textSize="15sp" />
 
         <EditText
             android:id="@+id/serving_size_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="Serving Size"
-            android:inputType="numberDecimal"
-            android:text="1"/>
+            android:hint="@string/serving_size_hint"
+            android:inputType="numberDecimal"/>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="0.5">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/prep_timeTextView"
             android:layout_width="135dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:padding="10dp"
-            android:text="Prep Time (min):"
-            android:textSize="15dp" />
-
-
+            android:text="@string/prep_time"
+            android:textSize="15sp" />
         <EditText
             android:id="@+id/prep_time_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Prep Time in Minutes"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:text="60"/>
+            android:layout_height="match_parent"
+            android:hint="60"
+            android:inputType="number"/>
     </LinearLayout>
-
+    <TextView
+        android:id="@+id/DateTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="1dp"
+        android:text="@string/recipe_ingredients"
+        android:textAlignment="center"
+        android:textSize="25sp" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="0.5">
-
+        android:orientation="horizontal">
         <TextView
-            android:id="@+id/DateTextView"
-            android:layout_width="135dp"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Ingredients:"
-            android:textSize="15dp" />
-
-        <ListView
-            android:id="@+id/ing_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </ListView>
-
-
-
+            android:id="@+id/ingredient_text_view"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="20dp"
+            android:text="" />
+        <Spinner
+            android:id="@+id/recipe_ingredient_spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/recipe_add_ingredient_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:backgroundTint="#00FF00"
+            android:textColor="#FFFFFF"
+            android:text="+" />
     </LinearLayout>
+    <ListView
+        android:id="@+id/ing_list"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+    </ListView>
+    <Button
+        android:id="@+id/recipe_delete_ingredient_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#F44336"
+        android:text="Remove Ingredient" />
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/recipe_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_launcher_background" />
 </LinearLayout>

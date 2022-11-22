@@ -59,18 +59,10 @@ public class RecipeActivity  extends AppCompatActivity implements
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
-    private CollectionReference ingRef, storedRef;
+    private CollectionReference storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
 
-    /*public RecipeActivity(ListView recipeList) {
-        RecipeList = recipeList;
-    }
-
-    public RecipeActivity(int contentLayoutId, ListView recipeList) {
-        super(contentLayoutId);
-        RecipeList = recipeList;
-    }*/
 
     /**
      * The startup function that is called when the activity is launched.
@@ -163,10 +155,9 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
 
-        ingRef = db.collection("Ingredients");
         storedRef = db.collection("StoredIngredients");
 
-        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the recipe list with all the documents on firebase everytime it is updated.
              * @param queryDocumentSnapshots Firebase documents
@@ -266,12 +257,22 @@ public class RecipeActivity  extends AppCompatActivity implements
     public void onOkPressed(Recipe newRecipe) {
         HashMap<String, Object> data = new HashMap<>();
 
+        // Can't store ingredient directly so use DatabaseIngredient methods
+        ArrayList<String> ingStrings = new ArrayList<>();
+        String ingString;
+        for (int i = 0; i < newRecipe.getIngredients().size(); i++) {
+            ingString = DatabaseIngredient.ingredientToString(
+                    newRecipe.getIngredients().get(i));
+            ingStrings.add(ingString);
+        }
+
         // Put all data from the recipe into data
         data.put("Title", newRecipe.getTitle());
         data.put("Category", newRecipe.getCategory());
         data.put("Comments", newRecipe.getComments());
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
+        data.put("Ingredients", ingStrings);
 
         /*
          * Store all data under the hash code of the recipe, so we can
@@ -309,12 +310,23 @@ public class RecipeActivity  extends AppCompatActivity implements
         HashMap<String, Object> data = new HashMap<>();
         Recipe oldRecipe = RecipeDataList.get(selectedRecipeIndex);
 
+
+        // Can't store ingredient directly so use DatabaseIngredient methods
+        ArrayList<String> ingStrings = new ArrayList<>();
+        String ingString;
+        for (int i = 0; i < newRecipe.getIngredients().size(); i++) {
+            ingString = DatabaseIngredient.ingredientToString(
+                    newRecipe.getIngredients().get(i));
+            ingStrings.add(ingString);
+        }
+
         // Grab data from the updated recipe
         data.put("Title", newRecipe.getTitle());
         data.put("Category", newRecipe.getCategory());
         data.put("Comments", newRecipe.getComments());
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
+        data.put("Ingredients", ingStrings);
 
         Log.d(TAG, String.valueOf(selectedRecipeIndex));
 
@@ -433,10 +445,15 @@ public class RecipeActivity  extends AppCompatActivity implements
         return true;
     }
 
+    /**
+     * A getter method for use in the RecipeFragment to get access to all
+     * currently stored ingredients to create meals.
+     *
+     * @return An {@link ArrayList<Ingredient>} containing all ingredients
+     *         known to the database.
+     * @since 1.0
+     */
     public ArrayList<Ingredient> getDatabaseIngredients(){
         return databaseIngredients;
     }
-
-
-
 }

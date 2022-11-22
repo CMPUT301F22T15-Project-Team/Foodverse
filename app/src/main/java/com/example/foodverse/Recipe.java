@@ -144,7 +144,7 @@ public class Recipe implements Serializable {
     }
 
     /**
-     * Setter for the comments of the {@link Ingredient}.
+     * Setter for the comments of the {@link Recipe}.
      *
      * @param comments A {@link String} to set the comments to.
      */
@@ -152,12 +152,26 @@ public class Recipe implements Serializable {
         this.comments = comments;
     }
 
-//    public ArrayList<Ingredient> getIngredientArrayList() {
-//        return ingredientArrayList;
-//    }
-//
-//    public void setIngredientArrayList(ArrayList<Ingredient> ingredientArrayList) {
-//        this.ingredientArrayList = ingredientArrayList;
-//    }
+    /**
+     * Getter for the {@link ArrayList<Ingredient>} variable stored in the
+     * {@link Recipe} object.
+     *
+     * @return An {@link ArrayList<Ingredient>}, storing all ingredients
+     *         for this {@link Recipe} object.
+     */
+    public ArrayList<Ingredient> getIngredients() {
+        return ingredientArrayList;
+    }
+
+    /**
+     * Setter for the {@link ArrayList<Ingredient>} variable.
+     *
+     * @param ingredientArrayList An {@link ArrayList<Ingredient>} object,
+     *                            containing all {@link Ingredient} objects that
+     *                            should be stored in the {@link Recipe}.
+     */
+    public void setIngredients(ArrayList<Ingredient> ingredientArrayList) {
+        this.ingredientArrayList = ingredientArrayList;
+    }
 
 }
