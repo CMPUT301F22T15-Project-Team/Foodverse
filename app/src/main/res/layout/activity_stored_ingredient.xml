@@ -7,19 +7,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".StoredIngredientActivity">
+
     <FrameLayout
         android:id="@+id/stored_ingredient_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".StoredIngredientActivity">
 
-
-
         <ListView
             android:id="@+id/ingredient_list"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:paddingBottom="50dp">
+            android:paddingBottom="50dp"
+            android:divider="#8C9EFF"
+            android:dividerHeight="8px">
 
         </ListView>
 
@@ -28,16 +29,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:text="@string/add_stored_ing" />
+            android:text="@string/add_stored_ing"
+            app:backgroundTint="@color/Green"
+            app:elevation="200dp" />
 
 
     </FrameLayout>
-    <!-- https://www.geeksforgeeks.org/navigation-drawer-in-android/
-         by adityamshidlyali, 2020 -->
+
     <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_menu_ingredients"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:id="@+id/nav_menu_ingredients"
-        app:menu="@menu/nav_menu_options"/>
+        app:menu="@menu/nav_menu_options" />
+    <!-- https://www.geeksforgeeks.org/navigation-drawer-in-android/
+         by adityamshidlyali, 2020 -->
 </androidx.drawerlayout.widget.DrawerLayout>
