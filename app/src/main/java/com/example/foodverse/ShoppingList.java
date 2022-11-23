@@ -1,5 +1,6 @@
 package com.example.foodverse;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -55,7 +56,7 @@ public class ShoppingList extends ArrayAdapter<ShoppingListIngredient> {
         TextView ingredientAmount = view.findViewById(R.id.amount_value);
         TextView ingredientUnit = view.findViewById(R.id.unit_value);
         TextView ingredientCategory = view.findViewById(R.id.category_value);
-//        CheckBox ingredientCheckbox = view.findViewById(R.id.ingredient_checkbox);
+        CheckBox ingredientCheckbox = view.findViewById(R.id.ingredient_checkbox);
 
         // Updating the values in the layout.
         ingredientDescription.setText(ingredient.getDescription());
@@ -63,12 +64,21 @@ public class ShoppingList extends ArrayAdapter<ShoppingListIngredient> {
         ingredientUnit.setText(ingredient.getUnit());
         ingredientCategory.setText(ingredient.getCategory());
 
-//        ingredientCheckbox.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                view.setBackgroundColor(Color.GRAY);
-//            }
-//        });
+        View finalView = view;
+        ingredientCheckbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ingredient.isPurchased()){
+                    finalView.setBackgroundColor(Color.WHITE);
+                    ingredient.setPurchased(false);
+                } else {
+                    finalView.setBackgroundColor(Color.GRAY);
+                    ingredient.setPurchased(true);
+                    Activity activity = (Activity) context;
+                    new ShoppingListFragment(ingredient).show(activity.getFragmentManager(), "EDIT");
+                }
+            }
+        });
 
         return view;
     }

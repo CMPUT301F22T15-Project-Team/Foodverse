@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal">
-
+    <CheckBox android:id="@+id/ingredient_checkbox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:onClick="onCheckboxClicked"/>
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="7"
+        android:layout_weight="10"
         android:orientation="vertical">
         <TextView
             android:id="@+id/description_text"
@@ -17,7 +21,9 @@
             android:layout_weight="1"
             android:paddingHorizontal = "10dp"
             android:text="Ingredient Description"
-            android:textSize="30sp">
+            android:textSize="30sp"
+            android:textColor="@color/black"
+            app:fontFamily="@font/arvo_bold">
 
         </TextView>
 
@@ -52,10 +58,6 @@
                 android:textSize="20sp"></TextView>
         </LinearLayout>
     </LinearLayout>
-<!--        <CheckBox android:id="@+id/ingredient_checkbox"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:onClick="onCheckboxClicked"/>-->
+
 
 </LinearLayout>
