@@ -5,11 +5,15 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -210,6 +214,19 @@ public class StoredIngredientFragment extends DialogFragment {
                                 listener.ingredientEdited(newIngredient);
                             }
                         }).create();
+    }
+
+    // This code was copied from https://stackoverflow.com/questions/15421271/custom-fragmentdialog-with-round-corners-and-not-100-screen-width
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.stored_ingredient_fragment, null);
+        // Set transparent background and no title
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        }
+        return view;
     }
 
     /**
