@@ -11,10 +11,12 @@ import java.util.Date;
  *
  * @version 1.0
  */
-public class Meal {
+public class Meal implements Comparable<Meal> {
     ArrayList<Ingredient> ingredients;
     // Recipe recipe;
     Date date;
+    int recipeHashCode = 0;
+    String recipeTitle = "No Recipe";
 
     /**
      * A constructor for meal taking no parameters.
@@ -83,5 +85,23 @@ public class Meal {
      */
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public void addRecipe(int recipeHashCode, String name) {
+        this.recipeHashCode = recipeHashCode;
+        this.recipeTitle = name;
+    }
+
+    public String getRecipeTitle() {
+        return this.recipeTitle;
+    }
+
+    public int getRecipeHashCode() {
+        return this.recipeHashCode;
+    }
+
+    @Override
+    public int compareTo(Meal meal) {
+        return this.date.compareTo(meal.getDate());
     }
 }

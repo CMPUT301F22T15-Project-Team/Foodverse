@@ -31,6 +31,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +53,7 @@ public class MealPlanActivity extends AppCompatActivity implements
     private ArrayAdapter<Meal> mealAdapter;
     private FirebaseFirestore db;
     private final String TAG = "MealPlanActivity";
-    private CollectionReference collectionReference, ingRef, storedRef;
+    private CollectionReference collectionReference, recRef, storedRef;
     private ArrayList<Meal> mealArrayList; // The array list that stores the meals
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
     private HashSet<Ingredient> set = new HashSet<>();
@@ -59,6 +61,12 @@ public class MealPlanActivity extends AppCompatActivity implements
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
+
+    private ArrayList<Integer> recipeHashCodes = new ArrayList<Integer>();
+    private ArrayList<String> recipeTitleList = new ArrayList<String>();
+    private CategoryList catListRec = new CategoryList("Recipe");
+    private CategoryList catListIng = new CategoryList("Ingredient");
+    private LocationList locList = new LocationList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,14 +118,22 @@ public class MealPlanActivity extends AppCompatActivity implements
                 // Clear the old list
                 mealArrayList.clear();
                 // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     Date date = new Date();
+                    String recipeName = "No Recipe";
+                    int recipeCode = 0;
                     ArrayList<String> ingStrings =
                             (ArrayList<String>) doc.getData().get("Ingredients");
                     if (doc.getData().get("Date") != null) {
                         date = ((Timestamp) doc.getData().get("Date")).toDate();
+                    }
+                    if (doc.getData().get("Recipe") != null) {
+                        recipeName = (String) doc.getData().get("Recipe");
+                    }
+                    if (doc.getData().get("Recipe Code") != null) {
+                        recipeCode = ((Long) doc.getData().get("Recipe Code")).intValue();
                     }
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
@@ -128,10 +144,44 @@ public class MealPlanActivity extends AppCompatActivity implements
                             ingredients.add(ing);
                         }
                     }
-                    mealArrayList.add(new Meal(ingredients, date));
+                    Meal newMeal = new Meal(ingredients, date);
+                    newMeal.addRecipe(recipeCode, recipeName);
+                    mealArrayList.add(newMeal);
+                    //mealArrayList.add(new Meal(ingredients, date));
                 }
+
                 // Update with new cloud data
+                Collections.sort(mealArrayList);
                 mealAdapter.notifyDataSetChanged();
+            }
+        });
+
+        //storedRef = db.collection("Recipes");
+        recRef = db.collection("Recipes");
+
+
+        recRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                recipeHashCodes.clear();
+                recipeTitleList.clear();
+
+                for (QueryDocumentSnapshot doc: value) {
+                    Log.d(TAG, String.valueOf(doc.getId()));
+                    String hashCode = doc.getId();
+                    String name = "";
+                    Integer code = 0;
+                    ArrayList<String> recStrings = (ArrayList<String>) doc.getData().get("Recipes");
+                    if (doc.getData().get("Title") != null) {
+                        name = (String) doc.getData().get("Title");
+                        code = Integer.parseInt(hashCode);
+                    }
+                    if (hashCode != null) {
+                        code = Integer.valueOf(hashCode);
+                    }
+                    recipeHashCodes.add(code);
+                    recipeTitleList.add(name);
+                }
             }
         });
 
@@ -142,7 +192,7 @@ public class MealPlanActivity extends AppCompatActivity implements
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
                 // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     String hashCode = doc.getId();
                     String description = "", unit = "";
                     Long count = 0l;
@@ -205,8 +255,6 @@ public class MealPlanActivity extends AppCompatActivity implements
     public void mealAdded(Meal meal) {
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
-
-
         // Can't store ingredient directly so use DatabaseIngredient methods
         ArrayList<String> ingStrings = new ArrayList<>();
         String ingString;
@@ -218,6 +266,8 @@ public class MealPlanActivity extends AppCompatActivity implements
 
         data.put("Ingredients", ingStrings);
         data.put("Date", meal.getDate());
+        data.put("Recipe", meal.getRecipeTitle());
+        data.put("Recipe Code", meal.getRecipeHashCode());
         /*
          * Store all data under the hash code of the meal, so we can
          * store multiple similar meals.
@@ -293,6 +343,8 @@ public class MealPlanActivity extends AppCompatActivity implements
         }
         data.put("Ingredients", ingStrings);
         data.put("Date", meal.getDate());
+        data.put("Recipe", meal.getRecipeTitle());
+        data.put("Recipe Code", meal.getRecipeHashCode());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldMeal.hashCode()))
@@ -325,6 +377,17 @@ public class MealPlanActivity extends AppCompatActivity implements
     public ArrayList<Ingredient> getDatabaseIngredients() {
         return databaseIngredients;
     }
+
+
+    // Add it here
+    public ArrayList<String> getRecipeTitleList() {
+        return recipeTitleList;
+    }
+
+    public ArrayList<Integer> getRecipeHashCodes() {
+        return recipeHashCodes;
+    }
+
 
     /**
      * Implemented to allow for the opening and closing of the navigation menu.
@@ -373,6 +436,24 @@ public class MealPlanActivity extends AppCompatActivity implements
             case "Shopping List": {
                 Intent intent = new Intent(this, ShoppingListActivity.class);
                 startActivity(intent);
+                break;
+            }
+            case "Manage Storage Locations": {
+                new LocationCategoryManager("Location",
+                        locList.getLocations())
+                        .show(getSupportFragmentManager(), "LocMgr");
+                break;
+            }
+            case "Manage Ingredient Categories": {
+                new LocationCategoryManager("Ingredient Category",
+                        catListIng.getCategories())
+                        .show(getSupportFragmentManager(), "IngCatMgr");
+                break;
+            }
+            case "Manage Recipe Categories": {
+                new LocationCategoryManager("Recipe Category",
+                        catListRec.getCategories())
+                        .show(getSupportFragmentManager(), "RecCatMgr");
                 break;
             }
             default: break;

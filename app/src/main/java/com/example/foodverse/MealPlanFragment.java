@@ -50,13 +50,18 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
 
     private Button mealDate; // Date selector
     private Button addButton; // Button to add ingredient to meal
+    private Button deleteButton;
     private Date date2; // The date which is added to a new or edited meal
     //private Spinner recipeSpinner;
     private Spinner ingredientSpinner; // Spinner for ingredients
+    private Spinner recipeSpinner;
+
     private ArrayList<Ingredient> mealIngredients = new ArrayList<>();
     private ArrayList<String> ingredientStringList = new ArrayList<>();
+    private ArrayList<String> recipeStringList = new ArrayList<>();
+    private ArrayList<Integer> hashCodeList = new ArrayList<>();
     private ArrayAdapter<String> ingAdapter;
-    private FirebaseFirestore db;
+    private ArrayAdapter<String> recAdapter;
     private ArrayAdapter<Ingredient> listViewAdapter;
     private MealPlanActivity act;
 
@@ -104,13 +109,19 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
 
         // Initialize Components
         mealDate = view.findViewById(R.id.date_button);
-        //recipeSpinner = view.findViewById(R.id.recipe_spinner);
         ingredientSpinner = view.findViewById(R.id.meal_ingredient_spinner);
+        recipeSpinner = view.findViewById(R.id.recipe_spinner);
         addButton = view.findViewById(R.id.add_meal_ingredient_button);
+        deleteButton = view.findViewById(R.id.meal_ingredient_button);
         ingredientList = view.findViewById(R.id.meal_fragment_list);
         listViewAdapter = new IngredientAdapter(getActivity(), mealIngredients);
         ingredientList.setAdapter(listViewAdapter);
         ingredientSpinner.setOnItemSelectedListener(this);
+        recipeSpinner.setOnItemSelectedListener(this);
+
+        recipeStringList.add("No Recipe");
+        hashCodeList.add(0);
+
 
 
         DatePickerDialog.OnDateSetListener dateSetListener;
@@ -127,8 +138,7 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
         };
 
         ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
-        db = FirebaseFirestore.getInstance();
-        db.enableNetwork();
+        recAdapter = new ArrayAdapter<String>(getActivity(), R.layout.recipe_spinner, recipeStringList);
 
         act = (MealPlanActivity) getActivity();
         // The ingredients from the database are added to the spinner
@@ -137,9 +147,20 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
                     act.getDatabaseIngredients().get(i).getDescription());
         }
 
+        // Add it here
+        for (int i = 0; i < act.getRecipeHashCodes().size(); i++) {
+            hashCodeList.add(act.getRecipeHashCodes().get(i));
+        }
+
+        for (int i = 0; i < act.getRecipeTitleList().size(); i++) {
+            recipeStringList.add(act.getRecipeTitleList().get(i));
+        }
+
         // The spinner is set up to connect with the list of ingredients
         ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
         ingredientSpinner.setAdapter(ingAdapter);
+        recAdapter.setDropDownViewResource(R.layout.recipe_spinner);
+        recipeSpinner.setAdapter(recAdapter);
 
 
         // Set the start date to the current date
@@ -159,6 +180,10 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
+            recipeSpinner.setSelection(hashCodeList.indexOf(meal.getRecipeHashCode()));
+            Log.d("MEALFRAG", String.valueOf(hashCodeList.indexOf(meal.getRecipeHashCode())));
+            Log.d("MEALFRAG", String.valueOf(meal.getRecipeHashCode()));
+            //recipeSpinner.setSelection(1);
 
             // Get all the ingredients from the meal and add them to
             // an array list to be displayed on a listview
@@ -197,6 +222,20 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
             }
         });
 
+        deleteButton.setOnClickListener( new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+                        mealIngredients.remove(pos);
+                        listViewAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
+
+
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
@@ -216,6 +255,9 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
                         newMeal.setDate(date2);
                         // Add array of ingredients to meal
                         newMeal.setIngredients(mealIngredients);
+                        String newMealTitle = (String) recipeSpinner.getSelectedItem();
+                        int newHash = hashCodeList.get(recipeSpinner.getSelectedItemPosition());
+                        newMeal.addRecipe(newHash, newMealTitle);
                         if (meal == null) {
                             listener.mealAdded(newMeal);
                         } else {
@@ -258,6 +300,15 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
         String date = Integer.toString(year) + "-" + monthStr + "-" + dayStr;
         mealDate.setText(date);
         date2 = calendar.getTime();
+    }
+
+    public void deleteIngredient(View view) {
+        ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+                mealIngredients.remove(pos);
+                listViewAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
