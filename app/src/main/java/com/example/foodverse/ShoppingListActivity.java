@@ -183,32 +183,32 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
         });
 
-        shoppingListCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            /**
-             * Updates the shopping list with all the documents on firebase everytime it is updated.
-             * @param queryDocumentSnapshots Firebase documents
-             * @param error Error message received when retrieving documents(if applicable)
-             */
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                // Clear the old list
-                shoppingArrayList.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    String unit = (String) doc.getData().get("Unit");
-                    String category = (String) doc.getData().get("Category");
-                    shoppingArrayList.add(
-                            new ShoppingListIngredient(description, count.intValue(), unit, category));
-                }
-                // Update with new cloud data
-                shoppingListAdapter.notifyDataSetChanged();
-            }
-        });
+//        shoppingListCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+//            /**
+//             * Updates the shopping list with all the documents on firebase everytime it is updated.
+//             * @param queryDocumentSnapshots Firebase documents
+//             * @param error Error message received when retrieving documents(if applicable)
+//             */
+//            @Override
+//            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+//                    FirebaseFirestoreException error) {
+//                // Clear the old list
+//                shoppingArrayList.clear();
+//                // Add ingredients from the cloud
+//                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+//                    Log.d(TAG, String.valueOf(doc.getId()));
+//                    String hashCode = doc.getId();
+//                    String description = (String) doc.getData().get("Description");
+//                    Long count = (Long) doc.getData().get("Count");
+//                    String unit = (String) doc.getData().get("Unit");
+//                    String category = (String) doc.getData().get("Category");
+//                    shoppingArrayList.add(
+//                            new ShoppingListIngredient(description, count.intValue(), unit, category));
+//                }
+//                // Update with new cloud data
+//                shoppingListAdapter.notifyDataSetChanged();
+//            }
+//        });
 
 
 
@@ -422,6 +422,15 @@ public class ShoppingListActivity extends AppCompatActivity implements
                         Log.d(TAG, "Data could not be added to StoredIngredients!" + e.toString());
                     }
                 });
+
+        for(Ingredient shoppingIngredient: shoppingArrayList){
+            if (ingredient.getDescription().equals(shoppingIngredient.getDescription()) &&
+                ingredient.getUnit().equals(shoppingIngredient.getUnit()) &&
+                ingredient.getCategory().equals(shoppingIngredient.getCategory())) {
+
+        }
+
+        }
 //        Ingredient toRemove =
 //                new Ingredient(ingredient.getDescription(), ingredient.getCount());
 //        shoppingListCollectionReference
@@ -490,14 +499,21 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
             if(addToList){
                 mealIngredient.setCount(count);
-                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
-                        count, mealIngredient.getUnit(), mealIngredient.getCategory()));
-            } else {
-                // If ingredient is no longer required, delete it
-                shoppingListCollectionReference
-                        .document(String.valueOf(mealIngredient.hashCode()))
-                        .delete();
 
+                shoppingArrayList.add(new ShoppingListIngredient(mealIngredient.getDescription(),
+                        count, mealIngredient.getUnit(), mealIngredient.getCategory()));
+
+
+            } else {
+
+                for (Ingredient shoppingIngredient : shoppingArrayList) {
+                    // We check if a required ingredient already exists in storage
+                    if (mealIngredient.getDescription().equals(shoppingIngredient.getDescription()) &&
+                            mealIngredient.getUnit().equals(shoppingIngredient.getUnit()) &&
+                            mealIngredient.getCategory().equals(shoppingIngredient.getCategory())) {
+                        shoppingArrayList.remove(shoppingIngredient);
+                    }
+                }
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
