@@ -33,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (username.length() > 0 && password.length() > 0) {
                     if(checkLogin(username, password)) {
                         //switch activity, pass username?
+                        //test 7:35
                     } else {
                         String toastMessage = "Invalid login info";
                         Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
