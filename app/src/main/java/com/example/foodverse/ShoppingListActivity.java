@@ -27,6 +27,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -56,6 +58,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private ArrayList<Ingredient> mealPlanArrayList;
     private ArrayList<Ingredient> summedMealPlanArrayList;
     private ArrayList<Ingredient> storedIngredientsArrayList;
+    private ArrayList<Ingredient> summedStoredIngredientArrayList;
     private ArrayList<ShoppingListIngredient> shoppingArrayList;
     private int selectedIngredientIndex = -1;
     private FirebaseFirestore db;
@@ -75,6 +78,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
     /**
      * The startup function that is called when the activity is launched.
+     *
      * @param savedInstanceState Any data that needs to be passed into the activity
      */
     @Override
@@ -92,8 +96,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         mealPlanArrayList = new ArrayList<>();
         summedMealPlanArrayList = new ArrayList<>();
         storedIngredientsArrayList = new ArrayList<>();
-        shoppingArrayList.add(new ShoppingListIngredient("Ingredient 1", 2, "Box", "Lunch"));
-        shoppingArrayList.add(new ShoppingListIngredient("Ingredient 2", 4, "mL", "Dinner"));
+        summedStoredIngredientArrayList = new ArrayList<>();
         shoppingListAdapter = new ShoppingList(this, shoppingArrayList);
         shoppingListView.setAdapter(shoppingListAdapter);
         shoppingListAdapter.notifyDataSetChanged();
@@ -141,7 +144,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 mealPlanArrayList.clear();
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
@@ -165,7 +168,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 storedIngredientsArrayList.clear();
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     String description = "", unit = "";
@@ -205,8 +208,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     Long count = (Long) doc.getData().get("Count");
                     String unit = (String) doc.getData().get("Unit");
                     String category = (String) doc.getData().get("Category");
+                    Boolean purchased = (Boolean) doc.getData().get("Purchased");
                     shoppingArrayList.add(
-                            new ShoppingListIngredient(description, count.intValue(), unit, category));
+                            new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
                 }
                 // Update with new cloud data
                 shoppingListAdapter.notifyDataSetChanged();
@@ -245,10 +249,10 @@ public class ShoppingListActivity extends AppCompatActivity implements
              */
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
-                selectedIngredientIndex = position;
-                new ShoppingListFragment(ingredient).show(
-                        getFragmentManager(), "EDIT_INGREDIENT");
+//                ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
+//                selectedIngredientIndex = position;
+//                new ShoppingListFragment(ingredient).show(
+//                        getFragmentManager(), "EDIT_INGREDIENT");
             }
 
         });
@@ -259,7 +263,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
              * @param v The view that was clicked.
              */
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 new ShoppingListFragment().show(
                         getFragmentManager(), "ADD_INGREDIENT");
             }
@@ -282,6 +286,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Count", ingredient.getCount());
         data.put("Unit", ingredient.getUnit());
         data.put("Category", ingredient.getCategory());
+        data.put("Purchased", ingredient.isPurchased());
 
         /*
          * Store all data under the hash code of the ingredient, so we can
@@ -358,6 +363,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Count", ingredient.getCount());
         data.put("Unit", ingredient.getUnit());
         data.put("Category", ingredient.getCategory());
+        data.put("Purchased", ingredient.isPurchased());
 
         // Delete old ingredient and set new since hashCode() will return different result
         shoppingListCollectionReference.document(String.valueOf(oldIngredient.hashCode()))
@@ -425,25 +431,25 @@ public class ShoppingListActivity extends AppCompatActivity implements
                         Log.d(TAG, "Data could not be added to StoredIngredients!" + e.toString());
                     }
                 });
-//        Ingredient toRemove =
-//                new Ingredient(ingredient.getDescription(), ingredient.getCount());
-//        shoppingListCollectionReference
-//                .document(String.valueOf(toRemove.hashCode()))
-//                .delete()
-//                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        // Log success
-//                        Log.d(TAG, "Data has been deleted!");
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        // Log any issues
-//                        Log.d(TAG, "Data could not be deleted!" + e.toString());
-//                    }
-//                });
+        Ingredient toRemove =
+                new Ingredient(ingredient.getDescription(), ingredient.getCount());
+        shoppingListCollectionReference
+                .document(String.valueOf(toRemove.hashCode()))
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Log success
+                        Log.d(TAG, "Data has been deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Log any issues
+                        Log.d(TAG, "Data could not be deleted!" + e.toString());
+                    }
+                });
     }
 
     /**
@@ -457,8 +463,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         for (Ingredient mealIngredient : mealPlanArrayList) {
             boolean addToList = true;
             for(Ingredient summedMealIngredient : summedMealPlanArrayList){
-                if(summedMealIngredient.getDescription().equals(mealIngredient.getDescription())
-                        && summedMealIngredient.getUnit().equals(mealIngredient.getUnit())){
+                if(summedMealIngredient.hashCode() == mealIngredient.hashCode()){
                     summedMealIngredient.setCount(summedMealIngredient.getCount() + mealIngredient.getCount());
                     addToList = false;
                     break;
@@ -470,12 +475,29 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
         }
 
+        summedStoredIngredientArrayList.clear();
+        // We sum up the ingredient counts from different stored ingredients
+        for (Ingredient storedIngredient : storedIngredientsArrayList) {
+            boolean addToList = true;
+            for(Ingredient summedStoredIngredient : summedStoredIngredientArrayList){
+                if(summedStoredIngredient.hashCode() == storedIngredient.hashCode()){
+                    summedStoredIngredient.setCount(summedStoredIngredient.getCount() + storedIngredient.getCount());
+                    addToList = false;
+                    break;
+                }
+            }
+            if(addToList){
+                summedStoredIngredientArrayList.add(new Ingredient(storedIngredient.getDescription(), storedIngredient.getCount(),
+                        storedIngredient.getUnit(), storedIngredient.getCategory()));
+            }
+        }
+
         shoppingArrayList.clear();
         for (Ingredient mealIngredient : summedMealPlanArrayList) {
             boolean addToList = true;
             int count = mealIngredient.getCount();
 
-            for (Ingredient storedIngredient : storedIngredientsArrayList) {
+            for (Ingredient storedIngredient : summedStoredIngredientArrayList) {
                 // We check if a required ingredient already exists in storage
                 if (mealIngredient.getDescription().equals(storedIngredient.getDescription()) &&
                         mealIngredient.getUnit().equals(storedIngredient.getUnit()) &&
@@ -493,14 +515,14 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
             if(addToList){
                 mealIngredient.setCount(count);
+
                 ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
-                        count, mealIngredient.getUnit(), mealIngredient.getCategory()));
+                        mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
             } else {
-                // If ingredient is no longer required, delete it
+
                 shoppingListCollectionReference
                         .document(String.valueOf(mealIngredient.hashCode()))
                         .delete();
-
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
