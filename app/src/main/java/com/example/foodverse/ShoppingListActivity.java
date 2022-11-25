@@ -515,25 +515,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
                 ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
                         mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
-//                DocumentReference document = shoppingListCollectionReference
-//                        .document(String.valueOf(mealIngredient.hashCode()));
-//
-//                document.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                        if(task.isSuccessful()){
-//                            if(task.getResult().exists()){
-//                                document.update("Count", mealIngredient.getCount());
-//
-//                            } else {
-//
-//
-//                            }
-//                        }
-//                    }
-//                });
-
-
             } else {
 
                 shoppingListCollectionReference
