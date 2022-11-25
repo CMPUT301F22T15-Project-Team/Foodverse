@@ -15,11 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Custom shopping list adapter to hold shopping list ingredients.
@@ -93,15 +96,20 @@ public class ShoppingList extends ArrayAdapter<ShoppingListIngredient> {
                 if(ingredient.isPurchased()){
                     finalView.setBackgroundColor(Color.WHITE);
                     ingredient.setPurchased(false);
+
+                    // Delete old ingredient and set new since hashCode() will return different result
                     shoppingListCollectionReference.document(String.valueOf(ingredient.hashCode()))
                             .update("Purchased", false);
                 } else {
                     finalView.setBackgroundColor(Color.GRAY);
                     ingredient.setPurchased(true);
-                    Activity activity = (Activity) context;
-                    new ShoppingListFragment(ingredient).show(activity.getFragmentManager(), "EDIT");
+
+                    // Delete old ingredient and set new since hashCode() will return different result
                     shoppingListCollectionReference.document(String.valueOf(ingredient.hashCode()))
                             .update("Purchased", true);
+                    Activity activity = (Activity) context;
+                    new ShoppingListFragment(ingredient).show(activity.getFragmentManager(), "EDIT");
+
                 }
             }
         });

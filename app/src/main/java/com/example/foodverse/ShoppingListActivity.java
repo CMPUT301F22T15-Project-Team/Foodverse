@@ -58,6 +58,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private ArrayList<Ingredient> mealPlanArrayList;
     private ArrayList<Ingredient> summedMealPlanArrayList;
     private ArrayList<Ingredient> storedIngredientsArrayList;
+    private ArrayList<Ingredient> summedStoredIngredientArrayList;
     private ArrayList<ShoppingListIngredient> shoppingArrayList;
     private int selectedIngredientIndex = -1;
     private FirebaseFirestore db;
@@ -92,6 +93,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         mealPlanArrayList = new ArrayList<>();
         summedMealPlanArrayList = new ArrayList<>();
         storedIngredientsArrayList = new ArrayList<>();
+        summedStoredIngredientArrayList = new ArrayList<>();
         shoppingListAdapter = new ShoppingList(this, shoppingArrayList);
         shoppingListView.setAdapter(shoppingListAdapter);
         shoppingListAdapter.notifyDataSetChanged();
@@ -204,7 +206,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     String unit = (String) doc.getData().get("Unit");
                     String category = (String) doc.getData().get("Category");
                     Boolean purchased = (Boolean) doc.getData().get("Purchased");
-//                    Boolean purchased = true;
                     shoppingArrayList.add(
                             new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
                 }
@@ -459,8 +460,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         for (Ingredient mealIngredient : mealPlanArrayList) {
             boolean addToList = true;
             for(Ingredient summedMealIngredient : summedMealPlanArrayList){
-                if(summedMealIngredient.getDescription().equals(mealIngredient.getDescription())
-                        && summedMealIngredient.getUnit().equals(mealIngredient.getUnit())){
+                if(summedMealIngredient.hashCode() == mealIngredient.hashCode()){
                     summedMealIngredient.setCount(summedMealIngredient.getCount() + mealIngredient.getCount());
                     addToList = false;
                     break;
@@ -472,12 +472,29 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
         }
 
-//        shoppingArrayList.clear();
+        summedStoredIngredientArrayList.clear();
+        // We sum up the ingredient counts from different stored ingredients
+        for (Ingredient storedIngredient : storedIngredientsArrayList) {
+            boolean addToList = true;
+            for(Ingredient summedStoredIngredient : summedStoredIngredientArrayList){
+                if(summedStoredIngredient.hashCode() == storedIngredient.hashCode()){
+                    summedStoredIngredient.setCount(summedStoredIngredient.getCount() + storedIngredient.getCount());
+                    addToList = false;
+                    break;
+                }
+            }
+            if(addToList){
+                summedStoredIngredientArrayList.add(new Ingredient(storedIngredient.getDescription(), storedIngredient.getCount(),
+                        storedIngredient.getUnit(), storedIngredient.getCategory()));
+            }
+        }
+
+        shoppingArrayList.clear();
         for (Ingredient mealIngredient : summedMealPlanArrayList) {
             boolean addToList = true;
             int count = mealIngredient.getCount();
 
-            for (Ingredient storedIngredient : storedIngredientsArrayList) {
+            for (Ingredient storedIngredient : summedStoredIngredientArrayList) {
                 // We check if a required ingredient already exists in storage
                 if (mealIngredient.getDescription().equals(storedIngredient.getDescription()) &&
                         mealIngredient.getUnit().equals(storedIngredient.getUnit()) &&
@@ -495,57 +512,33 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
             if(addToList){
                 mealIngredient.setCount(count);
-                DocumentReference document = shoppingListCollectionReference
-                        .document(String.valueOf(mealIngredient.hashCode()));
 
-                document.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if(task.isSuccessful()){
-                            if(task.getResult().exists()){
-                                document.update("Count", mealIngredient.getCount());
-                            } else {
-                                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
-                                    mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
-                            }
-                        }
-                    }
-                });
-//                        .update("Count", count);
-//                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
-//                        count, mealIngredient.getUnit(), mealIngredient.getCategory(), false));
-
-//                boolean addToShoppingList = true;
-//                for (Ingredient shoppingIngredient : shoppingArrayList) {
-//                    // We check if a required ingredient already exists in storage
-//                    if (mealIngredient.getDescription().equals(shoppingIngredient.getDescription()) &&
-//                            mealIngredient.getUnit().equals(shoppingIngredient.getUnit()) &&
-//                            mealIngredient.getCategory().equals(shoppingIngredient.getCategory())) {
-//                        shoppingIngredient.setCount(count);
-//                        addToShoppingList = false;
-//                        break;
-//                    }
-//                }
+                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
+                        mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
+//                DocumentReference document = shoppingListCollectionReference
+//                        .document(String.valueOf(mealIngredient.hashCode()));
 //
-//                if(addToShoppingList){
-//                    shoppingArrayList.add(new ShoppingListIngredient(mealIngredient.getDescription(),
-//                            count, mealIngredient.getUnit(), mealIngredient.getCategory()));
-//                }
+//                document.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                        if(task.isSuccessful()){
+//                            if(task.getResult().exists()){
+//                                document.update("Count", mealIngredient.getCount());
+//
+//                            } else {
+//
+//
+//                            }
+//                        }
+//                    }
+//                });
+
+
             } else {
 
                 shoppingListCollectionReference
                         .document(String.valueOf(mealIngredient.hashCode()))
                         .delete();
-
-//                for (Ingredient shoppingIngredient : shoppingArrayList) {
-//                    // We check if a required ingredient already exists in storage
-//                    if (mealIngredient.getDescription().equals(shoppingIngredient.getDescription()) &&
-//                            mealIngredient.getUnit().equals(shoppingIngredient.getUnit()) &&
-//                            mealIngredient.getCategory().equals(shoppingIngredient.getCategory())) {
-//                        shoppingArrayList.remove(shoppingIngredient);
-//                        break;
-//                    }
-//                }
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
