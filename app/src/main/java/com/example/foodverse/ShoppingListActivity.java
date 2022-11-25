@@ -54,6 +54,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private ListView shoppingListView;
     private ArrayAdapter<ShoppingListIngredient> shoppingListAdapter;
     private ArrayList<Ingredient> mealPlanArrayList;
+    private ArrayList<Ingredient> summedMealPlanArrayList;
     private ArrayList<Ingredient> storedIngredientsArrayList;
     private ArrayList<ShoppingListIngredient> shoppingArrayList;
     private int selectedIngredientIndex = -1;
@@ -89,6 +90,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         // Creating the array list and attaching it to the adapter.
         shoppingArrayList = new ArrayList<>();
         mealPlanArrayList = new ArrayList<>();
+        summedMealPlanArrayList = new ArrayList<>();
         storedIngredientsArrayList = new ArrayList<>();
         shoppingArrayList.add(new ShoppingListIngredient("Ingredient 1", 2, "Box", "Lunch"));
         shoppingArrayList.add(new ShoppingListIngredient("Ingredient 2", 4, "mL", "Dinner"));
@@ -118,11 +120,11 @@ public class ShoppingListActivity extends AppCompatActivity implements
         // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
         db.enableNetwork()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Log.d(TAG, "Firebase online");
-            }
-        });
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Firebase online");
+                    }
+                });
 
         shoppingListCollectionReference = db.collection("ShoppingList");
         mealPlanCollectionReference = db.collection("MealPlan");
@@ -246,7 +248,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
                 selectedIngredientIndex = position;
                 new ShoppingListFragment(ingredient).show(
-                        getSupportFragmentManager(), "EDIT_INGREDIENT");
+                        getFragmentManager(), "EDIT_INGREDIENT");
             }
 
         });
@@ -259,20 +261,10 @@ public class ShoppingListActivity extends AppCompatActivity implements
             @Override
             public void onClick(View v){
                 new ShoppingListFragment().show(
-                        getSupportFragmentManager(), "ADD_INGREDIENT");
+                        getFragmentManager(), "ADD_INGREDIENT");
             }
         });
 
-    }
-
-    /**
-     * The function called when a checkbox is clicked.
-     * @param view The view that was clicked.
-     */
-    public void onCheckboxClicked(View view){
-        System.out.println(view);
-//        ColorDrawable color = (ColorDrawable) view.getBackground();
-        view.setBackgroundColor(Color.GRAY);
     }
 
     /**
@@ -410,6 +402,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Location", ingredient.getLocation());
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
+        data.put("Unit", ingredient.getUnit());
 
         // Need to store ingredient in the stored ingredients collection
         CollectionReference storedReference =
@@ -432,25 +425,25 @@ public class ShoppingListActivity extends AppCompatActivity implements
                         Log.d(TAG, "Data could not be added to StoredIngredients!" + e.toString());
                     }
                 });
-        Ingredient toRemove =
-                new Ingredient(ingredient.getDescription(), ingredient.getCount());
-        shoppingListCollectionReference
-                .document(String.valueOf(toRemove.hashCode()))
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Log success
-                        Log.d(TAG, "Data has been deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Log any issues
-                        Log.d(TAG, "Data could not be deleted!" + e.toString());
-                    }
-                });
+//        Ingredient toRemove =
+//                new Ingredient(ingredient.getDescription(), ingredient.getCount());
+//        shoppingListCollectionReference
+//                .document(String.valueOf(toRemove.hashCode()))
+//                .delete()
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        // Log success
+//                        Log.d(TAG, "Data has been deleted!");
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        // Log any issues
+//                        Log.d(TAG, "Data could not be deleted!" + e.toString());
+//                    }
+//                });
     }
 
     /**
@@ -458,8 +451,27 @@ public class ShoppingListActivity extends AppCompatActivity implements
      * and the ingredients already contained in the storage.
      */
     public void updateShoppingList() {
-        shoppingArrayList.clear();
+
+        summedMealPlanArrayList.clear();
+        // We sum up the ingredient counts from different meals
         for (Ingredient mealIngredient : mealPlanArrayList) {
+            boolean addToList = true;
+            for(Ingredient summedMealIngredient : summedMealPlanArrayList){
+                if(summedMealIngredient.getDescription().equals(mealIngredient.getDescription())
+                        && summedMealIngredient.getUnit().equals(mealIngredient.getUnit())){
+                    summedMealIngredient.setCount(summedMealIngredient.getCount() + mealIngredient.getCount());
+                    addToList = false;
+                    break;
+                }
+            }
+            if(addToList){
+                summedMealPlanArrayList.add(new Ingredient(mealIngredient.getDescription(), mealIngredient.getCount(),
+                        mealIngredient.getUnit(), mealIngredient.getCategory()));
+            }
+        }
+
+        shoppingArrayList.clear();
+        for (Ingredient mealIngredient : summedMealPlanArrayList) {
             boolean addToList = true;
             int count = mealIngredient.getCount();
 
@@ -471,10 +483,11 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
                     // We check how many units are actually needed
                     if (mealIngredient.getCount() > storedIngredient.getCount()) {
-                        count = storedIngredient.getCount() - mealIngredient.getCount();
+                        count -= storedIngredient.getCount();
                         break;
                     }
                     addToList = false;
+                    break;
                 }
             }
 
@@ -487,6 +500,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 shoppingListCollectionReference
                         .document(String.valueOf(mealIngredient.hashCode()))
                         .delete();
+
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
