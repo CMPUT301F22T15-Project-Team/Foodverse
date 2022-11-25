@@ -132,7 +132,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
 
         // Auto populate the shopping list by checking the meal plan and ingredient storage
         mealPlanCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-
             /**
              * Updates the local meal plan ingredient list everytime firebase is updated
              * @param queryDocumentSnapshots The meal plans stored in firebase
@@ -212,7 +211,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 shoppingListAdapter.notifyDataSetChanged();
             }
         });
-
 
 
         /*

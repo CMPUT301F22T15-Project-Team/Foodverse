@@ -8,12 +8,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 //https://learntodroid.com/how-to-create-a-login-form-in-android-studio/
 
 public class LoginActivity extends AppCompatActivity {
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
+    private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

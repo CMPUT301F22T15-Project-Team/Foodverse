@@ -290,6 +290,7 @@ public class RecipeFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 cam_uri = null;
+                bitmap = null;
                 recipePhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher_background));
             }
         });

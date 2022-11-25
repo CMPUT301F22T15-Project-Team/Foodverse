@@ -50,7 +50,7 @@ public class StoredIngredientFragment extends DialogFragment {
     private Date expiryDate;
     private ArrayList<String> locationList = new ArrayList<>();
     private ArrayList<String> categoryList = new ArrayList<>();
-    private ArrayAdapter<String> ingAdapter, catAdapter;
+    private ArrayAdapter<String> locAdapter, catAdapter;
 
     /**
      * Default constructor for StoredIngredientFragment.
@@ -107,9 +107,6 @@ public class StoredIngredientFragment extends DialogFragment {
         ingredientLocation = view.findViewById(R.id.location_spinner);
         ingredientExpiry = view.findViewById(R.id.expiry_button);
 
-        ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, locationList);
-        catAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
-
         StoredIngredientActivity act = (StoredIngredientActivity) getActivity();
         // The ingredients from the database are added to the spinner
         for (int i = 0; i < act.getLocations().size(); i++) {
@@ -119,6 +116,10 @@ public class StoredIngredientFragment extends DialogFragment {
         for (int i = 0; i < act.getCategories().size(); i++) {
             categoryList.add(act.getCategories().get(i));
         }
+
+        locAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, locationList);
+        ingredientLocation.setAdapter(locAdapter);
+        catAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
 
         /* Code for creating a spinner-style date picker inspired off of "Pop Up
         Date Picker Android Studio Tutorial" by Code With Cal on December 19th,
