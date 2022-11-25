@@ -1,10 +1,17 @@
 package com.example.foodverse;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,15 +19,19 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 
+import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import kotlin.text.UStringsKt;
@@ -42,8 +53,9 @@ public class RecipeFragment extends DialogFragment {
     private EditText rec_preptime;
     private RecipeFragment.OnFragmentInteractionListener listener;
     private Recipe chosenRecipe;
-    private Button addButton; // Button to add ingredient to meal
-    private Button deleteButton;
+    private Button addButton, deleteButton, choosePhotoButton, takePhotoButton,
+                   deletePhoto;
+    private ImageView recipePhoto;
     public Boolean edit_text = Boolean.FALSE;
     private ArrayAdapter<Ingredient> listViewAdapter;
     private ArrayList<Ingredient> recIngredients = new ArrayList<>();
@@ -53,6 +65,11 @@ public class RecipeFragment extends DialogFragment {
     private Spinner ingredientSpinner, categorySpinner;
     private ListView ingredientList;
     private RecipeActivity act;
+    private Uri cam_uri;
+    private Bitmap bitmap;
+
+    private final int REQUEST_IMAGE_CAPTURE = 1;
+    private final int REQUEST_IMAGE_SELECTION = 2;
 
 
     /**
@@ -61,6 +78,28 @@ public class RecipeFragment extends DialogFragment {
     public interface OnFragmentInteractionListener{
         void onOkPressed(Recipe newRec);
         void onOkEditPressed(Recipe newRec);
+    }
+
+    /**
+     * Default constructor for {@link RecipeFragment}. Sets the chosen recipe
+     * to null.
+     */
+    public RecipeFragment() {
+        super();
+        this.chosenRecipe = null;
+    }
+
+    /**
+     * Constructor for {@link RecipeFragment} with a given {@link Recipe}.
+     *
+     * @param recipe A {@link Recipe} representing the recipe for
+     * for which we want to see the details of.
+     */
+    public RecipeFragment(Recipe recipe) {
+        super();
+        this.chosenRecipe = recipe;
+        // Set that we are in edit mode
+        edit_text = Boolean.TRUE;
     }
 
     /**
@@ -96,11 +135,16 @@ public class RecipeFragment extends DialogFragment {
         rec_preptime = view.findViewById(R.id.prep_time_edit_text);
         addButton = view.findViewById(R.id.recipe_add_ingredient_button);
         deleteButton = view.findViewById(R.id.recipe_delete_ingredient_button);
+        choosePhotoButton = view.findViewById(R.id.recipe_add_image_button);
+        takePhotoButton = view.findViewById(R.id.recipe_take_photo_button);
+        deletePhoto = view.findViewById(R.id.recipe_remove_photo_button);
         ingredientList = view.findViewById(R.id.ing_list);
         listViewAdapter = new IngredientAdapter(getActivity(), recIngredients);
         ingredientSpinner = view.findViewById(R.id.recipe_ingredient_spinner);
         categorySpinner = view.findViewById(R.id.recipe_category_spinner);
+        recipePhoto = view.findViewById(R.id.recipe_picture);
         ingredientList.setAdapter(listViewAdapter);
+        cam_uri = null;
         String recCategory = "";
 
         // if in edit mode, get the values of each attribute that stored for the recipe item entry
@@ -111,7 +155,8 @@ public class RecipeFragment extends DialogFragment {
             // editing or creating a Recipe entry
             Bundle recipeVal = getArguments();
 
-            Recipe RecipeObject = (Recipe) recipeVal.get("recipe"); //accessing the value of the attribute passed
+            //Recipe RecipeObject = (Recipe) recipeVal.get("recipe"); //accessing the value of the attribute passed
+            Recipe RecipeObject = chosenRecipe;
             rec_title.setText(RecipeObject.getTitle());
             rec_comments.setText(RecipeObject.getComments());
             recCategory = RecipeObject.getCategory();
@@ -124,6 +169,17 @@ public class RecipeFragment extends DialogFragment {
                 recIngredients.add(RecipeObject.getIngredients().get(i));
             }
             listViewAdapter.notifyDataSetChanged();
+
+            if (RecipeObject.getPhotoBitmap() != null) {
+                Log.e("ImageActivity", "Setting bitmap");
+                try {
+                    recipePhoto.setImageBitmap(RecipeObject.getPhotoBitmap());
+                    bitmap = RecipeObject.getPhotoBitmap();
+                } catch (SecurityException e) {
+                    Log.e("ImageActivity", e.getMessage());
+                    RecipeObject.setPhotoBitmap(null);
+                }
+            }
 
         }
 
@@ -177,6 +233,67 @@ public class RecipeFragment extends DialogFragment {
             }
         });
 
+        /*
+         * Both selecting and taking photo functionality made with reference to:
+         * https://developer.android.com/training/camera/camera-intents (2022-11-22)
+         * https://developer.android.com/reference/android/provider/MediaStore (2022-06-08)
+         * https://stackoverflow.com/questions/67115099/how-do-i-use-registerforactivityresult-to-launch-camera
+         * Answer by Alias (2021)
+         * Both Accessed 2022-11-24
+         */
+        takePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera");
+                cam_uri = requireContext().getContentResolver().insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
+                try {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                } catch (ActivityNotFoundException e) {
+                    Log.e("RecFrag", "Take Picture Activity not found.");
+                }
+            }
+        });
+
+        /*
+         * Made with reference to the above and:
+         * https://stackoverflow.com/questions/38352148/get-image-from-the-gallery-and-show-in-imageview
+         * Answer by Atul Mavani (2016), edited by shagberg (2021).
+         * https://www.geeksforgeeks.org/how-to-select-an-image-from-gallery-in-android/
+         * by adityamshidlyali
+         * Accessed 2022-11-24.
+         */
+        choosePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.TITLE, "Picture");
+                values.put(MediaStore.Images.Media.DESCRIPTION, "From Gallery");
+                cam_uri = requireContext().getContentResolver().insert(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                Intent choosePictureIntent = new Intent(Intent.ACTION_PICK);
+                choosePictureIntent.setType("image/*");
+                choosePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
+                try {
+                    startActivityForResult(choosePictureIntent, REQUEST_IMAGE_SELECTION);
+                } catch (ActivityNotFoundException e) {
+                    Log.e("RecFrag", "Choose Picture Activity not found.");
+                }
+            }
+        });
+
+        deletePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cam_uri = null;
+                recipePhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher_background));
+            }
+        });
+
 
         //creates the dialog box with the populated info and action buttons
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -213,7 +330,7 @@ public class RecipeFragment extends DialogFragment {
                             Recipe edited = new Recipe(recipe_title,
                                     prepare_time, serving_size,
                                     recipeCategory, recipe_comments,
-                                    recIngredients);
+                                    recIngredients, bitmap);
                             listener.onOkEditPressed(edited);
 
                         }
@@ -221,24 +338,12 @@ public class RecipeFragment extends DialogFragment {
                         else {
                             listener.onOkPressed(new Recipe(recipe_title,
                                     prepare_time,serving_size,recipeCategory,
-                                    recipe_comments,recIngredients));
+                                    recipe_comments,recIngredients, bitmap));
                         }
 
 
                     }
                 }).create(); //creates the dialog box
-    }
-
-
-    // Bundles are utilized to pass data attributes into recipeObject
-    static RecipeFragment newInstance(Recipe recipe){
-        Bundle args = new Bundle();
-        args.putSerializable("recipe", recipe);
-
-        RecipeFragment fragment = new RecipeFragment();
-        fragment.edit_text = Boolean.TRUE;
-        fragment.setArguments(args);
-        return fragment;
     }
 
 
@@ -251,5 +356,43 @@ public class RecipeFragment extends DialogFragment {
         });
     }
 
+
+    /**
+     * For displaying an image after the camera captures it, or the user selects
+     * it from their photos. Made with reference to:
+     * https://stackoverflow.com/questions/5991319/capture-image-from-camera-and-display-in-activity
+     * Answer by jengelsma (2011) edited by emilekm (2019)
+     * https://stackoverflow.com/questions/29803924/android-how-to-set-the-photo-selected-from-gallery-to-a-bitmap
+     * Answer by Akash (2015)
+     *
+     * @param requestCode The integer code sent as a request with the activity.
+     * @param resultCode The integer code sent back from Android, giving the
+     *                   exit status of the activity.
+     * @param data The intent from the closed activity.
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            Log.d("ImageActivity", cam_uri.toString());
+            //recipePhoto.setImageURI(cam_uri);
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(act.getContentResolver(), cam_uri);
+                recipePhoto.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (requestCode == REQUEST_IMAGE_SELECTION && resultCode == Activity.RESULT_OK) {
+            Log.d("ImageActivity", cam_uri.toString());
+            cam_uri = data.getData();
+            //recipePhoto.setImageURI(cam_uri);
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(act.getContentResolver(), cam_uri);
+                recipePhoto.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
 

@@ -21,4 +21,7 @@
     <string name="location_nav">Manage Storage Locations</string>
     <string name="ing_cat_nav">Manage Ingredient Categories</string>
     <string name="rec_cat_nav">Manage Recipe Categories</string>
+    <string name="take_photo">Take a Photo</string>
+    <string name="img_upload">Upload an Image</string>
+    <string name="remove_photo">Remove Photo</string>
 </resources>
