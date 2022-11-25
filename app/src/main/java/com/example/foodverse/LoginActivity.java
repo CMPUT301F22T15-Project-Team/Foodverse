@@ -17,6 +17,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button loginButton;
     private FirebaseAuth auth;
+    private Button registerButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.activity_login_usernameEditText);
         passwordEditText = findViewById(R.id.activity_login_passwordEditText);
         loginButton = findViewById(R.id.activity_login_loginButton);
+        registerButton = findViewById(R.id.activity_login_registerButton);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (username.length() > 0 && password.length() > 0) {
                     if(checkLogin(username, password)) {
                         //switch activity, pass username?
+                        //test 7:35
                     } else {
                         String toastMessage = "Invalid login info";
                         Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
@@ -46,6 +49,35 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String password = passwordEditText.getText().toString();
+                String username = usernameEditText.getText().toString();
+
+                if (username.length() > 0 && password.length() > 0) {
+                    if(checkUsername(username)) {
+                        String toastMessage = "Username already in use";
+                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                    } else {
+                        //add user and password to db
+                        String toastMessage = "User: " + username + " has been registered.";
+                        Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_LONG).show();
+                        //switch activity, pass username?
+                    }
+                } else {
+                    String toastMessage = "Username or Password are not populated";
+                    Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private boolean checkUsername(String username){
+        boolean validUser = false;
+        //check database for username
+        return validUser;
     }
 
     private boolean checkLogin(String username, String password){
@@ -53,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         boolean validUser = false;
         boolean correctPassword = false;
 
-        //check database for username, validUser = result
+        validUser = checkUsername(username);
         if (validUser){
             //check database for matching password, correctPassword = result
             if (correctPassword){
