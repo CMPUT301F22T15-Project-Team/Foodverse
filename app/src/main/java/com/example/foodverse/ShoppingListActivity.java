@@ -27,6 +27,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -201,10 +203,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     Long count = (Long) doc.getData().get("Count");
                     String unit = (String) doc.getData().get("Unit");
                     String category = (String) doc.getData().get("Category");
-//                    Boolean purchased = (Boolean) doc.getData().get("Purchased");
-                    Boolean purchased = true;
+                    Boolean purchased = (Boolean) doc.getData().get("Purchased");
+//                    Boolean purchased = true;
                     shoppingArrayList.add(
-
                             new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
                 }
                 // Update with new cloud data
@@ -244,10 +245,10 @@ public class ShoppingListActivity extends AppCompatActivity implements
              */
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
-                selectedIngredientIndex = position;
-                new ShoppingListFragment(ingredient).show(
-                        getFragmentManager(), "EDIT_INGREDIENT");
+//                ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
+//                selectedIngredientIndex = position;
+//                new ShoppingListFragment(ingredient).show(
+//                        getFragmentManager(), "EDIT_INGREDIENT");
             }
 
         });
@@ -358,6 +359,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Count", ingredient.getCount());
         data.put("Unit", ingredient.getUnit());
         data.put("Category", ingredient.getCategory());
+        data.put("Purchased", ingredient.isPurchased());
 
         // Delete old ingredient and set new since hashCode() will return different result
         shoppingListCollectionReference.document(String.valueOf(oldIngredient.hashCode()))
@@ -492,9 +494,27 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
 
             if(addToList){
-                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
-                        count, mealIngredient.getUnit(), mealIngredient.getCategory(), false));
-//                mealIngredient.setCount(count);
+                mealIngredient.setCount(count);
+                DocumentReference document = shoppingListCollectionReference
+                        .document(String.valueOf(mealIngredient.hashCode()));
+
+                document.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if(task.isSuccessful()){
+                            if(task.getResult().exists()){
+                                document.update("Count", mealIngredient.getCount());
+                            } else {
+                                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
+                                    mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
+                            }
+                        }
+                    }
+                });
+//                        .update("Count", count);
+//                ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
+//                        count, mealIngredient.getUnit(), mealIngredient.getCategory(), false));
+
 //                boolean addToShoppingList = true;
 //                for (Ingredient shoppingIngredient : shoppingArrayList) {
 //                    // We check if a required ingredient already exists in storage
