@@ -81,11 +81,11 @@ public class ShoppingList extends ArrayAdapter<ShoppingListIngredient> {
         });
 
         if(ingredient.isPurchased()){
-            finalView.setBackgroundColor(Color.WHITE);
-        } else {
             finalView.setBackgroundColor(Color.GRAY);
-            Activity activity = (Activity) context;
-            new ShoppingListFragment(ingredient).show(activity.getFragmentManager(), "EDIT");
+            ingredientCheckbox.setChecked(true);
+        } else {
+            finalView.setBackgroundColor(Color.WHITE);
+            ingredientCheckbox.setChecked(false);
         }
 
         return view;
