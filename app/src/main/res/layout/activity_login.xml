@@ -66,6 +66,13 @@
                 android:text="@string/activity_login_form_login"
                 android:textSize="22sp" />
 
+            <Button
+                android:id="@+id/activity_login_registerButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/activity_login_form_register"
+                android:textSize="22sp" />
+
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
