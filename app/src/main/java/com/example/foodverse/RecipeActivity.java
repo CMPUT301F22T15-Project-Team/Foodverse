@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,6 +65,8 @@ public class RecipeActivity  extends AppCompatActivity implements
     private FirebaseFirestore db;
     private CollectionReference collectionReference;
     private final String TAG = "RecipeActivity";
+    private Spinner sortSpinner;
+    private String[] sortingMethods = {"Title", "Preparation Time", "Serving Size","Recipe Category"};
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
@@ -222,8 +225,8 @@ public class RecipeActivity  extends AppCompatActivity implements
         addRecButton.setOnClickListener((v) -> {
             new RecipeFragment().show(getSupportFragmentManager(), "ADD_Recipe");
         });
-//        Button btn_del = findViewById(R.id.id_del_recipe_button);
-//        Button edit_btn = findViewById(R.id.id_edit_recipe_button);
+        Button view_btn = findViewById(R.id.id_view_recipe_button);
+        Button edit_btn = findViewById(R.id.id_edit_recipe_button);
 
         RecipeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             /**
@@ -269,6 +272,17 @@ public class RecipeActivity  extends AppCompatActivity implements
 //                }
 //            }
 //        });
+        view_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (clickedElement != null) {
+                    RecipeViewFragment.newInstance(RecipeDataList.get(selectedRecipeIndex))
+                            .show(getSupportFragmentManager(), "View_Recipe");
+                    clickedElement.setBackgroundColor(Color.WHITE);
+                    clickedElement = null;
+                }
+            }
+        });
     }
 
 
