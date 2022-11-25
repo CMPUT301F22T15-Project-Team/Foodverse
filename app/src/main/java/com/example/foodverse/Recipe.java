@@ -1,10 +1,8 @@
 package com.example.foodverse;
 
-import android.widget.TextView;
+import android.graphics.Bitmap;
+import android.net.Uri;
 
-import androidx.annotation.NonNull;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 
 
@@ -18,18 +16,19 @@ import java.util.ArrayList;
  * Since there are certain restrictions on the attributes, they have been made private
  * to enforce these requirements through the setters.
  *
- * @version 1.0
+ * @version 1.1
  */
-public class Recipe implements Serializable {
-   private String title;
-   private int prep_time; //in mins
-   private int servings;
-   private String category;
-   private String comments;
-   private ArrayList<Ingredient> ingredientArrayList;
+public class Recipe {
+    private String title;
+    private int prep_time; //in mins
+    private int servings;
+    private String category;
+    private String comments;
+    private ArrayList<Ingredient> ingredientArrayList;
+    private Bitmap bitmap;
 
     /**
-     * A constructor for recipe taking all parameters.
+     * A constructor for recipe taking all parameters, except photoUri.
      * @param title {@link String} for the recipe
      * @param ingredientArrayList an {@link ArrayList<Ingredient>} to be given to the recipe
      * @param prep_time a {@link int} for how long it takes to prepare a recipe
@@ -47,6 +46,32 @@ public class Recipe implements Serializable {
         this.category = category;
         this.comments = comments; //add limit
         this.ingredientArrayList = ingredientArrayList;
+        this.bitmap = null;
+    }
+
+
+    /**
+     * A constructor for recipe taking all parameters.
+     * @param title {@link String} for the recipe
+     * @param ingredientArrayList an {@link ArrayList<Ingredient>} to be given to the recipe
+     * @param prep_time a {@link int} for how long it takes to prepare a recipe
+     * @param servings {@link int} the number of servings a recipe can serve
+     * @param category {@link String} the category for the recipe
+     * @param comments {@link String} the comments on the recipe
+     * @param bitmap a {@link Bitmap} to set what photo is accessed.
+     *
+     * @since version 1.1
+     */
+    public Recipe(String title, int prep_time, int servings, String category,
+                  String comments, ArrayList<Ingredient> ingredientArrayList,
+                  Bitmap bitmap) {
+        this.title = title; //add char limit
+        this.prep_time = prep_time;
+        this.servings = servings;
+        this.category = category;
+        this.comments = comments; //add limit
+        this.ingredientArrayList = ingredientArrayList;
+        this.bitmap = bitmap;
     }
 
 
@@ -185,4 +210,28 @@ public class Recipe implements Serializable {
         this.ingredientArrayList = ingredientArrayList;
     }
 
+
+    /**
+     * Getter for the {@link Bitmap} used to access the photo associated with
+     * the object.
+     *
+     * @return A {@link Bitmap} object to get the associated photo.
+     * @since 1.1
+     */
+    public Bitmap getPhotoBitmap() {
+        return bitmap;
+    }
+
+
+    /**
+     * Setter for the {@link Bitmap} used to access the photo associated with the
+     * {@link Recipe} object.
+     *
+     * @param bitmap A {@link Bitmap} to set, for the {@link Recipe} to access
+     *                 the photo at that Uri.
+     * @since 1.1
+     */
+    public void setPhotoBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
 }

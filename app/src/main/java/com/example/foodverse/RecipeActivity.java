@@ -1,8 +1,12 @@
 package com.example.foodverse;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +37,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.checkerframework.checker.units.qual.C;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -153,8 +158,23 @@ public class RecipeActivity  extends AppCompatActivity implements
                             ingredients.add(ing);
                         }
                     }
+                    /*
+                     * Decoding and encoding of bitmap with reference to:
+                     * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+                     * Accessed 2022-11-24
+                     */
+                    Bitmap bm = null;
+                    if (doc.getData().get("Bitmap") != null) {
+                        String bmEncoded = (String) doc.getData().get("Bitmap");
+                        byte[] decodedByteArray = android.util.Base64.decode(
+                                bmEncoded, Base64.DEFAULT);
+                        bm = BitmapFactory.decodeByteArray(
+                                decodedByteArray, 0,
+                                decodedByteArray.length);
+                    }
                     RecipeDataList.add(new Recipe(title, prep.intValue(),
-                            servings.intValue(), category, comments, ingredients));
+                            servings.intValue(), category, comments,
+                            ingredients, bm));
                 }
                 // Update with new cloud data
                 RecAdapter.notifyDataSetChanged();
@@ -242,7 +262,7 @@ public class RecipeActivity  extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 if (clickedElement != null) {
-                    RecipeFragment.newInstance(RecipeDataList.get(selectedRecipeIndex))
+                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
                             .show(getSupportFragmentManager(), "Edit_Recipe");
                     clickedElement.setBackgroundColor(Color.WHITE);
                     clickedElement = null;
@@ -279,6 +299,19 @@ public class RecipeActivity  extends AppCompatActivity implements
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
         data.put("Ingredients", ingStrings);
+        /*
+         * Decoding and encoding of bitmap with reference to:
+         * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+         * Accessed 2022-11-24
+         */
+        if (newRecipe.getPhotoBitmap() != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            newRecipe.getPhotoBitmap().compress(
+                    Bitmap.CompressFormat.JPEG, 50, baos);
+            String imageEncoded = Base64.encodeToString(
+                    baos.toByteArray(), Base64.DEFAULT);
+            data.put("Bitmap", imageEncoded);
+        }
 
         /*
          * Store all data under the hash code of the recipe, so we can
@@ -333,6 +366,19 @@ public class RecipeActivity  extends AppCompatActivity implements
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
         data.put("Ingredients", ingStrings);
+        /*
+         * Decoding and encoding of bitmap with reference to:
+         * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+         * Accessed 2022-11-24
+         */
+        if (newRecipe.getPhotoBitmap() != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            newRecipe.getPhotoBitmap().compress(
+                    Bitmap.CompressFormat.JPEG, 50, baos);
+            String imageEncoded = Base64.encodeToString(
+                    baos.toByteArray(), Base64.DEFAULT);
+            data.put("Bitmap", imageEncoded);
+        }
 
         Log.d(TAG, String.valueOf(selectedRecipeIndex));
 
