@@ -202,6 +202,10 @@ public class RecipeViewFragment extends DialogFragment {
         for (int i = 0; i < act.getCategories().size(); i++) {
             categoryList.add(act.getCategories().get(i));
         }
+        String recipeCategory = "";
+        String recipeCategory_value = chosenRecipe.getCategory();
+        Log.d("Debuggin View", recipeCategory_value);
+        rec_Category_v.setText(recipeCategory_value);
 
         // The spinner is set up to connect with the list of ingredients
 //        ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
@@ -307,6 +311,12 @@ public class RecipeViewFragment extends DialogFragment {
                 .setView(view)
                 .setTitle("View Recipe")
                 .setNeutralButton("Cancel",null)
+                .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        new RecipeFragment(chosenRecipe).show(getFragmentManager(), "Edit_Recipe");
+                    }
+                })
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -326,7 +336,7 @@ public class RecipeViewFragment extends DialogFragment {
                                     rec_preptime_v.getText().toString());
                         }
 
-                        String recipeCategory = "";
+
                         int categoryInd;
 //                        categoryInd = categorySpinner.getSelectedItemPosition();
 //                        recipeCategory = categoryList.get(categoryInd);
@@ -335,7 +345,7 @@ public class RecipeViewFragment extends DialogFragment {
                         if (view_text == Boolean.TRUE){
                             Recipe edited = new Recipe(recipe_title,
                                     prepare_time, serving_size,
-                                    recipeCategory, recipe_comments,
+                                    recipeCategory_value, recipe_comments,
                                     recIngredients, bitmap);
                             listener.onOkEditPressed(edited);
 
@@ -343,7 +353,7 @@ public class RecipeViewFragment extends DialogFragment {
                          //Context updated by creating a new recipe item entry
                         else {
                             listener.onOkPressed(new Recipe(recipe_title,
-                                    prepare_time,serving_size,recipeCategory,
+                                    prepare_time,serving_size,recipeCategory_value,
                                     recipe_comments,recIngredients, bitmap));
                         }
 

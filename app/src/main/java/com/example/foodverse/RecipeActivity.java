@@ -33,6 +33,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -77,6 +78,8 @@ public class RecipeActivity  extends AppCompatActivity implements
     private CategoryList catListRec = new CategoryList("Recipe");
     private CategoryList catListIng = new CategoryList("Ingredient");
     private LocationList locList = new LocationList();
+    private ArrayList<String> SortcategoryList = new ArrayList<>();
+    private ArrayAdapter<String> SortcategoryAdapter;
 
 
     /**
@@ -92,6 +95,8 @@ public class RecipeActivity  extends AppCompatActivity implements
         RecipeDataList = new ArrayList<>();
         RecAdapter = new RecipeList(this, RecipeDataList); //create the interface for the entries
         RecipeList.setAdapter(RecAdapter); //update the UI
+        sortSpinner = findViewById(R.id.sort_Spinner);
+        //SortcategoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.sortSpinner, SortcategoryList);
 
 
         /*
@@ -184,6 +189,19 @@ public class RecipeActivity  extends AppCompatActivity implements
                 RecAdapter.notifyDataSetChanged();
             }
         });
+        /*
+         * Learned how to do this using the following link:
+         * Author: AdamC
+         * Title: How to update a spinner dynamically?
+         * URL: https://stackoverflow.com/questions/3283337/how-to-update-a-spinner-dynamical
+         * License: CC BY-SA 2.5
+         * Date Posted: 2010-07-20
+         * Date Retrieved: 2022-09-25
+         */
+        ArrayAdapter spinnerAdapter = new ArrayAdapter(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, sortingMethods);
+        spinnerAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(spinnerAdapter);
+
 
         storedRef = db.collection("StoredIngredients");
 
@@ -221,13 +239,26 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
 
+        //IMPLEMENT SORTING HERE
+
+        //SpinVal = sortSpinner.getSelectedItem();
+       // String sortValue = ;
+
+//                        categoryInd = categorySpinner.getSelectedItemPosition();
+//                        recipeCategory = categoryList.get(categoryInd);
+        if(sortSpinner.equals("Preparation Time")){
+            FirebaseFirestore rootref = FirebaseFirestore.getInstance();
+            CollectionReference idsRef = rootref.collection("ids");
+            Query query = idsRef.orderBy("preparationTime", Query.Direction.ASCENDING);
+        };
+
         // When the addButton is clicked, open a dialog box to enter the attributes for the entry
         final Button addRecButton = findViewById(R.id.id_add_recipe_button);
         addRecButton.setOnClickListener((v) -> {
             new RecipeFragment().show(getSupportFragmentManager(), "ADD_Recipe");
         });
-        Button view_btn = findViewById(R.id.id_view_recipe_button);
-        Button edit_btn = findViewById(R.id.id_edit_recipe_button);
+//        Button view_btn = findViewById(R.id.id_view_recipe_button);
+//        Button edit_btn = findViewById(R.id.id_edit_recipe_button);
 
         RecipeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             /**
@@ -247,12 +278,12 @@ public class RecipeActivity  extends AppCompatActivity implements
                 clickedElement.setBackgroundColor(Color.GRAY);
                 selectedRecipeIndex = i;
 
-//                if (clickedElement != null) {
-//                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
-//                            .show(getSupportFragmentManager(), "View_Recipe");
-//                    clickedElement.setBackgroundColor(Color.WHITE);
-//                    clickedElement = null;
-//                }
+                if (clickedElement != null) {
+                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
+                            .show(getSupportFragmentManager(), "View_Recipe");
+                    clickedElement.setBackgroundColor(Color.WHITE);
+                    clickedElement = null;
+                }
             }
         });
 //        btn_del.setOnClickListener(new View.OnClickListener() {
@@ -269,29 +300,30 @@ public class RecipeActivity  extends AppCompatActivity implements
 //                }
 //            }
 //        });
-        edit_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (clickedElement != null) {
-                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
-                            .show(getSupportFragmentManager(), "Edit_Recipe");
-                    clickedElement.setBackgroundColor(Color.WHITE);
-                    clickedElement = null;
-                }
-            }
-        });
-        view_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (clickedElement != null) {
-                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
-                            .show(getSupportFragmentManager(), "View_Recipe");
-                    clickedElement.setBackgroundColor(Color.WHITE);
-                    clickedElement = null;
-                }
-            }
-        });
+//        edit_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (clickedElement != null) {
+//                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
+//                            .show(getSupportFragmentManager(), "Edit_Recipe");
+//                    clickedElement.setBackgroundColor(Color.WHITE);
+//                    clickedElement = null;
+//                }
+//            }
+//        });
+//        view_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (clickedElement != null) {
+//                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
+//                            .show(getSupportFragmentManager(), "View_Recipe");
+//                    clickedElement.setBackgroundColor(Color.WHITE);
+//                    clickedElement = null;
+//                }
+//            }
+//        });
     }
+
 
 
     /**
@@ -359,6 +391,7 @@ public class RecipeActivity  extends AppCompatActivity implements
     }
 
 
+
     /**
      * This method if called when the user confirms the edit of an existing
      * {@link Recipe} object. It will remove the object in Firebase that is
@@ -424,6 +457,7 @@ public class RecipeActivity  extends AppCompatActivity implements
                         Log.d(TAG, "Data could not be updated!" + e.toString());
                     }
                 });
+
     }
 
 

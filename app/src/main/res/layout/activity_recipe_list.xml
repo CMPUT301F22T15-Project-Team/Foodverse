@@ -57,14 +57,14 @@
             android:layout_weight="1"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/id_view_recipe_button"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="View" />
+<!--            <Button-->
+<!--                android:id="@+id/id_view_recipe_button"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="70dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:clickable="true"-->
+<!--                android:focusable="true"-->
+<!--                android:text="View" />-->
 
             <Button
                 android:id="@+id/id_add_recipe_button"
@@ -75,14 +75,14 @@
                 android:focusable="true"
                 android:text="Add Recipe" />
 
-            <Button
-                android:id="@+id/id_edit_recipe_button"
-                android:layout_width="0dp"
-                android:layout_height="70dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="Edit" />
+<!--            <Button-->
+<!--                android:id="@+id/id_edit_recipe_button"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="70dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:clickable="true"-->
+<!--                android:focusable="true"-->
+<!--                android:text="Edit" />-->
 
         </LinearLayout>
     </LinearLayout>
