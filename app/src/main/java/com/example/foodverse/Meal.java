@@ -17,6 +17,9 @@ public class Meal implements Comparable<Meal> {
     Date date;
     int recipeHashCode = 0;
     String recipeTitle = "No Recipe";
+    int servings = 0;
+    int servingScaling = 1;
+    String name = "";
 
     /**
      * A constructor for meal taking no parameters.
@@ -98,6 +101,30 @@ public class Meal implements Comparable<Meal> {
 
     public int getRecipeHashCode() {
         return this.recipeHashCode;
+    }
+
+    public int getServings() {
+        return this.servings;
+    }
+
+    public int getServingScaling() {
+        return this.servingScaling;
+    }
+
+    public void setServings(int servings) {
+        this.servings = servings;
+    }
+
+    public void setServingScaling(int scale) {
+        this.servingScaling = scale;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
     }
 
     @Override

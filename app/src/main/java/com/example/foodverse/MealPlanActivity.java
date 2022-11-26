@@ -65,6 +65,7 @@ public class MealPlanActivity extends AppCompatActivity implements
 
     private ArrayList<Integer> recipeHashCodes = new ArrayList<Integer>();
     private ArrayList<String> recipeTitleList = new ArrayList<String>();
+    private ArrayList<Integer> recipeServingSizes = new ArrayList<Integer>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +123,9 @@ public class MealPlanActivity extends AppCompatActivity implements
                     Date date = new Date();
                     String recipeName = "No Recipe";
                     int recipeCode = 0;
+                    int numServings = 0;
+                    int scale = 1;
+                    String name = "";
                     ArrayList<String> ingStrings =
                             (ArrayList<String>) doc.getData().get("Ingredients");
                     if (doc.getData().get("Date") != null) {
@@ -132,6 +136,15 @@ public class MealPlanActivity extends AppCompatActivity implements
                     }
                     if (doc.getData().get("Recipe Code") != null) {
                         recipeCode = ((Long) doc.getData().get("Recipe Code")).intValue();
+                    }
+                    if (doc.getData().get("Servings") != null) {
+                        numServings = ((Long) doc.getData().get("Servings")).intValue();
+                    }
+                    if (doc.getData().get("Scaling") != null) {
+                        scale = ((Long) doc.getData().get("Scaling")).intValue();
+                    }
+                    if (doc.getData().get("Name") != null) {
+                        name = (String) doc.getData().get("Name");
                     }
                     // Reconstruct ArrayList
                     ArrayList<Ingredient> ingredients = new ArrayList<>();
@@ -144,6 +157,9 @@ public class MealPlanActivity extends AppCompatActivity implements
                     }
                     Meal newMeal = new Meal(ingredients, date);
                     newMeal.addRecipe(recipeCode, recipeName);
+                    newMeal.setServings(numServings);
+                    newMeal.setServingScaling(scale);
+                    newMeal.setName(name);
                     mealArrayList.add(newMeal);
                     //mealArrayList.add(new Meal(ingredients, date));
                 }
@@ -163,12 +179,14 @@ public class MealPlanActivity extends AppCompatActivity implements
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 recipeHashCodes.clear();
                 recipeTitleList.clear();
+                recipeServingSizes.clear();
 
                 for (QueryDocumentSnapshot doc: value) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     String name = "";
                     Integer code = 0;
+                    int recipeServings = 0;
                     ArrayList<String> recStrings = (ArrayList<String>) doc.getData().get("Recipes");
                     if (doc.getData().get("Title") != null) {
                         name = (String) doc.getData().get("Title");
@@ -177,8 +195,12 @@ public class MealPlanActivity extends AppCompatActivity implements
                     if (hashCode != null) {
                         code = Integer.valueOf(hashCode);
                     }
+                    if (doc.getData().get("Servings") != null) {
+                        recipeServings = ((Long) doc.getData().get("Servings")).intValue();
+                    }
                     recipeHashCodes.add(code);
                     recipeTitleList.add(name);
+                    recipeServingSizes.add(recipeServings);
                 }
             }
         });
@@ -268,6 +290,9 @@ public class MealPlanActivity extends AppCompatActivity implements
         data.put("Date", meal.getDate());
         data.put("Recipe", meal.getRecipeTitle());
         data.put("Recipe Code", meal.getRecipeHashCode());
+        data.put("Servings", meal.getServings());
+        data.put("Scaling", meal.getServingScaling());
+        data.put("Name", meal.getName());
         /*
          * Store all data under the hash code of the meal, so we can
          * store multiple similar meals.
@@ -345,6 +370,9 @@ public class MealPlanActivity extends AppCompatActivity implements
         data.put("Date", meal.getDate());
         data.put("Recipe", meal.getRecipeTitle());
         data.put("Recipe Code", meal.getRecipeHashCode());
+        data.put("Servings", meal.getServings());
+        data.put("Scaling", meal.getServingScaling());
+        data.put("Name", meal.getName());
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldMeal.hashCode()))
@@ -385,6 +413,10 @@ public class MealPlanActivity extends AppCompatActivity implements
 
     public ArrayList<Integer> getRecipeHashCodes() {
         return recipeHashCodes;
+    }
+
+    public ArrayList<Integer> getRecipeServingSizes() {
+        return recipeServingSizes;
     }
 
     /**

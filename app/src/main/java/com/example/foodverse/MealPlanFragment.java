@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.os.Build;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,13 +46,18 @@ import java.util.HashSet;
 public class MealPlanFragment extends DialogFragment implements AdapterView.OnItemSelectedListener {
     private Meal meal;
     private EditText date;
+    private EditText mealName;
+    private EditText mealScalingNumber;
+    private TextView scale;
     // Recipe-related elements still need to be implemented
     private ListView ingredientList;
-    private EditText servings;
+    //private TextView servings;
 
     private Button mealDate; // Date selector
     private Button addButton; // Button to add ingredient to meal
     private Button deleteButton;
+    private Button positiveButton;
+    private Button negativeButton;
     private Date date2; // The date which is added to a new or edited meal
     //private Spinner recipeSpinner;
     private Spinner ingredientSpinner; // Spinner for ingredients
@@ -60,11 +67,14 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
     private ArrayList<String> ingredientStringList = new ArrayList<>();
     private ArrayList<String> recipeStringList = new ArrayList<>();
     private ArrayList<Integer> hashCodeList = new ArrayList<>();
+    private ArrayList<Integer> servingList = new ArrayList<>();
     private ArrayAdapter<String> ingAdapter;
     private ArrayAdapter<String> recAdapter;
     private FirebaseFirestore db;
     private ArrayAdapter<Ingredient> listViewAdapter;
     private MealPlanActivity act;
+    private int recipeServings = 0;
+    private int recipeScaling  = 1;
 
     private MealPlanFragment.OnFragmentInteractionListener listener;
 
@@ -109,11 +119,18 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.meal_plan_fragment, null);
 
         // Initialize Components
+        TextView servings;
+        mealName = view.findViewById(R.id.meal_edit_name);
         mealDate = view.findViewById(R.id.date_button);
+        scale = view.findViewById(R.id.scaling_servings);
+        //mealScalingNumber = view.findViewById(R.id.serving_num);
+        servings = view.findViewById(R.id.fragment_servings);
         ingredientSpinner = view.findViewById(R.id.meal_ingredient_spinner);
         recipeSpinner = view.findViewById(R.id.recipe_spinner);
         addButton = view.findViewById(R.id.add_meal_ingredient_button);
         deleteButton = view.findViewById(R.id.meal_ingredient_button);
+        positiveButton = view.findViewById(R.id.positive_button);
+        negativeButton = view.findViewById(R.id.negative_button);
         ingredientList = view.findViewById(R.id.meal_fragment_list);
         listViewAdapter = new IngredientAdapter(getActivity(), mealIngredients);
         ingredientList.setAdapter(listViewAdapter);
@@ -122,6 +139,7 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
 
         recipeStringList.add("No Recipe");
         hashCodeList.add(0);
+        servingList.add(1);
 
 
 
@@ -159,6 +177,10 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
             recipeStringList.add(act.getRecipeTitleList().get(i));
         }
 
+        for (int i = 0; i < act.getRecipeServingSizes().size(); i++) {
+            servingList.add(act.getRecipeServingSizes().get(i));
+        }
+
         // The spinner is set up to connect with the list of ingredients
         ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
         ingredientSpinner.setAdapter(ingAdapter);
@@ -187,6 +209,7 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
             Log.d("MEALFRAG", String.valueOf(hashCodeList.indexOf(meal.getRecipeHashCode())));
             Log.d("MEALFRAG", String.valueOf(meal.getRecipeHashCode()));
             //recipeSpinner.setSelection(1);
+            mealName.setText(meal.getName());
 
             // Get all the ingredients from the meal and add them to
             // an array list to be displayed on a listview
@@ -194,7 +217,44 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
                 mealIngredients.add(meal.getIngredients().get(i));
             }
             listViewAdapter.notifyDataSetChanged();
+            recipeServings = meal.getServings();
+            recipeScaling = meal.getServingScaling();
+            //mealScalingNumber.setText("" + recipeScaling);
         }
+
+        // The following code to update the serving size was taken from the following link
+        // https://stackoverflow.com/questions/14295150/how-to-update-a-textview-in-an-activity-constantly-in-an-infinite-loop
+
+        Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                String selectedRecipeString = (String) recipeSpinner.getSelectedItem();
+                int itemPosition = recipeStringList.indexOf(selectedRecipeString);
+                if (itemPosition == -1) {
+                    servings.setText("RECIPE NOT FOUND");
+                } else if (itemPosition == 0) {
+                    servings.setText("No Recipe Selected");
+                } else {
+                    int calculatedServings = servingList.get(itemPosition) * recipeScaling;
+                    servings.setText("Servings: " + calculatedServings);
+                    scale.setText("x" + recipeScaling);
+                }
+                handler.postDelayed(this, 500);
+            }
+        });
+
+        //String selectedRecipeString = (String) recipeSpinner.getSelectedItem();
+        //int itemPosition = recipeStringList.indexOf(selectedRecipeString);
+        //if (itemPosition == -1) {
+        //    servings.setText("RECIPE NOT FOUND");
+        //} else if (itemPosition == 0) {
+        //    servings.setText("No Recipe Selected");
+        //} else {
+        //    servings.setText("Servings: " + servingList.get(itemPosition));
+        //}
+
+
 
         // The DatePickerDialog allows for the user to select a date for
         // the meal.
@@ -225,6 +285,8 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
             }
         });
 
+
+
         deleteButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -234,6 +296,22 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
                         listViewAdapter.notifyDataSetChanged();
                     }
                 });
+            }
+        });
+
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recipeScaling = recipeScaling + 1;
+            }
+        });
+
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (recipeScaling > 1) {
+                    recipeScaling = recipeScaling - 1;
+                }
             }
         });
 
@@ -261,6 +339,12 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
                         String newMealTitle = (String) recipeSpinner.getSelectedItem();
                         int newHash = hashCodeList.get(recipeSpinner.getSelectedItemPosition());
                         newMeal.addRecipe(newHash, newMealTitle);
+                        //recipeScaling =
+                        int newMealServings = servingList.get(recipeSpinner.getSelectedItemPosition());
+                        newMeal.setServingScaling(recipeScaling);
+                        //newMeal.setServingScaling(Integer.parseInt(mealScalingNumber.getText().toString()));
+                        newMeal.setServings(newMealServings);
+                        newMeal.setName(mealName.getText().toString());
                         if (meal == null) {
                             listener.mealAdded(newMeal);
                         } else {
