@@ -55,6 +55,7 @@ import java.util.HashSet;
 
 public class RecipeActivity  extends AppCompatActivity implements
         RecipeFragment.OnFragmentInteractionListener,
+        RecipeViewFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
     private ListView RecipeList;
     private ArrayAdapter<Recipe> RecAdapter;
@@ -245,6 +246,13 @@ public class RecipeActivity  extends AppCompatActivity implements
                 clickedElement = view;
                 clickedElement.setBackgroundColor(Color.GRAY);
                 selectedRecipeIndex = i;
+
+//                if (clickedElement != null) {
+//                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
+//                            .show(getSupportFragmentManager(), "View_Recipe");
+//                    clickedElement.setBackgroundColor(Color.WHITE);
+//                    clickedElement = null;
+//                }
             }
         });
 //        btn_del.setOnClickListener(new View.OnClickListener() {
@@ -261,22 +269,22 @@ public class RecipeActivity  extends AppCompatActivity implements
 //                }
 //            }
 //        });
-//        edit_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (clickedElement != null) {
-//                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
-//                            .show(getSupportFragmentManager(), "Edit_Recipe");
-//                    clickedElement.setBackgroundColor(Color.WHITE);
-//                    clickedElement = null;
-//                }
-//            }
-//        });
+        edit_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (clickedElement != null) {
+                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
+                            .show(getSupportFragmentManager(), "Edit_Recipe");
+                    clickedElement.setBackgroundColor(Color.WHITE);
+                    clickedElement = null;
+                }
+            }
+        });
         view_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (clickedElement != null) {
-                    RecipeViewFragment.newInstance(RecipeDataList.get(selectedRecipeIndex))
+                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
                             .show(getSupportFragmentManager(), "View_Recipe");
                     clickedElement.setBackgroundColor(Color.WHITE);
                     clickedElement = null;

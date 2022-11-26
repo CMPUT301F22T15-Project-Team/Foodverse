@@ -78,6 +78,7 @@ public class RecipeFragment extends DialogFragment {
     public interface OnFragmentInteractionListener{
         void onOkPressed(Recipe newRec);
         void onOkEditPressed(Recipe newRec);
+        void onDeletePressed();
     }
 
     /**
@@ -300,7 +301,10 @@ public class RecipeFragment extends DialogFragment {
         return builder
                 .setView(view)
                 .setTitle("Add/Edit Recipe")
-                .setNegativeButton("Cancel",null)
+                .setNeutralButton("Cancel",null)
+                .setNegativeButton("Delete",(dialog, which) -> {
+                    listener.onDeletePressed();
+                })
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
