@@ -50,7 +50,6 @@ public class MealList extends ArrayAdapter<Meal> {
         Meal meal = meals.get(position);
 
         TextView mealDate = view.findViewById(R.id.meal_date);
-        //TextView mealName = view.findViewById(R.id.meal_name);
         TextView mealRecipe = view.findViewById(R.id.meal_recipe);
         TextView mealServings = view.findViewById(R.id.meal_servings);
         TextView mealName = view.findViewById(R.id.meal_name_text);
@@ -60,30 +59,16 @@ public class MealList extends ArrayAdapter<Meal> {
         mealServings.setText("Servings: " + (meal.getServings()*meal.getServingScaling()));
 
 
-        //mealDate.setText(meal.getDate().toString());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(meal.getDate());
-        //calendar.set(Calendar.HOUR_OF_DAY, 0);
-        //calendar.set(Calendar.MINUTE, 0);
-        //calendar.set(Calendar.SECOND, 0);
-        //calendar.set(Calendar.MILLISECOND, 0);
         String dayString = calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.CANADA);
         String monthString = calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.CANADA);
-        //String numString = calendar.getDisplayName(Calendar.DAY_OF_MONTH, Calendar.LONG, Locale.CANADA);
-        //String numString = Integer(calendar.get(Calendar.DAY_OF_YEAR)).toString();
         int dateInt = calendar.get(Calendar.DAY_OF_MONTH);
         Integer toStringInt = new Integer(dateInt);
         mealDate.setText(dayString + " " + monthString + " " + toStringInt.toString());
 
 
-        //mealDate.setText(calendar.getTime().toString());
         String dateString = meal.getDate().toString();
-
-        //SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        //Date cleanDate = dateFormat.parse(dateFormat.format(meal.getDate()));
-        //mealDate.setText(calendar.toString());
-        //mealName.setText(meal.get);
-        //mealServings.setText((int) meal.getNumberOfServings());
 
         return view;
     }
