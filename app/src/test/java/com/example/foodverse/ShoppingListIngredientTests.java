@@ -14,7 +14,7 @@ public class ShoppingListIngredientTests {
      * A helper method to make a new simple test ShoppingListIngredient.
      */
     public ShoppingListIngredient mockIngredient() {
-        return new ShoppingListIngredient("Test", 1, "Cups", "Test Category");
+        return new ShoppingListIngredient("Test", 1, "Cups", "Test Category", false);
     }
 
 
@@ -163,9 +163,9 @@ public class ShoppingListIngredientTests {
     public void testEquals() {
         ShoppingListIngredient ing = mockIngredient();
         ShoppingListIngredient ingEqual = new ShoppingListIngredient("Test", 1,
-                "Cups", "Test Category");
+                "Cups", "Test Category", true);
         ShoppingListIngredient ingNotEqual = new ShoppingListIngredient("Test", 7,
-                "Grams", "Test 2 Category");
+                "Grams", "Test 2 Category", false);
         Object obj = new Object();
         assertTrue(ing.equals(ingEqual));
         assertFalse(ing.equals(ingNotEqual));

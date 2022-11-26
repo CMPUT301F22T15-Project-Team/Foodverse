@@ -1,8 +1,12 @@
 package com.example.foodverse;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +21,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,6 +35,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.checkerframework.checker.units.qual.C;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,8 +47,8 @@ import java.util.HashSet;
  * This class displays a list of recipes which is constructed based on the users
  * input of recipe title, comments, serving size, preparation time, and a list of ingredients.
  * This class also allows the user to push buttons to edit, add and delete recipe items.
- * Currently, the recipe does not display and can not modify the ingredients list.
- * @version 1.0
+ *
+ * @version 1.1
  *
  */
 
@@ -59,18 +67,13 @@ public class RecipeActivity  extends AppCompatActivity implements
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
-    private CollectionReference ingRef, storedRef;
+    private CollectionReference storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
+    private CategoryList catListRec = new CategoryList("Recipe");
+    private CategoryList catListIng = new CategoryList("Ingredient");
+    private LocationList locList = new LocationList();
 
-    /*public RecipeActivity(ListView recipeList) {
-        RecipeList = recipeList;
-    }
-
-    public RecipeActivity(int contentLayoutId, ListView recipeList) {
-        super(contentLayoutId);
-        RecipeList = recipeList;
-    }*/
 
     /**
      * The startup function that is called when the activity is launched.
@@ -155,18 +158,32 @@ public class RecipeActivity  extends AppCompatActivity implements
                             ingredients.add(ing);
                         }
                     }
+                    /*
+                     * Decoding and encoding of bitmap with reference to:
+                     * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+                     * Accessed 2022-11-24
+                     */
+                    Bitmap bm = null;
+                    if (doc.getData().get("Bitmap") != null) {
+                        String bmEncoded = (String) doc.getData().get("Bitmap");
+                        byte[] decodedByteArray = android.util.Base64.decode(
+                                bmEncoded, Base64.DEFAULT);
+                        bm = BitmapFactory.decodeByteArray(
+                                decodedByteArray, 0,
+                                decodedByteArray.length);
+                    }
                     RecipeDataList.add(new Recipe(title, prep.intValue(),
-                            servings.intValue(), category, comments, ingredients));
+                            servings.intValue(), category, comments,
+                            ingredients, bm));
                 }
                 // Update with new cloud data
                 RecAdapter.notifyDataSetChanged();
             }
         });
 
-        ingRef = db.collection("Ingredients");
         storedRef = db.collection("StoredIngredients");
 
-        ingRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the recipe list with all the documents on firebase everytime it is updated.
              * @param queryDocumentSnapshots Firebase documents
@@ -245,7 +262,7 @@ public class RecipeActivity  extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 if (clickedElement != null) {
-                    RecipeFragment.newInstance(RecipeDataList.get(selectedRecipeIndex))
+                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
                             .show(getSupportFragmentManager(), "Edit_Recipe");
                     clickedElement.setBackgroundColor(Color.WHITE);
                     clickedElement = null;
@@ -266,12 +283,35 @@ public class RecipeActivity  extends AppCompatActivity implements
     public void onOkPressed(Recipe newRecipe) {
         HashMap<String, Object> data = new HashMap<>();
 
+        // Can't store ingredient directly so use DatabaseIngredient methods
+        ArrayList<String> ingStrings = new ArrayList<>();
+        String ingString;
+        for (int i = 0; i < newRecipe.getIngredients().size(); i++) {
+            ingString = DatabaseIngredient.ingredientToString(
+                    newRecipe.getIngredients().get(i));
+            ingStrings.add(ingString);
+        }
+
         // Put all data from the recipe into data
         data.put("Title", newRecipe.getTitle());
         data.put("Category", newRecipe.getCategory());
         data.put("Comments", newRecipe.getComments());
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
+        data.put("Ingredients", ingStrings);
+        /*
+         * Decoding and encoding of bitmap with reference to:
+         * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+         * Accessed 2022-11-24
+         */
+        if (newRecipe.getPhotoBitmap() != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            newRecipe.getPhotoBitmap().compress(
+                    Bitmap.CompressFormat.JPEG, 50, baos);
+            String imageEncoded = Base64.encodeToString(
+                    baos.toByteArray(), Base64.DEFAULT);
+            data.put("Bitmap", imageEncoded);
+        }
 
         /*
          * Store all data under the hash code of the recipe, so we can
@@ -309,12 +349,36 @@ public class RecipeActivity  extends AppCompatActivity implements
         HashMap<String, Object> data = new HashMap<>();
         Recipe oldRecipe = RecipeDataList.get(selectedRecipeIndex);
 
+
+        // Can't store ingredient directly so use DatabaseIngredient methods
+        ArrayList<String> ingStrings = new ArrayList<>();
+        String ingString;
+        for (int i = 0; i < newRecipe.getIngredients().size(); i++) {
+            ingString = DatabaseIngredient.ingredientToString(
+                    newRecipe.getIngredients().get(i));
+            ingStrings.add(ingString);
+        }
+
         // Grab data from the updated recipe
         data.put("Title", newRecipe.getTitle());
         data.put("Category", newRecipe.getCategory());
         data.put("Comments", newRecipe.getComments());
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
+        data.put("Ingredients", ingStrings);
+        /*
+         * Decoding and encoding of bitmap with reference to:
+         * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+         * Accessed 2022-11-24
+         */
+        if (newRecipe.getPhotoBitmap() != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            newRecipe.getPhotoBitmap().compress(
+                    Bitmap.CompressFormat.JPEG, 50, baos);
+            String imageEncoded = Base64.encodeToString(
+                    baos.toByteArray(), Base64.DEFAULT);
+            data.put("Bitmap", imageEncoded);
+        }
 
         Log.d(TAG, String.valueOf(selectedRecipeIndex));
 
@@ -403,7 +467,8 @@ public class RecipeActivity  extends AppCompatActivity implements
      * Code inspired by: https://stackoverflow.com/questions/42297381/onclick-event-in-navigation-drawer
      * Post by Grzegorz (2017) edited by ElOjcar (2019). Accessed Oct 28, 2022.
      *
-     * @returns Always true, iff the selected item is the calling activity.
+     * @return Always true, iff the selected item is the calling activity.
+     * @since 1.0
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menu) {
@@ -425,6 +490,24 @@ public class RecipeActivity  extends AppCompatActivity implements
                 startActivity(intent);
                 break;
             }
+            case "Manage Storage Locations": {
+                new LocationCategoryManager("Location",
+                        locList.getLocations())
+                        .show(getSupportFragmentManager(), "LocMgr");
+                break;
+            }
+            case "Manage Ingredient Categories": {
+                new LocationCategoryManager("Ingredient Category",
+                        catListIng.getCategories())
+                        .show(getSupportFragmentManager(), "IngCatMgr");
+                break;
+            }
+            case "Manage Recipe Categories": {
+                new LocationCategoryManager("Recipe Category",
+                        catListRec.getCategories())
+                        .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
             default: break;
         }
 
@@ -433,10 +516,42 @@ public class RecipeActivity  extends AppCompatActivity implements
         return true;
     }
 
-    public ArrayList<Ingredient> getDatabaseIngredients(){
+
+    /**
+     * A getter method for use in the RecipeFragment to get access to all
+     * currently stored ingredients to create {@link Recipe} objects.
+     *
+     * @return An {@link ArrayList<Ingredient>} containing all ingredients
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<Ingredient> getDatabaseIngredients() {
         return databaseIngredients;
     }
 
 
+    /**
+     * A getter method for use in the {@link RecipeFragment} to get access to
+     * all currently stored categories to create {@link Recipe} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all categories
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getCategories() {
+        return catListRec.getCategories();
+    }
 
+
+    /**
+     * A getter method for use in the {@link RecipeFragment} to get access to
+     * all currently stored categories to create {@link Ingredient} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all categories
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getIngCategories() {
+        return catListIng.getCategories();
+    }
 }

@@ -1,13 +1,19 @@
 package com.example.foodverse;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -18,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,10 +44,14 @@ public class StoredIngredientFragment extends DialogFragment {
     private EditText ingredientCount;
     private EditText ingredientUnit;
     private EditText ingredientCost;
+    private Spinner ingredientCategory;
     private Spinner ingredientLocation;
     private Button ingredientExpiry;
     private OnFragmentInteractionListener listener;
     private Date expiryDate;
+    private ArrayList<String> locationList = new ArrayList<>();
+    private ArrayList<String> categoryList = new ArrayList<>();
+    private ArrayAdapter<String> ingAdapter, catAdapter;
 
     /**
      * Default constructor for StoredIngredientFragment.
@@ -95,8 +106,24 @@ public class StoredIngredientFragment extends DialogFragment {
         ingredientCost = view.findViewById(R.id.cost_edit_text);
         ingredientUnit = view.findViewById(R.id.unit_edit_text);
         ingredientLocation = view.findViewById(R.id.location_spinner);
+        ingredientCategory = view.findViewById(R.id.category_spinner);
         ingredientExpiry = view.findViewById(R.id.expiry_button);
 
+        ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, locationList);
+        catAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
+
+        StoredIngredientActivity act = (StoredIngredientActivity) getActivity();
+        // The ingredients from the database are added to the spinner
+        for (int i = 0; i < act.getLocations().size(); i++) {
+            locationList.add(act.getLocations().get(i));
+        }
+
+        for (int i = 0; i < act.getCategories().size(); i++) {
+            categoryList.add(act.getCategories().get(i));
+        }
+
+        catAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+        ingredientCategory.setAdapter(catAdapter);
         /* Code for creating a spinner-style date picker inspired off of "Pop Up
         Date Picker Android Studio Tutorial" by Code With Cal on December 19th,
         2020 (https://www.youtube.com/watch?v=qCoidM98zNk). Retrieved September
@@ -125,6 +152,7 @@ public class StoredIngredientFragment extends DialogFragment {
             ingredientCount.setText(Integer.toString(ingredient.getCount()));
             ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
             ingredientUnit.setText(ingredient.getUnit());
+            ingredientCategory.setSelection(categoryList.indexOf(ingredient.getCategory()));
 
             // Load the time information
             calendar.setTime(ingredient.getBestBefore());
@@ -133,14 +161,8 @@ public class StoredIngredientFragment extends DialogFragment {
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
 
-            /*
-             * Locations stored in locations.xml, get array and set accordingly
-             * Code adapted from:
-             * https://stackoverflow.com/questions/11072576/set-selected-item-of-spinner-programmatically
-             * Answer by user Arun George in 2012
-             */
-            String []loc = getResources().getStringArray(R.array.locations_array);
-            ingredientLocation.setSelection(Arrays.asList(loc)
+            // Locations stored in firebase, set correct selection.
+            ingredientLocation.setSelection(locationList
                     .indexOf(ingredient.getLocation()));
         }
 
@@ -174,8 +196,10 @@ public class StoredIngredientFragment extends DialogFragment {
                                     .getText().toString();
                             String costStr = ingredientCost
                                     .getText().toString();
-                            String locationStr = ingredientLocation
-                                    .getSelectedItem().toString();
+                            String categoryStr = categoryList
+                                    .get(ingredientCategory.getSelectedItemPosition());
+                            String locationStr = locationList
+                                    .get(ingredientLocation.getSelectedItemPosition());
                             String unitStr = ingredientUnit
                                     .getText().toString();
 
@@ -185,6 +209,7 @@ public class StoredIngredientFragment extends DialogFragment {
                             float roundedCost = Float.parseFloat(costStr);
                             newIngredient.setUnitCost(
                                     (int) Math.ceil(roundedCost));
+                            newIngredient.setCategory(categoryStr);
                             newIngredient.setLocation(locationStr);
                             newIngredient.setBestBefore(expiryDate);
                             newIngredient.setUnit(unitStr);
@@ -197,6 +222,19 @@ public class StoredIngredientFragment extends DialogFragment {
                                 listener.ingredientEdited(newIngredient);
                             }
                         }).create();
+    }
+
+    // This code was copied from https://stackoverflow.com/questions/15421271/custom-fragmentdialog-with-round-corners-and-not-100-screen-width
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.stored_ingredient_fragment, null);
+        // Set transparent background and no title
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        }
+        return view;
     }
 
     /**

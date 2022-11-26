@@ -5,4 +5,23 @@
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
     <string name="add_stored_ing">Add Ingredient</string>
+    <string name="prep_time">Prep Time (min):</string>
+    <string name="serving_size_hint">Serving Size</string>
+    <string name="serving_size">Serving Size:</string>
+    <string name="comments_hint">Comments</string>
+    <string name="comments">Comments:</string>
+    <string name="recipe_title_hint">Recipe Title</string>
+    <string name="category">Category:</string>
+    <string name="recipe_ingredients">Ingredients in Recipe</string>
+    <string name="rm_ing">Remove Ingredient</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="recipes">Recipes</string>
+    <string name="meal_plan">Meal Planner</string>
+    <string name="shopping">Shopping List</string>
+    <string name="location_nav">Manage Storage Locations</string>
+    <string name="ing_cat_nav">Manage Ingredient Categories</string>
+    <string name="rec_cat_nav">Manage Recipe Categories</string>
+    <string name="take_photo">Take a Photo</string>
+    <string name="img_upload">Upload an Image</string>
+    <string name="remove_photo">Remove Photo</string>
 </resources>
