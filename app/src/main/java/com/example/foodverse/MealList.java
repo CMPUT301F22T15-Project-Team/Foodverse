@@ -53,8 +53,11 @@ public class MealList extends ArrayAdapter<Meal> {
         //TextView mealName = view.findViewById(R.id.meal_name);
         TextView mealRecipe = view.findViewById(R.id.meal_recipe);
         TextView mealServings = view.findViewById(R.id.meal_servings);
+        TextView mealName = view.findViewById(R.id.meal_name_text);
 
         mealRecipe.setText(meal.getRecipeTitle());
+        mealName.setText(meal.getName());
+        mealServings.setText("Servings: " + (meal.getServings()*meal.getServingScaling()));
 
 
         //mealDate.setText(meal.getDate().toString());
