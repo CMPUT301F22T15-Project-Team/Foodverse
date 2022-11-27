@@ -48,6 +48,7 @@ import java.util.HashSet;
 
 
 public class MealPlanActivity extends AppCompatActivity implements
+        MealViewFragment.OnFragmentInteractionListener,
         MealPlanFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
@@ -252,10 +253,11 @@ public class MealPlanActivity extends AppCompatActivity implements
                 if (error != null) {
                     Log.e(TAG, error.getMessage());
                 } else {
+                    databaseIngredients.clear();
                     // Add ingredients from the cloud
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String hashCode = doc.getId();
-                        String description = "", unit = "";
+                        String description = "", unit = "", category = "";
                         Long count = 0l;
                         if (doc.getData().get("Description") != null) {
                             description =
@@ -268,8 +270,11 @@ public class MealPlanActivity extends AppCompatActivity implements
                         if (doc.getData().get("Unit") != null) {
                             unit = (String) doc.getData().get("Unit");
                         }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
                         Ingredient ing = new Ingredient(description,
-                                count.intValue(), unit);
+                                count.intValue(), unit, category);
                         databaseIngredients.add(ing);
                         set.add(ing);
                         Log.d("MEALFRAG", "Added ing");
@@ -299,7 +304,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                         // to the fragment.
                         Meal meal = mealAdapter.getItem(position);
                         selectedMealIndex = position;
-                        new MealPlanFragment(meal).show(
+                        new MealViewFragment(meal).show(
                                 getSupportFragmentManager(), "EDIT_MEAL");
                     }
                 });

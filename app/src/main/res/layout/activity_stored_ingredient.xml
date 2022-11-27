@@ -8,19 +8,29 @@
     android:layout_height="match_parent"
     tools:context=".StoredIngredientActivity">
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/stored_ingredient_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".StoredIngredientActivity">
+
+        <Spinner
+            android:id="@+id/sort_spinner_stored_ingredient"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown"></Spinner>
 
         <ListView
             android:id="@+id/ingredient_list"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:paddingBottom="50dp"
-            android:divider="#8C9EFF"
-            android:dividerHeight="8px">
+            android:layout_height="0dp"
+            android:layout_weight="9"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:dividerHeight="10dp">
 
         </ListView>
 
@@ -34,7 +44,7 @@
             app:elevation="200dp" />
 
 
-    </FrameLayout>
+    </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_menu_ingredients"

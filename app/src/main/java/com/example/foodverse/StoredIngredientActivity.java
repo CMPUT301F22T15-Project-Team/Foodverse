@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -67,6 +68,9 @@ public class StoredIngredientActivity extends AppCompatActivity
     private CategoryList catListRec = new CategoryList("Recipe");
     private CategoryList catListIng = new CategoryList("Ingredient");
     private LocationList locList = new LocationList();
+    private Spinner sortSpinner;
+    private String[] sortingMethods = {"Sort by Description", "Sort by Expiry", "Sort by Location", "Sort by Category"};
+    private String sorting = "Sort by Description";
 
 
     @Override
@@ -75,6 +79,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         setContentView(R.layout.activity_stored_ingredient);
 
         ingredientListView = findViewById(R.id.ingredient_list);
+        sortSpinner = findViewById(R.id.sort_spinner_stored_ingredient);
 
         ingredientArrayList = new ArrayList<>();
         ingredientAdapter = new StoredIngredientList(this, ingredientArrayList);
@@ -122,63 +127,7 @@ public class StoredIngredientActivity extends AppCompatActivity
             ingQuery = db.collection("StoredIngredients")
                     .whereEqualTo("OwnerUID", "");
         }
-
-        ingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e(TAG, error.getMessage());
-                } else {
-                    // Clear the old list
-                    ingredientArrayList.clear();
-                    // Add ingredients from the cloud
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Log.d(TAG, String.valueOf(doc.getId()));
-                        String hashCode = doc.getId();
-                        String description = "", location = "", unit = "",
-                                category = "";
-                        Long count = 0l, unitCost = 0l;
-                        Date bestBefore = new Date();
-
-                        if (doc.getData().get("Description") != null) {
-                            description =
-                                    (String) doc.getData().get("Description");
-                        }
-                        /*
-                         * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
-                         * Answer by Niyas, February 23, 2019. Reference on casting
-                         * from firebase.timestamp to java.date.
-                         */
-                        if (doc.getData().get("Best Before") != null) {
-                            bestBefore = ((Timestamp) doc.getData().get("Best Before"))
-                                    .toDate();
-                        }
-                        if (doc.getData().get("Location") != null) {
-                            location = (String) doc.getData().get("Location");
-                        }
-                        if (doc.getData().get("Category") != null) {
-                            category = (String) doc.getData().get("Category");
-                        }
-                        if (doc.getData().get("Unit") != null) {
-                            unit = (String) doc.getData().get("Unit");
-                        }
-                        if (doc.getData().get("Count") != null) {
-                            count = (Long) doc.getData().get("Count");
-                        }
-                        if (doc.getData().get("Cost") != null) {
-                            unitCost = (Long) doc.getData().get("Cost");
-                        }
-                        ingredientArrayList.add(
-                                new StoredIngredient(description, count.intValue(),
-                                        bestBefore, location, unit, category,
-                                        unitCost.intValue()));
-                    }
-                    // Update with new cloud data
-                    ingredientAdapter.notifyDataSetChanged();
-                }
-            }
-        });
+        setSnapshotListener("Description");
 
 
         /* Inspiration for getting information on a selected listView item from
@@ -213,7 +162,38 @@ public class StoredIngredientActivity extends AppCompatActivity
             }
         });
 
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sorting = (String) sortSpinner.getSelectedItem();
+                if (sorting == "Sort by Expiry") {
+                    setSnapshotListener("Best Before");
+                } else if (sorting == "Sort by Location") {
+                    setSnapshotListener("Location");
+                } else if (sorting == "Sort by Category") {
+                    setSnapshotListener("Category");
+                } else {
+                    setSnapshotListener("Description");
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "No sorting change");
+            }
+        });
 
+        /*
+         * Learned how to do this using the following link:
+         * Author: AdamC
+         * Title: How to update a spinner dynamically?
+         * URL: https://stackoverflow.com/questions/3283337/how-to-update-a-spinner-dynamical
+         * License: CC BY-SA 2.5
+         * Date Posted: 2010-07-20
+         * Date Retrieved: 2022-09-25
+         */
+        ArrayAdapter spinnerAdapter = new ArrayAdapter(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, sortingMethods);
+        spinnerAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(spinnerAdapter);
     }
 
     /**
@@ -457,5 +437,76 @@ public class StoredIngredientActivity extends AppCompatActivity
      */
     public ArrayList<String> getLocations() {
         return locList.getLocations();
+    }
+
+
+    /**
+     * A method to setup the snapshot listener for the main query of this
+     * activity. Must be given a {@link String} for ordering of results.
+     * Here, order must be one of "Description", "Location", "Best Before", or
+     * "Category" any other value will cause the query to fail.
+     *
+     * @param order A {@link String} to set as the parameter in the
+     *              {@link Query#orderBy(String)} method, to sort results.
+     * @since 1.1
+     */
+    private void setSnapshotListener(String order) {
+        ingQuery.orderBy(order).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    ingredientArrayList.clear();
+                    Log.d(TAG, "Order by: " + order);
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String description = "", location = "", unit = "",
+                                category = "";
+                        Long count = 0l, unitCost = 0l;
+                        Date bestBefore = new Date();
+
+                        if (doc.getData().get("Description") != null) {
+                            description =
+                                    (String) doc.getData().get("Description");
+                        }
+                        /*
+                         * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
+                         * Answer by Niyas, February 23, 2019. Reference on casting
+                         * from firebase.timestamp to java.date.
+                         */
+                        if (doc.getData().get("Best Before") != null) {
+                            bestBefore = ((Timestamp) doc.getData().get("Best Before"))
+                                    .toDate();
+                        }
+                        if (doc.getData().get("Location") != null) {
+                            location = (String) doc.getData().get("Location");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Cost") != null) {
+                            unitCost = (Long) doc.getData().get("Cost");
+                        }
+                        ingredientArrayList.add(
+                                new StoredIngredient(description, count.intValue(),
+                                        bestBefore, location, unit, category,
+                                        unitCost.intValue()));
+                    }
+                    // Update with new cloud data
+                    ingredientAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 }

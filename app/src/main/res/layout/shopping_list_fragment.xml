@@ -113,7 +113,6 @@
             android:id="@+id/location_spinner"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:entries="@array/locations_array"
             android:layout_weight="1" />
     </LinearLayout>
 

@@ -42,7 +42,7 @@ import java.util.HashMap;
  * This class displays the shopping list which is constructed based on the users
  * meal plan and ingredient storage.
  *
- * @version 1.0
+ * @version 1.1
  *
  */
 public class ShoppingListActivity extends AppCompatActivity implements
@@ -128,6 +128,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 });
 
         shoppingListCollectionReference = db.collection("ShoppingList");
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
         if (auth.getCurrentUser() != null) {
             shoppingQuery = db.collection("ShoppingList")
                     .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
@@ -143,50 +149,24 @@ public class ShoppingListActivity extends AppCompatActivity implements
             storedIngQuery = db.collection("StoredIngredients")
                     .whereEqualTo("OwnerUID", "");
         }
-        /*
-         * Query made with reference to the following to stop permissions errors
-         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
-         * answer by rwozniak (2019) edited by Elia Weiss (2020).
-         * Accessed 2022-11-27
-         */
+        setSnapshotListener("Purchased");
 
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sorting = (String) sortSpinner.getSelectedItem();
-                Query query = shoppingListCollectionReference.orderBy("Purchased");
                 if (sorting == "Sort by Description") {
-                    query = shoppingListCollectionReference.orderBy("Description");
+                    setSnapshotListener("Description");
                 } else if (sorting == "Sort by Category") {
-                    query = shoppingListCollectionReference.orderBy("Category");
+                    setSnapshotListener("Category");
+                } else {
+                    setSnapshotListener("Purchased");
                 }
-
-                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
-                        // Clear the old list
-                        shoppingArrayList.clear();
-                        // Add ingredients from the cloud
-                        for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                            Log.d(TAG, String.valueOf(doc.getId()));
-                            String hashCode = doc.getId();
-                            String description = (String) doc.getData().get("Description");
-                            Long count = (Long) doc.getData().get("Count");
-                            String unit = (String) doc.getData().get("Unit");
-                            String category = (String) doc.getData().get("Category");
-                            Boolean purchased = (Boolean) doc.getData().get("Purchased");
-                            shoppingArrayList.add(
-                                    new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
-                        }
-                        // Update with new cloud data
-                        shoppingListAdapter.notifyDataSetChanged();
-                    }
-
-                });
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                Log.d(TAG, "No sorting change");
             }
         });
         // Auto populate the shopping list by checking the meal plan and ingredient storage
@@ -232,7 +212,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Log.d(TAG, String.valueOf(doc.getId()));
                         String hashCode = doc.getId();
-                        String description = "", unit = "";
+                        String description = "", unit = "", category = "";
                         Long count = 0l;
                         if (doc.getData().get("Description") != null) {
                             description = (String) doc.getData().get("Description");
@@ -243,58 +223,13 @@ public class ShoppingListActivity extends AppCompatActivity implements
                         if (doc.getData().get("Unit") != null) {
                             unit = (String) doc.getData().get("Unit");
                         }
-                        storedIngredientsArrayList.add(new Ingredient(description,
-                                count.intValue(), unit));
-                    }
-                    updateShoppingList();
-                }
-            }
-        });
-
-        shoppingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            /**
-             * Updates the shopping list with all the documents on firebase everytime it is updated.
-             * @param queryDocumentSnapshots Firebase documents
-             * @param error Error message received when retrieving documents(if applicable)
-             */
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e(TAG, error.getMessage());
-                } else {
-                    // Clear the old list
-                    shoppingArrayList.clear();
-                    // Add ingredients from the cloud
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Log.d(TAG, String.valueOf(doc.getId()));
-                        String hashCode = doc.getId();
-
-                        String description = "";
-                        Long count = 0L;
-                        String unit = "";
-                        String category = "";
-                        Boolean purchased = false;
-                        if (doc.getData().get("Description") != null) {
-                            description = (String) doc.getData().get("Description");
-                        }
-                        if (doc.getData().get("Count") != null) {
-                            count = (Long) doc.getData().get("Count");
-                        }
-                        if (doc.getData().get("Unit") != null) {
-                            unit = (String) doc.getData().get("Unit");
-                        }
-                        if (doc.getData().get("Category") != null) {
+                        if(doc.getData().get("Category") != null){
                             category = (String) doc.getData().get("Category");
                         }
-                        if (doc.getData().get("Purchased") != null) {
-                            purchased = (Boolean) doc.getData().get("Purchased");
-                        }
-                        shoppingArrayList.add(
-                                new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
+                        storedIngredientsArrayList.add(new Ingredient(description,
+                                count.intValue(), unit, category));
                     }
-                    // Update with new cloud data
-                    shoppingListAdapter.notifyDataSetChanged();
+                    updateShoppingList();
                 }
             }
         });
@@ -312,31 +247,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
         ArrayAdapter spinnerAdapter = new ArrayAdapter(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, sortingMethods);
         spinnerAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         sortSpinner.setAdapter(spinnerAdapter);
-
-        /* Inspiration for getting information on a selected listView item from
-        https://www.flutter-code.com/2016/03/android-listview-item-selector
-        -example.html. This code creates a listener for the ingredient list and
-        alters the currently selected ingredient */
-        shoppingListView.setOnItemClickListener(
-                (adapterView, view, i, l) -> selectedIngredientIndex = i);
-
-        shoppingListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            /**
-             * Launches an edit fragment when an item on the shopping list is clicked.
-             * @param parent The parent of the view.
-             * @param view The view that was clicked.
-             * @param position The position of the view that was clicked.
-             * @param id The id of the view that was clicked.
-             */
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
-//                selectedIngredientIndex = position;
-//                new ShoppingListFragment(ingredient).show(
-//                        getFragmentManager(), "EDIT_INGREDIENT");
-            }
-
-        });
 
         addButton.setOnClickListener(new View.OnClickListener() {
             /**
@@ -556,42 +466,47 @@ public class ShoppingListActivity extends AppCompatActivity implements
      * and the ingredients already contained in the storage.
      */
     public void updateShoppingList() {
-
-        summedMealPlanArrayList.clear();
         // We sum up the ingredient counts from different meals
+        summedMealPlanArrayList.clear();
         for (Ingredient mealIngredient : mealPlanArrayList) {
             boolean addToList = true;
             for(Ingredient summedMealIngredient : summedMealPlanArrayList){
                 if(summedMealIngredient.hashCode() == mealIngredient.hashCode()){
+                    // Since the ingredient has already been added to the list, we update the count
                     summedMealIngredient.setCount(summedMealIngredient.getCount() + mealIngredient.getCount());
                     addToList = false;
                     break;
                 }
             }
+
+            // We add the ingredient with the summed up count to the list
             if(addToList){
                 summedMealPlanArrayList.add(new Ingredient(mealIngredient.getDescription(), mealIngredient.getCount(),
                         mealIngredient.getUnit(), mealIngredient.getCategory()));
             }
         }
 
-        summedStoredIngredientArrayList.clear();
         // We sum up the ingredient counts from different stored ingredients
+        summedStoredIngredientArrayList.clear();
         for (Ingredient storedIngredient : storedIngredientsArrayList) {
             boolean addToList = true;
             for(Ingredient summedStoredIngredient : summedStoredIngredientArrayList){
                 if(summedStoredIngredient.hashCode() == storedIngredient.hashCode()){
+                    // Since the ingredient has already been added to the list, we update the count
                     summedStoredIngredient.setCount(summedStoredIngredient.getCount() + storedIngredient.getCount());
                     addToList = false;
                     break;
                 }
             }
+
+            // We add the ingredient with the summed up count to the list
             if(addToList){
                 summedStoredIngredientArrayList.add(new Ingredient(storedIngredient.getDescription(), storedIngredient.getCount(),
                         storedIngredient.getUnit(), storedIngredient.getCategory()));
             }
         }
 
-        shoppingArrayList.clear();
+        // We populate the shopping list by counting how much of each ingredient is needed.
         for (Ingredient mealIngredient : summedMealPlanArrayList) {
             boolean addToList = true;
             int count = mealIngredient.getCount();
@@ -599,26 +514,37 @@ public class ShoppingListActivity extends AppCompatActivity implements
             for (Ingredient storedIngredient : summedStoredIngredientArrayList) {
                 // We check if a required ingredient already exists in storage
                 if (mealIngredient.getDescription().equals(storedIngredient.getDescription()) &&
-                        mealIngredient.getUnit().equals(storedIngredient.getUnit()) &&
-                        mealIngredient.getCategory().equals(storedIngredient.getCategory())) {
+                        mealIngredient.getUnit().equals(storedIngredient.getUnit())) {
 
-                    // We check how many units are actually needed
+                    // Since it does exist in storage, we check how many units are actually needed
                     if (mealIngredient.getCount() > storedIngredient.getCount()) {
                         count -= storedIngredient.getCount();
-                        break;
+                        mealIngredient.setCategory(storedIngredient.getCategory());
+                    } else {
+                        // If we already have a sufficient amount of the ingredient, we do not need to add it
+                        addToList = false;
                     }
-                    addToList = false;
                     break;
                 }
             }
 
             if (addToList){
-                mealIngredient.setCount(count);
+                boolean purchased = false;
 
+                // Check if ingredient already exists in shopping list
+                for(ShoppingListIngredient shoppingIngredient: shoppingArrayList){
+                    if(mealIngredient.getDescription().equals(shoppingIngredient.getDescription()) &&
+                            mealIngredient.getUnit().equals(shoppingIngredient.getUnit())){
+                        // Retrieve the purchased status from the ingredient
+                        purchased = shoppingIngredient.isPurchased();
+                    }
+                }
+
+                // Add the ingredient to the shopping list
                 ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
-                        mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
+                        count, mealIngredient.getUnit(), mealIngredient.getCategory(), purchased));
             } else {
-
+                // We remove the ingredient from firebase since it is not needed anymore
                 shoppingListCollectionReference
                         .document(String.valueOf(mealIngredient.hashCode()))
                         .delete();
@@ -720,5 +646,81 @@ public class ShoppingListActivity extends AppCompatActivity implements
      */
     public ArrayList<String> getCategories() {
         return catListIng.getCategories();
+    }
+
+
+    /**
+     * A getter method for use in the {@link ShoppingListFragment} to get
+     * access to all currently stored locations to create
+     * {@link StoredIngredient} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all locations
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getLocations() {
+        return locList.getLocations();
+    }
+
+
+    /**
+     * A method to setup the snapshot listener for the main query of this
+     * activity. Must be given a {@link String} for ordering of results.
+     * Here, order must be one of "Description", "Purchased", or "Category"
+     * any other value will cause the query to fail.
+     *
+     * @param order A {@link String} to set as the parameter in the
+     *              {@link Query#orderBy(String)} method, to sort results.
+     * @since 1.1
+     */
+    private void setSnapshotListener(String order) {
+        shoppingQuery.orderBy(order).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            /**
+             * Updates the shopping list with all the documents on firebase everytime it is updated.
+             * @param queryDocumentSnapshots Firebase documents
+             * @param error Error message received when retrieving documents(if applicable)
+             */
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    shoppingArrayList.clear();
+                    Log.d(TAG, "Order by: " + order);
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+
+                        String description = "";
+                        Long count = 0L;
+                        String unit = "";
+                        String category = "";
+                        Boolean purchased = false;
+                        if (doc.getData().get("Description") != null) {
+                            description = (String) doc.getData().get("Description");
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Purchased") != null) {
+                            purchased = (Boolean) doc.getData().get("Purchased");
+                        }
+                        shoppingArrayList.add(
+                                new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
+                    }
+                    // Update with new cloud data
+                    shoppingListAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 }
