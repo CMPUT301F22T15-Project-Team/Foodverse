@@ -245,8 +245,19 @@ public class StoredIngredientActivity extends AppCompatActivity
                             Date bestBefore = ((Timestamp) doc.getData().get("Best Before")).toDate();
                             String location = (String) doc.getData().get("Location");
                             Long unitCost = (Long) doc.getData().get("Cost");
-                            ingredientArrayList.add(
-                                    new StoredIngredient(description, count.intValue(), bestBefore, location, unitCost.intValue()));
+
+                            StoredIngredient newIngredient = new StoredIngredient(description, count.intValue(), bestBefore, location, unitCost.intValue());
+
+                            String category = (String) doc.getData().get("Category");
+                            if (category != null) {
+                                newIngredient.setCategory(category);
+                            }
+                            String unit = (String) doc.getData().get("Unit");
+                            if (unit != null) {
+                                newIngredient.setUnit(unit);
+                            }
+
+                            ingredientArrayList.add(newIngredient);
                         }
                         // Update with new cloud data
                         ingredientAdapter.notifyDataSetChanged();
