@@ -75,6 +75,11 @@
             android:textSize="17sp"
             app:fontFamily="sans-serif-medium" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
         <TextView
             android:id="@+id/location_text"
             android:layout_width="wrap_content"
@@ -111,5 +116,20 @@
             android:text="BestBefore"
             android:textColor="@color/black"
             android:textSize="17sp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/category_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="10dp"
+            android:text="Category"
+            android:textColor="@color/black"
+            android:textSize="17sp"/>
+
     </LinearLayout>
 </LinearLayout>
