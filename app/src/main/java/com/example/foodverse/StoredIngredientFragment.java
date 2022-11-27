@@ -44,6 +44,7 @@ public class StoredIngredientFragment extends DialogFragment {
     private EditText ingredientCount;
     private EditText ingredientUnit;
     private EditText ingredientCost;
+    private Spinner ingredientCategory;
     private Spinner ingredientLocation;
     private Button ingredientExpiry;
     private OnFragmentInteractionListener listener;
@@ -105,6 +106,7 @@ public class StoredIngredientFragment extends DialogFragment {
         ingredientCost = view.findViewById(R.id.cost_edit_text);
         ingredientUnit = view.findViewById(R.id.unit_edit_text);
         ingredientLocation = view.findViewById(R.id.location_spinner);
+        ingredientCategory = view.findViewById(R.id.category_spinner);
         ingredientExpiry = view.findViewById(R.id.expiry_button);
 
         StoredIngredientActivity act = (StoredIngredientActivity) getActivity();
@@ -149,6 +151,7 @@ public class StoredIngredientFragment extends DialogFragment {
             ingredientCount.setText(Integer.toString(ingredient.getCount()));
             ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
             ingredientUnit.setText(ingredient.getUnit());
+            ingredientCategory.setSelection(categoryList.indexOf(ingredient.getCategory()));
 
             // Load the time information
             calendar.setTime(ingredient.getBestBefore());
@@ -192,6 +195,8 @@ public class StoredIngredientFragment extends DialogFragment {
                                     .getText().toString();
                             String costStr = ingredientCost
                                     .getText().toString();
+                            String categoryStr = categoryList
+                                    .get(ingredientCategory.getSelectedItemPosition());
                             String locationStr = locationList
                                     .get(ingredientLocation.getSelectedItemPosition());
                             String unitStr = ingredientUnit
@@ -203,6 +208,7 @@ public class StoredIngredientFragment extends DialogFragment {
                             float roundedCost = Float.parseFloat(costStr);
                             newIngredient.setUnitCost(
                                     (int) Math.ceil(roundedCost));
+                            newIngredient.setCategory(categoryStr);
                             newIngredient.setLocation(locationStr);
                             newIngredient.setBestBefore(expiryDate);
                             newIngredient.setUnit(unitStr);

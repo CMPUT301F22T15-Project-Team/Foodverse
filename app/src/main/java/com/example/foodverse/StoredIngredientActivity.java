@@ -206,6 +206,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Description", ingredient.getDescription());
         data.put("Best Before", ingredient.getBestBefore());
         data.put("Location", ingredient.getLocation());
+        data.put("Category", ingredient.getCategory());
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
         data.put("Unit", ingredient.getUnit());
@@ -288,6 +289,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Description", ingredient.getDescription());
         data.put("Best Before", ingredient.getBestBefore());
         data.put("Location", ingredient.getLocation());
+        data.put("Category", ingredient.getCategory());
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
         data.put("Unit", ingredient.getUnit());

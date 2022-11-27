@@ -27,8 +27,9 @@ public class ShoppingListIngredient extends Ingredient {
      * @param unit The ingredient unit.
      * @param category The ingredient category.
      */
-    public ShoppingListIngredient(String description, int count, String unit, String category) {
+    public ShoppingListIngredient(String description, int count, String unit, String category, Boolean purchased) {
         super(description, count, unit, category);
+        this.purchased = purchased;
     }
 
     /**

@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import android.app.DialogFragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,11 +39,14 @@ public class ShoppingListFragment extends DialogFragment {
     private EditText ingredientDescription;
     private EditText ingredientCount;
     private EditText ingredientUnit;
-    private EditText ingredientCategory;
+    private Spinner ingredientCategory;
+    private ArrayList<String> categoryList = new ArrayList<>();
+    private ArrayAdapter<String> categoryAdapter;
     private Spinner ingredientLocation;
     private Button ingredientExpiry;
     private OnFragmentInteractionListener listener;
     private Date expiryDate;
+    private ShoppingListActivity act;
 
     /**
      * Constructor used when a new ingredient is being added to the list.
@@ -104,17 +108,28 @@ public class ShoppingListFragment extends DialogFragment {
         ingredientDescription = view.findViewById(R.id.description_edit_text);
         ingredientCount = view.findViewById(R.id.count_edit_text);
         ingredientUnit = view.findViewById(R.id.unit_edit_text);
-        ingredientCategory = view.findViewById(R.id.category_edit_text);
+        ingredientCategory = view.findViewById(R.id.category_spinner);
         ingredientLocation = view.findViewById(R.id.location_spinner);
         ingredientExpiry = view.findViewById(R.id.expiry_button);
+
+        categoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
+
+        act = (ShoppingListActivity) getActivity();
+        for (int i = 0; i < act.getCategories().size(); i++) {
+            categoryList.add(act.getCategories().get(i));
+        }
+        categoryAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+        ingredientCategory.setAdapter(categoryAdapter);
 
         // Load data from an existing Ingredient object
         if (ingredient != null) {
             ingredientDescription.setText(ingredient.getDescription());
             ingredientCount.setText(Integer.toString(ingredient.getCount()));
-            ingredientCategory.setText(ingredient.getCategory());
+            ingredientCategory.setSelection(categoryList.indexOf(ingredient.getCategory()));
             ingredientUnit.setText(ingredient.getUnit());
         }
+
+
 
         /* Code for creating a spinner-style date picker inspired off of "Pop Up
         Date Picker Android Studio Tutorial" by Code With Cal on December 19th,
@@ -168,8 +183,8 @@ public class ShoppingListFragment extends DialogFragment {
                                     .getText().toString();
                             String unitStr = ingredientUnit
                                     .getText().toString();
-                            String categoryStr = ingredientCategory
-                                    .getText().toString();
+                            String categoryStr = categoryList
+                                    .get(ingredientCategory.getSelectedItemPosition());
                             String locationStr = ingredientLocation
                                     .getSelectedItem().toString();
 
