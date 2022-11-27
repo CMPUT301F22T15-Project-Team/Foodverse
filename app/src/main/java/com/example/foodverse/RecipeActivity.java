@@ -206,7 +206,7 @@ public class RecipeActivity  extends AppCompatActivity implements
                     // Add ingredients from the cloud
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String hashCode = doc.getId();
-                        String description = "", unit = "";
+                        String description = "", unit = "", category = "";
                         Long count = 0l;
                         if (doc.getData().get("Description") != null) {
                             description = (String) doc.getData().get("Description");
@@ -218,7 +218,11 @@ public class RecipeActivity  extends AppCompatActivity implements
                         if (doc.getData().get("Unit") != null) {
                             unit = (String) doc.getData().get("Unit");
                         }
-                        Ingredient ing = new Ingredient(description, count.intValue(), unit);
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        Ingredient ing = new Ingredient(description,
+                                count.intValue(), unit, category);
                         if (!set.contains(ing)) {
                             databaseIngredients.add(ing);
                             set.add(ing);
@@ -229,22 +233,11 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
 
-
-//                        categoryInd = categorySpinner.getSelectedItemPosition();
-//                        recipeCategory = categoryList.get(categoryInd);
-//        if(sortSpinner.equals("Preparation Time")){
-//            FirebaseFirestore rootref = FirebaseFirestore.getInstance();
-//            CollectionReference idsRef = rootref.collection("ids");
-//            Query query = idsRef.orderBy("preparationTime", Query.Direction.ASCENDING);
-//        };
-
         // When the addButton is clicked, open a dialog box to enter the attributes for the entry
         final Button addRecButton = findViewById(R.id.id_add_recipe_button);
         addRecButton.setOnClickListener((v) -> {
             new RecipeFragment().show(getSupportFragmentManager(), "ADD_Recipe");
         });
-//        Button view_btn = findViewById(R.id.id_view_recipe_button);
-//        Button edit_btn = findViewById(R.id.id_edit_recipe_button);
 
         RecipeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             /**
@@ -272,60 +265,6 @@ public class RecipeActivity  extends AppCompatActivity implements
                 }
             }
         });
-//        btn_del.setOnClickListener(new View.OnClickListener() {
-//            /**
-//             * Launches the fragment when the add recipe to storage is clicked.
-//             * @param view The view that was clicked.
-//             */
-//            @Override
-//            public void onClick(View view) {
-//                if (clickedElement != null) {
-//                    onDeletePressed();
-//                    clickedElement.setBackgroundColor(Color.WHITE);
-//                    clickedElement = null;
-//                }
-//            }
-//        });
-//        edit_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (clickedElement != null) {
-//                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
-//                            .show(getSupportFragmentManager(), "Edit_Recipe");
-//                    clickedElement.setBackgroundColor(Color.WHITE);
-//                    clickedElement = null;
-//                }
-//            }
-//        });
-//        view_btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (clickedElement != null) {
-//                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
-//                            .show(getSupportFragmentManager(), "View_Recipe");
-//                    clickedElement.setBackgroundColor(Color.WHITE);
-//                    clickedElement = null;
-//                }
-//            }
-//        });
-//        sortSpinner.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String sortValue = (String) sortSpinner.getSelectedItem();
-//                if (sortValue == "Title"){
-//                    FirebaseFirestore rootref = FirebaseFirestore.getInstance();
-//                    CollectionReference idsRef = rootref.collection("Recipes");
-//                    Query query = idsRef.orderBy("Title", Query.Direction.ASCENDING);
-//                    RecAdapter.notifyDataSetChanged();
-//                }
-//                if (sortValue == "Preparation Time"){
-//                    FirebaseFirestore rootref = FirebaseFirestore.getInstance();
-//                    CollectionReference idsRef = rootref.collection("Recipes");
-//                    Query query = idsRef.orderBy("Prep Time", Query.Direction.ASCENDING);
-//                    RecAdapter.notifyDataSetChanged();
-//                }
-//            }
-//        });
     }
 
 
