@@ -1,8 +1,6 @@
 package com.example.foodverse;
 
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,8 +27,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -38,10 +34,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 /**
@@ -71,7 +64,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private Query shoppingQuery, storedIngQuery, mealQuery;
     private Button addButton;
     private Spinner sortSpinner;
-    private String[] sortingMethods = {"Sort by Purchased", "Short by Description", "Sort by Category"};
+    private String[] sortingMethods = {"Sort by Purchased", "Sort by Description", "Sort by Category"};
+    private String sorting = "Sort by Purchased";
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
@@ -156,6 +150,45 @@ public class ShoppingListActivity extends AppCompatActivity implements
          * Accessed 2022-11-27
          */
 
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sorting = (String) sortSpinner.getSelectedItem();
+                Query query = shoppingListCollectionReference.orderBy("Purchased");
+                if (sorting == "Sort by Description") {
+                    query = shoppingListCollectionReference.orderBy("Description");
+                } else if (sorting == "Sort by Category") {
+                    query = shoppingListCollectionReference.orderBy("Category");
+                }
+
+                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                        // Clear the old list
+                        shoppingArrayList.clear();
+                        // Add ingredients from the cloud
+                        for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                            Log.d(TAG, String.valueOf(doc.getId()));
+                            String hashCode = doc.getId();
+                            String description = (String) doc.getData().get("Description");
+                            Long count = (Long) doc.getData().get("Count");
+                            String unit = (String) doc.getData().get("Unit");
+                            String category = (String) doc.getData().get("Category");
+                            Boolean purchased = (Boolean) doc.getData().get("Purchased");
+                            shoppingArrayList.add(
+                                    new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
+                        }
+                        // Update with new cloud data
+                        shoppingListAdapter.notifyDataSetChanged();
+                    }
+
+                });
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         // Auto populate the shopping list by checking the meal plan and ingredient storage
         mealQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
