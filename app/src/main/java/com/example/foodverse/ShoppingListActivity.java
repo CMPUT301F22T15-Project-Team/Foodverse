@@ -32,6 +32,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -68,7 +69,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private CollectionReference storedIngredientsCollectionReference;
     private Button addButton;
     private Spinner sortSpinner;
-    private String[] sortingMethods = {"Sort by Purchased", "Short by Description", "Sort by Category"};
+    private String[] sortingMethods = {"Sort by Purchased", "Sort by Description", "Sort by Category"};
+    private String sorting = "Sort by Purchased";
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
@@ -133,6 +135,24 @@ public class ShoppingListActivity extends AppCompatActivity implements
         mealPlanCollectionReference = db.collection("MealPlan");
         storedIngredientsCollectionReference = db.collection("StoredIngredients");
 
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = (String) sortSpinner.getSelectedItem();
+                if(selected == "Sort by Purchased"){
+                    shoppingListCollectionReference.orderBy("Purchased");
+                } else if(selected == "Sort by Description"){
+                    shoppingListCollectionReference.orderBy("Description");
+                } else if (selected == "Sort by Category"){
+                    shoppingListCollectionReference.orderBy("Category");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         // Auto populate the shopping list by checking the meal plan and ingredient storage
         mealPlanCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
 
