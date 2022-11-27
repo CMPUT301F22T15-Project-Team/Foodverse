@@ -68,7 +68,8 @@ public class RecipeActivity  extends AppCompatActivity implements
     private CollectionReference collectionReference;
     private final String TAG = "RecipeActivity";
     private Spinner sortSpinner;
-    private String[] sortingMethods = {"Title", "Preparation Time", "Serving Size","Recipe Category"};
+    private String[] sortingMethods = {"Sort by Title", "Sort by Preparation Time", "Sort by Serving Size","Sort by Recipe Category"};
+    private String sorting = "Sort by Title";
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
@@ -202,6 +203,85 @@ public class RecipeActivity  extends AppCompatActivity implements
         spinnerAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         sortSpinner.setAdapter(spinnerAdapter);
 
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sorting = (String) sortSpinner.getSelectedItem();
+                Query query = collectionReference.orderBy("Title");
+                if (sorting == "Sort by Preparation Time") {
+                    query = collectionReference.orderBy("Prep Time");
+                } else if (sorting == "Sort by Number of Servings") {
+                    query = collectionReference.orderBy("Servings");
+                } else if(sorting == "Sort by Category"){
+                    query = collectionReference.orderBy("Category");
+                }
+
+                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                        // Clear the old list
+                        RecipeDataList.clear();
+                        // Add ingredients from the cloud
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            Log.d(TAG, String.valueOf(doc.getId()));
+                            String hashCode = doc.getId();
+                            String title = "", category = "", comments = "";
+                            Long prep = 0l, servings = 0l;
+                            if (doc.getData().get("Title") != null) {
+                                title = (String) doc.getData().get("Title");
+                            }
+                            if (doc.getData().get("Category") != null) {
+                                category = (String) doc.getData().get("Category");
+                            }
+                            if (doc.getData().get("Comments") != null) {
+                                comments = (String) doc.getData().get("Comments");
+                            }
+                            if (doc.getData().get("Prep Time") != null) {
+                                prep = (Long) doc.getData().get("Prep Time");
+                            }
+                            if (doc.getData().get("Servings") != null) {
+                                servings = (Long) doc.getData().get("Servings");
+                            }
+                            ArrayList<String> ingStrings =
+                                    (ArrayList<String>) doc.getData().get("Ingredients");
+                            ArrayList<Ingredient> ingredients = new ArrayList<>();
+                            if (ingStrings != null) {
+                                for (String ingString : ingStrings) {
+                                    Ingredient ing =
+                                            DatabaseIngredient
+                                                    .stringToIngredient(ingString);
+                                    ingredients.add(ing);
+                                }
+                            }
+                            /*
+                             * Decoding and encoding of bitmap with reference to:
+                             * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+                             * Accessed 2022-11-24
+                             */
+                            Bitmap bm = null;
+                            if (doc.getData().get("Bitmap") != null) {
+                                String bmEncoded = (String) doc.getData().get("Bitmap");
+                                byte[] decodedByteArray = android.util.Base64.decode(
+                                        bmEncoded, Base64.DEFAULT);
+                                bm = BitmapFactory.decodeByteArray(
+                                        decodedByteArray, 0,
+                                        decodedByteArray.length);
+                            }
+                            RecipeDataList.add(new Recipe(title, prep.intValue(),
+                                    servings.intValue(), category, comments,
+                                    ingredients, bm));
+                        }
+                        // Update with new cloud data
+                        RecAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         storedRef = db.collection("StoredIngredients");
 

@@ -21,13 +21,13 @@
             android:layout_weight="0.3"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/SortTextView"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:textSize="25dp"
-                android:text="Sort By:" />
+<!--            <TextView-->
+<!--                android:id="@+id/SortTextView"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:layout_weight="1"-->
+<!--                android:textSize="25dp"-->
+<!--                android:text="Sort By:" />-->
 
             <Spinner
                 android:id="@+id/sort_Spinner"
@@ -36,8 +36,6 @@
                 android:layout_weight="1"
                 android:background="@android:drawable/btn_dropdown"
                 android:spinnerMode="dropdown"></Spinner>
-
-
 
 
         </LinearLayout>
