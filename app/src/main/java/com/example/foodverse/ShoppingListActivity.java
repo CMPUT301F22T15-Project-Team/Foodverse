@@ -128,6 +128,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 });
 
         shoppingListCollectionReference = db.collection("ShoppingList");
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
         if (auth.getCurrentUser() != null) {
             shoppingQuery = db.collection("ShoppingList")
                     .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
@@ -143,50 +149,24 @@ public class ShoppingListActivity extends AppCompatActivity implements
             storedIngQuery = db.collection("StoredIngredients")
                     .whereEqualTo("OwnerUID", "");
         }
-        /*
-         * Query made with reference to the following to stop permissions errors
-         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
-         * answer by rwozniak (2019) edited by Elia Weiss (2020).
-         * Accessed 2022-11-27
-         */
+        setSnapshotListener("Purchased");
 
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sorting = (String) sortSpinner.getSelectedItem();
-                Query query = shoppingListCollectionReference.orderBy("Purchased");
                 if (sorting == "Sort by Description") {
-                    query = shoppingListCollectionReference.orderBy("Description");
+                    setSnapshotListener("Description");
                 } else if (sorting == "Sort by Category") {
-                    query = shoppingListCollectionReference.orderBy("Category");
+                    setSnapshotListener("Category");
+                } else {
+                    setSnapshotListener("Purchased");
                 }
-
-                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
-                        // Clear the old list
-                        shoppingArrayList.clear();
-                        // Add ingredients from the cloud
-                        for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                            Log.d(TAG, String.valueOf(doc.getId()));
-                            String hashCode = doc.getId();
-                            String description = (String) doc.getData().get("Description");
-                            Long count = (Long) doc.getData().get("Count");
-                            String unit = (String) doc.getData().get("Unit");
-                            String category = (String) doc.getData().get("Category");
-                            Boolean purchased = (Boolean) doc.getData().get("Purchased");
-                            shoppingArrayList.add(
-                                    new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
-                        }
-                        // Update with new cloud data
-                        shoppingListAdapter.notifyDataSetChanged();
-                    }
-
-                });
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                Log.d(TAG, "No sorting change");
             }
         });
         // Auto populate the shopping list by checking the meal plan and ingredient storage
@@ -247,54 +227,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
                                 count.intValue(), unit));
                     }
                     updateShoppingList();
-                }
-            }
-        });
-
-        shoppingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            /**
-             * Updates the shopping list with all the documents on firebase everytime it is updated.
-             * @param queryDocumentSnapshots Firebase documents
-             * @param error Error message received when retrieving documents(if applicable)
-             */
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e(TAG, error.getMessage());
-                } else {
-                    // Clear the old list
-                    shoppingArrayList.clear();
-                    // Add ingredients from the cloud
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Log.d(TAG, String.valueOf(doc.getId()));
-                        String hashCode = doc.getId();
-
-                        String description = "";
-                        Long count = 0L;
-                        String unit = "";
-                        String category = "";
-                        Boolean purchased = false;
-                        if (doc.getData().get("Description") != null) {
-                            description = (String) doc.getData().get("Description");
-                        }
-                        if (doc.getData().get("Count") != null) {
-                            count = (Long) doc.getData().get("Count");
-                        }
-                        if (doc.getData().get("Unit") != null) {
-                            unit = (String) doc.getData().get("Unit");
-                        }
-                        if (doc.getData().get("Category") != null) {
-                            category = (String) doc.getData().get("Category");
-                        }
-                        if (doc.getData().get("Purchased") != null) {
-                            purchased = (Boolean) doc.getData().get("Purchased");
-                        }
-                        shoppingArrayList.add(
-                                new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
-                    }
-                    // Update with new cloud data
-                    shoppingListAdapter.notifyDataSetChanged();
                 }
             }
         });
@@ -720,5 +652,57 @@ public class ShoppingListActivity extends AppCompatActivity implements
      */
     public ArrayList<String> getCategories() {
         return catListIng.getCategories();
+    }
+
+
+    private void setSnapshotListener(String order) {
+        shoppingQuery.orderBy(order).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            /**
+             * Updates the shopping list with all the documents on firebase everytime it is updated.
+             * @param queryDocumentSnapshots Firebase documents
+             * @param error Error message received when retrieving documents(if applicable)
+             */
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    shoppingArrayList.clear();
+                    Log.d(TAG, "Order by: " + order);
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+
+                        String description = "";
+                        Long count = 0L;
+                        String unit = "";
+                        String category = "";
+                        Boolean purchased = false;
+                        if (doc.getData().get("Description") != null) {
+                            description = (String) doc.getData().get("Description");
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Purchased") != null) {
+                            purchased = (Boolean) doc.getData().get("Purchased");
+                        }
+                        shoppingArrayList.add(
+                                new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
+                    }
+                    // Update with new cloud data
+                    shoppingListAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 }
