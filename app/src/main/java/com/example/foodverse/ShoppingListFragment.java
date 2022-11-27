@@ -41,7 +41,8 @@ public class ShoppingListFragment extends DialogFragment {
     private EditText ingredientUnit;
     private Spinner ingredientCategory;
     private ArrayList<String> categoryList = new ArrayList<>();
-    private ArrayAdapter<String> categoryAdapter;
+    private ArrayList<String> locationList = new ArrayList<>();
+    private ArrayAdapter<String> categoryAdapter, locationAdapter;
     private Spinner ingredientLocation;
     private Button ingredientExpiry;
     private OnFragmentInteractionListener listener;
@@ -113,13 +114,19 @@ public class ShoppingListFragment extends DialogFragment {
         ingredientExpiry = view.findViewById(R.id.expiry_button);
 
         categoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
+        locationAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, locationList);
 
         act = (ShoppingListActivity) getActivity();
         for (int i = 0; i < act.getCategories().size(); i++) {
             categoryList.add(act.getCategories().get(i));
         }
+        for (int i = 0; i < act.getLocations().size(); i++) {
+            locationList.add(act.getLocations().get(i));
+        }
         categoryAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
         ingredientCategory.setAdapter(categoryAdapter);
+        locationAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+        ingredientLocation.setAdapter(locationAdapter);
 
         // Load data from an existing Ingredient object
         if (ingredient != null) {

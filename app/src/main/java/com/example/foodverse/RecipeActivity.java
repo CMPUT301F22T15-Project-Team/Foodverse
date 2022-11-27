@@ -147,70 +147,8 @@ public class RecipeActivity  extends AppCompatActivity implements
                     .whereEqualTo("OwnerUID", "");
         }
 
-        recQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
-                    FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e(TAG, error.getMessage());
-                } else {
-                    // Clear the old list
-                    RecipeDataList.clear();
-                    // Add ingredients from the cloud
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Log.d(TAG, String.valueOf(doc.getId()));
-                        String hashCode = doc.getId();
-                        String title = "", category = "", comments = "";
-                        Long prep = 0l, servings = 0l;
-                        if (doc.getData().get("Title") != null) {
-                            title = (String) doc.getData().get("Title");
-                        }
-                        if (doc.getData().get("Category") != null) {
-                            category = (String) doc.getData().get("Category");
-                        }
-                        if (doc.getData().get("Comments") != null) {
-                            comments = (String) doc.getData().get("Comments");
-                        }
-                        if (doc.getData().get("Prep Time") != null) {
-                            prep = (Long) doc.getData().get("Prep Time");
-                        }
-                        if (doc.getData().get("Servings") != null) {
-                            servings = (Long) doc.getData().get("Servings");
-                        }
-                        ArrayList<String> ingStrings =
-                                (ArrayList<String>) doc.getData().get("Ingredients");
-                        ArrayList<Ingredient> ingredients = new ArrayList<>();
-                        if (ingStrings != null) {
-                            for (String ingString : ingStrings) {
-                                Ingredient ing =
-                                        DatabaseIngredient
-                                                .stringToIngredient(ingString);
-                                ingredients.add(ing);
-                            }
-                        }
-                        /*
-                         * Decoding and encoding of bitmap with reference to:
-                         * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
-                         * Accessed 2022-11-24
-                         */
-                        Bitmap bm = null;
-                        if (doc.getData().get("Bitmap") != null) {
-                            String bmEncoded = (String) doc.getData().get("Bitmap");
-                            byte[] decodedByteArray = android.util.Base64.decode(
-                                    bmEncoded, Base64.DEFAULT);
-                            bm = BitmapFactory.decodeByteArray(
-                                    decodedByteArray, 0,
-                                    decodedByteArray.length);
-                        }
-                        RecipeDataList.add(new Recipe(title, prep.intValue(),
-                                servings.intValue(), category, comments,
-                                ingredients, bm));
-                    }
-                    // Update with new cloud data
-                    RecAdapter.notifyDataSetChanged();
-                }
-            }
-        });
+        setSnapshotListener("Title");
+
         /*
          * Learned how to do this using the following link:
          * Author: AdamC
@@ -228,79 +166,20 @@ public class RecipeActivity  extends AppCompatActivity implements
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 sorting = (String) sortSpinner.getSelectedItem();
-                Query query = collectionReference.orderBy("Title");
                 if (sorting == "Sort by Preparation Time") {
-                    query = collectionReference.orderBy("Prep Time");
+                    setSnapshotListener("Prep Time");
                 } else if (sorting == "Sort by Serving Size") {
-                    query = collectionReference.orderBy("Servings");
-                } else if(sorting == "Sort by Category"){
-                    query = collectionReference.orderBy("Category");
+                    setSnapshotListener("Servings");
+                } else if (sorting == "Sort by Category") {
+                    setSnapshotListener("Category");
+                } else {
+                    setSnapshotListener("Title");
                 }
-
-                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
-                        // Clear the old list
-                        RecipeDataList.clear();
-                        // Add ingredients from the cloud
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            Log.d(TAG, String.valueOf(doc.getId()));
-                            String hashCode = doc.getId();
-                            String title = "", category = "", comments = "";
-                            Long prep = 0l, servings = 0l;
-                            if (doc.getData().get("Title") != null) {
-                                title = (String) doc.getData().get("Title");
-                            }
-                            if (doc.getData().get("Category") != null) {
-                                category = (String) doc.getData().get("Category");
-                            }
-                            if (doc.getData().get("Comments") != null) {
-                                comments = (String) doc.getData().get("Comments");
-                            }
-                            if (doc.getData().get("Prep Time") != null) {
-                                prep = (Long) doc.getData().get("Prep Time");
-                            }
-                            if (doc.getData().get("Servings") != null) {
-                                servings = (Long) doc.getData().get("Servings");
-                            }
-                            ArrayList<String> ingStrings =
-                                    (ArrayList<String>) doc.getData().get("Ingredients");
-                            ArrayList<Ingredient> ingredients = new ArrayList<>();
-                            if (ingStrings != null) {
-                                for (String ingString : ingStrings) {
-                                    Ingredient ing =
-                                            DatabaseIngredient
-                                                    .stringToIngredient(ingString);
-                                    ingredients.add(ing);
-                                }
-                            }
-                            /*
-                             * Decoding and encoding of bitmap with reference to:
-                             * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
-                             * Accessed 2022-11-24
-                             */
-                            Bitmap bm = null;
-                            if (doc.getData().get("Bitmap") != null) {
-                                String bmEncoded = (String) doc.getData().get("Bitmap");
-                                byte[] decodedByteArray = android.util.Base64.decode(
-                                        bmEncoded, Base64.DEFAULT);
-                                bm = BitmapFactory.decodeByteArray(
-                                        decodedByteArray, 0,
-                                        decodedByteArray.length);
-                            }
-                            RecipeDataList.add(new Recipe(title, prep.intValue(),
-                                    servings.intValue(), category, comments,
-                                    ingredients, bm));
-                        }
-                        // Update with new cloud data
-                        RecAdapter.notifyDataSetChanged();
-                    }
-                });
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                Log.d(TAG, "No sorting change");
             }
         });
 
@@ -752,5 +631,84 @@ public class RecipeActivity  extends AppCompatActivity implements
      */
     public ArrayList<String> getIngCategories() {
         return catListIng.getCategories();
+    }
+
+
+    /**
+     * A method to setup the snapshot listener for the main query of this
+     * activity. Must be given a {@link String} for ordering of results.
+     * Here, order must be one of "Prep Time", "Servings", "Title" or "Category"
+     * any other value will cause the query to fail.
+     *
+     * @param order A {@link String} to set as the parameter in the
+     *              {@link Query#orderBy(String)} method, to sort results.
+     * @since 1.1
+     */
+    private void setSnapshotListener(String order) {
+        recQuery.orderBy(order).addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
+                    FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    RecipeDataList.clear();
+                    Log.d(TAG, "Order by: " + order);
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String title = "", category = "", comments = "";
+                        Long prep = 0l, servings = 0l;
+                        if (doc.getData().get("Title") != null) {
+                            title = (String) doc.getData().get("Title");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Comments") != null) {
+                            comments = (String) doc.getData().get("Comments");
+                        }
+                        if (doc.getData().get("Prep Time") != null) {
+                            prep = (Long) doc.getData().get("Prep Time");
+                        }
+                        if (doc.getData().get("Servings") != null) {
+                            servings = (Long) doc.getData().get("Servings");
+                        }
+                        ArrayList<String> ingStrings =
+                                (ArrayList<String>) doc.getData().get("Ingredients");
+                        ArrayList<Ingredient> ingredients = new ArrayList<>();
+                        if (ingStrings != null) {
+                            for (String ingString : ingStrings) {
+                                Ingredient ing =
+                                        DatabaseIngredient
+                                                .stringToIngredient(ingString);
+                                ingredients.add(ing);
+                            }
+                        }
+                        /*
+                         * Decoding and encoding of bitmap with reference to:
+                         * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+                         * Accessed 2022-11-24
+                         */
+                        Bitmap bm = null;
+                        if (doc.getData().get("Bitmap") != null) {
+                            String bmEncoded = (String) doc.getData().get("Bitmap");
+                            byte[] decodedByteArray = android.util.Base64.decode(
+                                    bmEncoded, Base64.DEFAULT);
+                            bm = BitmapFactory.decodeByteArray(
+                                    decodedByteArray, 0,
+                                    decodedByteArray.length);
+                        }
+                        RecipeDataList.add(new Recipe(title, prep.intValue(),
+                                servings.intValue(), category, comments,
+                                ingredients, bm));
+                    }
+                    // Update with new cloud data
+                    RecAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 }
