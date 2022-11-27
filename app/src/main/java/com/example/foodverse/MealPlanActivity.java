@@ -48,6 +48,7 @@ import java.util.HashSet;
 
 
 public class MealPlanActivity extends AppCompatActivity implements
+        MealViewFragment.OnFragmentInteractionListener,
         MealPlanFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
 
@@ -252,6 +253,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                 if (error != null) {
                     Log.e(TAG, error.getMessage());
                 } else {
+                    databaseIngredients.clear();
                     // Add ingredients from the cloud
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String hashCode = doc.getId();
@@ -299,7 +301,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                         // to the fragment.
                         Meal meal = mealAdapter.getItem(position);
                         selectedMealIndex = position;
-                        new MealPlanFragment(meal).show(
+                        new MealViewFragment(meal).show(
                                 getSupportFragmentManager(), "EDIT_MEAL");
                     }
                 });

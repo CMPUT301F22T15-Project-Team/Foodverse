@@ -13,12 +13,6 @@
         android:layout_height="match_parent"
         tools:context=".MealPlanActivity">
 
-        <Button
-            android:id="@+id/add_meal_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Add Meal" />
-
         <ListView
             android:id="@+id/meal_list"
             android:layout_width="match_parent"
@@ -29,6 +23,14 @@
             android:layout_weight="1">
 
         </ListView>
+
+        <Button
+            android:id="@+id/add_meal_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:backgroundTint="@color/Green"
+            android:text="Add Meal" />
 
 
     </FrameLayout>
