@@ -125,128 +125,155 @@ public class MealPlanActivity extends AppCompatActivity implements
          * answer by rwozniak (2019) edited by Elia Weiss (2020).
          * Accessed 2022-11-27
          */
-        mealQuery = db.collection("MealPlan")
-                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        try {
+            mealQuery = db.collection("MealPlan")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+            Log.e(TAG, auth.getCurrentUser().getUid());
+        } catch (NullPointerException e) {
+            mealQuery = db.collection("MealPlan")
+                    .whereEqualTo("OwnerUID", "");
+        }
+        mealQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                                 @Nullable FirebaseFirestoreException error) {
-                // Clear the old list
-                mealArrayList.clear();
-                // Add ingredients from the cloud
-                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    Date date = new Date();
-                    String recipeName = "No Recipe";
-                    int recipeCode = 0;
-                    int numServings = 0;
-                    int scale = 1;
-                    String name = "";
-                    ArrayList<String> ingStrings =
-                            (ArrayList<String>) doc.getData().get("Ingredients");
-                    if (doc.getData().get("Date") != null) {
-                        date = ((Timestamp) doc.getData().get("Date")).toDate();
-                    }
-                    if (doc.getData().get("Recipe") != null) {
-                        recipeName = (String) doc.getData().get("Recipe");
-                    }
-                    if (doc.getData().get("Recipe Code") != null) {
-                        recipeCode = ((Long) doc.getData().get("Recipe Code")).intValue();
-                    }
-                    if (doc.getData().get("Servings") != null) {
-                        numServings = ((Long) doc.getData().get("Servings")).intValue();
-                    }
-                    if (doc.getData().get("Scaling") != null) {
-                        scale = ((Long) doc.getData().get("Scaling")).intValue();
-                    }
-                    if (doc.getData().get("Name") != null) {
-                        name = (String) doc.getData().get("Name");
-                    }
-                    // Reconstruct ArrayList
-                    ArrayList<Ingredient> ingredients = new ArrayList<>();
-                    if (ingStrings != null) {
-                        for (String ingString : ingStrings) {
-                            Ingredient ing =
-                                    DatabaseIngredient.stringToIngredient(ingString);
-                            ingredients.add(ing);
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    mealArrayList.clear();
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        Date date = new Date();
+                        String recipeName = "No Recipe";
+                        int recipeCode = 0;
+                        int numServings = 0;
+                        int scale = 1;
+                        String name = "";
+                        ArrayList<String> ingStrings =
+                                (ArrayList<String>) doc.getData().get("Ingredients");
+                        if (doc.getData().get("Date") != null) {
+                            date = ((Timestamp) doc.getData().get("Date")).toDate();
                         }
+                        if (doc.getData().get("Recipe") != null) {
+                            recipeName = (String) doc.getData().get("Recipe");
+                        }
+                        if (doc.getData().get("Recipe Code") != null) {
+                            recipeCode = ((Long) doc.getData().get("Recipe Code")).intValue();
+                        }
+                        if (doc.getData().get("Servings") != null) {
+                            numServings = ((Long) doc.getData().get("Servings")).intValue();
+                        }
+                        if (doc.getData().get("Scaling") != null) {
+                            scale = ((Long) doc.getData().get("Scaling")).intValue();
+                        }
+                        if (doc.getData().get("Name") != null) {
+                            name = (String) doc.getData().get("Name");
+                        }
+                        // Reconstruct ArrayList
+                        ArrayList<Ingredient> ingredients = new ArrayList<>();
+                        if (ingStrings != null) {
+                            for (String ingString : ingStrings) {
+                                Ingredient ing =
+                                        DatabaseIngredient.stringToIngredient(ingString);
+                                ingredients.add(ing);
+                            }
+                        }
+                        Meal newMeal = new Meal(ingredients, date);
+                        newMeal.addRecipe(recipeCode, recipeName);
+                        newMeal.setServings(numServings);
+                        newMeal.setServingScaling(scale);
+                        newMeal.setName(name);
+                        mealArrayList.add(newMeal);
+                        //mealArrayList.add(new Meal(ingredients, date));
                     }
-                    Meal newMeal = new Meal(ingredients, date);
-                    newMeal.addRecipe(recipeCode, recipeName);
-                    newMeal.setServings(numServings);
-                    newMeal.setServingScaling(scale);
-                    newMeal.setName(name);
-                    mealArrayList.add(newMeal);
-                    //mealArrayList.add(new Meal(ingredients, date));
-                }
 
-                // Update with new cloud data
-                Collections.sort(mealArrayList);
-                mealAdapter.notifyDataSetChanged();
+                    // Update with new cloud data
+                    Collections.sort(mealArrayList);
+                    mealAdapter.notifyDataSetChanged();
+                }
             }
         });
-
-        recQuery = db.collection("Recipes")
-                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());;
+        try {
+            recQuery = db.collection("Recipes")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        } catch (NullPointerException e) {
+            recQuery = db.collection("Recipes")
+                    .whereEqualTo("OwnerUID", "");
+        }
         recQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                recipeHashCodes.clear();
-                recipeTitleList.clear();
-                recipeServingSizes.clear();
-
-                for (QueryDocumentSnapshot doc: value) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    String name = "";
-                    Integer code = 0;
-                    int recipeServings = 0;
-                    ArrayList<String> recStrings = (ArrayList<String>) doc.getData().get("Recipes");
-                    if (doc.getData().get("Title") != null) {
-                        name = (String) doc.getData().get("Title");
-                        code = Integer.parseInt(hashCode);
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    recipeHashCodes.clear();
+                    recipeTitleList.clear();
+                    recipeServingSizes.clear();
+                    for (QueryDocumentSnapshot doc : value) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String name = "";
+                        Integer code = 0;
+                        int recipeServings = 0;
+                        ArrayList<String> recStrings =
+                                (ArrayList<String>) doc.getData().get("Recipes");
+                        if (doc.getData().get("Title") != null) {
+                            name = (String) doc.getData().get("Title");
+                            code = Integer.parseInt(hashCode);
+                        }
+                        if (hashCode != null) {
+                            code = Integer.valueOf(hashCode);
+                        }
+                        if (doc.getData().get("Servings") != null) {
+                            recipeServings = ((Long) doc.getData().get("Servings")).intValue();
+                        }
+                        recipeHashCodes.add(code);
+                        recipeTitleList.add(name);
+                        recipeServingSizes.add(recipeServings);
                     }
-                    if (hashCode != null) {
-                        code = Integer.valueOf(hashCode);
-                    }
-                    if (doc.getData().get("Servings") != null) {
-                        recipeServings = ((Long) doc.getData().get("Servings")).intValue();
-                    }
-                    recipeHashCodes.add(code);
-                    recipeTitleList.add(name);
-                    recipeServingSizes.add(recipeServings);
                 }
             }
         });
 
-        ingQuery = db.collection("StoredIngredients")
-                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());
+        try {
+            ingQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        } catch (NullPointerException e) {
+            ingQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", "");
+        }
         ingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
-                // Add ingredients from the cloud
-                for (QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = "", unit = "";
-                    Long count = 0l;
-                    if (doc.getData().get("Description") != null) {
-                        description =
-                                (String) doc.getData().get("Description");
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String hashCode = doc.getId();
+                        String description = "", unit = "";
+                        Long count = 0l;
+                        if (doc.getData().get("Description") != null) {
+                            description =
+                                    (String) doc.getData().get("Description");
+                        }
+                        Log.d("MEALFRAG", description);
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        Ingredient ing = new Ingredient(description,
+                                count.intValue(), unit);
+                        databaseIngredients.add(ing);
+                        set.add(ing);
+                        Log.d("MEALFRAG", "Added ing");
                     }
-                    Log.d("MEALFRAG", description);
-                    if (doc.getData().get("Count") != null) {
-                        count = (Long) doc.getData().get("Count");
-                    }
-                    if (doc.getData().get("Unit") != null) {
-                        unit = (String) doc.getData().get("Unit");
-                    }
-                    Ingredient ing = new Ingredient(description, count.intValue(),
-                            unit);
-                    databaseIngredients.add(ing);
-                    set.add(ing);
-                    Log.d("MEALFRAG", "Added ing");
                 }
             }
         });
@@ -515,7 +542,7 @@ public class MealPlanActivity extends AppCompatActivity implements
             }
             case "Logout": {
                 Intent intent = new Intent(this, LoginActivity.class);
-                auth.signOut();
+                intent.putExtra("logout", true);
                 startActivity(intent);
                 break;
             }

@@ -65,9 +65,13 @@ public class LocationList {
          * answer by rwozniak (2019) edited by Elia Weiss (2020).
          * Accessed 2022-11-27
          */
-        locQuery = db.collection("Locations")
-                .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
-        update();
+        try {
+            locQuery = db.collection("Locations")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+            update();
+        } catch (NullPointerException e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 
 
@@ -82,16 +86,20 @@ public class LocationList {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                                 @Nullable FirebaseFirestoreException error) {
-                // Clear the old list
-                locations.clear();
-                // Add locations from the cloud
-                try {
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        String category = doc.getId();
-                        locations.add(category);
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    locations.clear();
+                    // Add locations from the cloud
+                    try {
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            String category = doc.getId();
+                            locations.add(category);
+                        }
+                    } catch (NullPointerException e) {
+                        Log.d(TAG, "NullPointerException");
                     }
-                } catch (NullPointerException e) {
-                    Log.d(TAG, "NullPointerException");
                 }
             }
         });

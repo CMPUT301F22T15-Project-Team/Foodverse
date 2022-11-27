@@ -115,59 +115,68 @@ public class StoredIngredientActivity extends AppCompatActivity
          * answer by rwozniak (2019) edited by Elia Weiss (2020).
          * Accessed 2022-11-27
          */
-        ingQuery = db.collection("StoredIngredients")
-                .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        try {
+            ingQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        } catch (NullPointerException e) {
+            ingQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", "");
+        }
 
         ingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
-                // Clear the old list
-                ingredientArrayList.clear();
-                // Add ingredients from the cloud
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    String description = "", location = "", unit = "",
-                            category = "";
-                    Long count = 0l, unitCost = 0l;
-                    Date bestBefore = new Date();
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    ingredientArrayList.clear();
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String description = "", location = "", unit = "",
+                                category = "";
+                        Long count = 0l, unitCost = 0l;
+                        Date bestBefore = new Date();
 
-                    if (doc.getData().get("Description") != null) {
-                        description =
-                                (String) doc.getData().get("Description");
+                        if (doc.getData().get("Description") != null) {
+                            description =
+                                    (String) doc.getData().get("Description");
+                        }
+                        /*
+                         * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
+                         * Answer by Niyas, February 23, 2019. Reference on casting
+                         * from firebase.timestamp to java.date.
+                         */
+                        if (doc.getData().get("Best Before") != null) {
+                            bestBefore = ((Timestamp) doc.getData().get("Best Before"))
+                                    .toDate();
+                        }
+                        if (doc.getData().get("Location") != null) {
+                            location = (String) doc.getData().get("Location");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Cost") != null) {
+                            unitCost = (Long) doc.getData().get("Cost");
+                        }
+                        ingredientArrayList.add(
+                                new StoredIngredient(description, count.intValue(),
+                                        bestBefore, location, unit, category,
+                                        unitCost.intValue()));
                     }
-                    /*
-                     * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
-                     * Answer by Niyas, February 23, 2019. Reference on casting
-                     * from firebase.timestamp to java.date.
-                     */
-                    if (doc.getData().get("Best Before") != null) {
-                        bestBefore = ((Timestamp) doc.getData().get("Best Before"))
-                                .toDate();
-                    }
-                    if (doc.getData().get("Location") != null) {
-                        location = (String) doc.getData().get("Location");
-                    }
-                    if (doc.getData().get("Category") != null) {
-                        category = (String) doc.getData().get("Category");
-                    }
-                    if (doc.getData().get("Unit") != null) {
-                        unit = (String) doc.getData().get("Unit");
-                    }
-                    if (doc.getData().get("Count") != null) {
-                        count = (Long) doc.getData().get("Count");
-                    }
-                    if (doc.getData().get("Cost") != null) {
-                        unitCost = (Long) doc.getData().get("Cost");
-                    }
-                    ingredientArrayList.add(
-                            new StoredIngredient(description, count.intValue(),
-                                    bestBefore, location, unit, category,
-                                    unitCost.intValue()));
+                    // Update with new cloud data
+                    ingredientAdapter.notifyDataSetChanged();
                 }
-                // Update with new cloud data
-                ingredientAdapter.notifyDataSetChanged();
             }
         });
 
@@ -410,7 +419,7 @@ public class StoredIngredientActivity extends AppCompatActivity
             }
             case "Logout": {
                 Intent intent = new Intent(this, LoginActivity.class);
-                auth.signOut();
+                intent.putExtra("logout", true);
                 startActivity(intent);
                 break;
             }

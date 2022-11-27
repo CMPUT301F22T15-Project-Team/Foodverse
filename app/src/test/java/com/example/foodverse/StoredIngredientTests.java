@@ -12,7 +12,7 @@ public class StoredIngredientTests {
      */
     public StoredIngredient mockIngredient() {
         return new StoredIngredient("Test", 1, new Date(),
-                "Pantry", "Cups", 1);
+                "Pantry", "Cups", "Mock", 1);
     }
 
 
@@ -176,9 +176,9 @@ public class StoredIngredientTests {
     public void testEquals() {
         StoredIngredient ing = mockIngredient();
         StoredIngredient ingEqual = new StoredIngredient("Test",
-                1, new Date(), "Pantry", "Cups", 1);
+                1, new Date(), "Pantry", "Cups", "Mock", 1);
         StoredIngredient ingNotEqual = new StoredIngredient("Test",
-                1, new Date(), "Fridge", "Cups", 1);
+                1, new Date(), "Fridge", "Cups", "Mock", 1);
         Object obj = new Object();
         assertTrue(ing.equals(ingEqual));
         assertFalse(ing.equals(ingNotEqual));
@@ -192,9 +192,9 @@ public class StoredIngredientTests {
     public void testEquals2() {
         StoredIngredient ing = mockIngredient();
         StoredIngredient ingEqual = new StoredIngredient("Test",
-                1, new Date(), "Pantry", "Cups", 1);
+                1, new Date(), "Pantry", "Cups", "Mock", 1);
         StoredIngredient ingNotEqual = new StoredIngredient("Test",
-                0, new Date(), "Pantry", "Cups", 2);
+                0, new Date(), "Pantry", "Cups", "Mock", 2);
         Object obj = new Object();
         assertTrue(ing.equals(ingEqual));
         assertFalse(ing.equals(ingNotEqual));
