@@ -72,7 +72,7 @@ public class ShoppingListFragment extends DialogFragment {
     public interface OnFragmentInteractionListener {
         void ingredientAdded(ShoppingListIngredient ingredient);
         void ingredientEdited(ShoppingListIngredient ingredient);
-        void ingredientDeleted();
+        void ingredientDeleted(ShoppingListIngredient ingredient);
         void addToStorage(StoredIngredient ingredient);
     }
 
@@ -171,7 +171,11 @@ public class ShoppingListFragment extends DialogFragment {
                 .setTitle("Add To Storage")
                 .setNeutralButton("Cancel", null)
                 .setNegativeButton("Delete", (dialog, which) -> {
-                    listener.ingredientDeleted();
+                    if (ingredient != null) {
+                        listener.ingredientDeleted(ingredient);
+                    } else {
+                        listener.ingredientDeleted(null);
+                    }
                 })
                 .setPositiveButton("Confirm",
                         (dialog, which) -> {
@@ -201,6 +205,7 @@ public class ShoppingListFragment extends DialogFragment {
                             if (ingredient == null) {
                                 listener.addToStorage(newIngredient);
                             } else {
+                                listener.ingredientDeleted(ingredient);
                                 listener.addToStorage(newIngredient);
                             }
                         }).create();

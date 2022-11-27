@@ -401,8 +401,30 @@ public class ShoppingListActivity extends AppCompatActivity implements
      * the shopping list. Removes the associated object from Firebase.
      */
     @Override
-    public void ingredientDeleted() {
-        if (selectedIngredientIndex != -1) {
+    public void ingredientDeleted(ShoppingListIngredient ingredient) {
+        if (ingredient != null) {
+            // Remove ingredient from database
+            shoppingListCollectionReference
+                    .document(String.valueOf(ingredient.hashCode()))
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            // Log success
+                            Log.d(TAG, "Data has been deleted!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Log any issues
+                            Log.d(TAG, "Data could not be deleted!" + e.toString());
+                        }
+                    });
+
+            // Change the index to be invalid
+            selectedIngredientIndex = -1;
+        } else if (selectedIngredientIndex != -1) {
             ShoppingListIngredient oldIngredient = shoppingArrayList.get(selectedIngredientIndex);
             // Remove ingredient from database
             shoppingListCollectionReference
@@ -498,6 +520,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
         data.put("Unit", ingredient.getUnit());
+        data.put("Category", ingredient.getCategory());
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
         } else {
@@ -525,25 +548,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
                         Log.d(TAG, "Data could not be added to StoredIngredients!" + e.toString());
                     }
                 });
-        Ingredient toRemove =
-                new Ingredient(ingredient.getDescription(), ingredient.getCount());
-        shoppingListCollectionReference
-                .document(String.valueOf(toRemove.hashCode()))
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Log success
-                        Log.d(TAG, "Data has been deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Log any issues
-                        Log.d(TAG, "Data could not be deleted!" + e.toString());
-                    }
-                });
+        updateShoppingList();
     }
 
     /**
