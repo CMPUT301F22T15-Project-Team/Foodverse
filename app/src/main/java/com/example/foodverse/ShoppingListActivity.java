@@ -212,7 +212,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Log.d(TAG, String.valueOf(doc.getId()));
                         String hashCode = doc.getId();
-                        String description = "", unit = "";
+                        String description = "", unit = "", category = "";
                         Long count = 0l;
                         if (doc.getData().get("Description") != null) {
                             description = (String) doc.getData().get("Description");
@@ -223,8 +223,11 @@ public class ShoppingListActivity extends AppCompatActivity implements
                         if (doc.getData().get("Unit") != null) {
                             unit = (String) doc.getData().get("Unit");
                         }
+                        if(doc.getData().get("Category") != null){
+                            category = (String) doc.getData().get("Category");
+                        }
                         storedIngredientsArrayList.add(new Ingredient(description,
-                                count.intValue(), unit));
+                                count.intValue(), unit, category));
                     }
                     updateShoppingList();
                 }
@@ -244,31 +247,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
         ArrayAdapter spinnerAdapter = new ArrayAdapter(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, sortingMethods);
         spinnerAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         sortSpinner.setAdapter(spinnerAdapter);
-
-        /* Inspiration for getting information on a selected listView item from
-        https://www.flutter-code.com/2016/03/android-listview-item-selector
-        -example.html. This code creates a listener for the ingredient list and
-        alters the currently selected ingredient */
-        shoppingListView.setOnItemClickListener(
-                (adapterView, view, i, l) -> selectedIngredientIndex = i);
-
-        shoppingListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            /**
-             * Launches an edit fragment when an item on the shopping list is clicked.
-             * @param parent The parent of the view.
-             * @param view The view that was clicked.
-             * @param position The position of the view that was clicked.
-             * @param id The id of the view that was clicked.
-             */
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                ShoppingListIngredient ingredient = shoppingListAdapter.getItem(position);
-//                selectedIngredientIndex = position;
-//                new ShoppingListFragment(ingredient).show(
-//                        getFragmentManager(), "EDIT_INGREDIENT");
-            }
-
-        });
 
         addButton.setOnClickListener(new View.OnClickListener() {
             /**
@@ -488,41 +466,47 @@ public class ShoppingListActivity extends AppCompatActivity implements
      * and the ingredients already contained in the storage.
      */
     public void updateShoppingList() {
-
-        summedMealPlanArrayList.clear();
         // We sum up the ingredient counts from different meals
+        summedMealPlanArrayList.clear();
         for (Ingredient mealIngredient : mealPlanArrayList) {
             boolean addToList = true;
             for(Ingredient summedMealIngredient : summedMealPlanArrayList){
                 if(summedMealIngredient.hashCode() == mealIngredient.hashCode()){
+                    // Since the ingredient has already been added to the list, we update the count
                     summedMealIngredient.setCount(summedMealIngredient.getCount() + mealIngredient.getCount());
                     addToList = false;
                     break;
                 }
             }
+
+            // We add the ingredient with the summed up count to the list
             if(addToList){
                 summedMealPlanArrayList.add(new Ingredient(mealIngredient.getDescription(), mealIngredient.getCount(),
                         mealIngredient.getUnit(), mealIngredient.getCategory()));
             }
         }
 
-        summedStoredIngredientArrayList.clear();
         // We sum up the ingredient counts from different stored ingredients
+        summedStoredIngredientArrayList.clear();
         for (Ingredient storedIngredient : storedIngredientsArrayList) {
             boolean addToList = true;
             for(Ingredient summedStoredIngredient : summedStoredIngredientArrayList){
                 if(summedStoredIngredient.hashCode() == storedIngredient.hashCode()){
+                    // Since the ingredient has already been added to the list, we update the count
                     summedStoredIngredient.setCount(summedStoredIngredient.getCount() + storedIngredient.getCount());
                     addToList = false;
                     break;
                 }
             }
+
+            // We add the ingredient with the summed up count to the list
             if(addToList){
                 summedStoredIngredientArrayList.add(new Ingredient(storedIngredient.getDescription(), storedIngredient.getCount(),
                         storedIngredient.getUnit(), storedIngredient.getCategory()));
             }
         }
 
+        // We populate the shopping list by counting how much of each ingredient is needed.
         shoppingArrayList.clear();
         for (Ingredient mealIngredient : summedMealPlanArrayList) {
             boolean addToList = true;
@@ -531,26 +515,26 @@ public class ShoppingListActivity extends AppCompatActivity implements
             for (Ingredient storedIngredient : summedStoredIngredientArrayList) {
                 // We check if a required ingredient already exists in storage
                 if (mealIngredient.getDescription().equals(storedIngredient.getDescription()) &&
-                        mealIngredient.getUnit().equals(storedIngredient.getUnit()) &&
-                        mealIngredient.getCategory().equals(storedIngredient.getCategory())) {
+                        mealIngredient.getUnit().equals(storedIngredient.getUnit())) {
 
-                    // We check how many units are actually needed
+                    // Since it does exist in storage, we check how many units are actually needed
                     if (mealIngredient.getCount() > storedIngredient.getCount()) {
                         count -= storedIngredient.getCount();
-                        break;
+                        mealIngredient.setCategory(storedIngredient.getCategory());
+                    } else {
+                        // If we already have a sufficient amount of the ingredient, we do not need to add it
+                        addToList = false;
                     }
-                    addToList = false;
                     break;
                 }
             }
 
             if (addToList){
                 mealIngredient.setCount(count);
-
                 ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
                         mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
             } else {
-
+                // We remove the ingredient from firebase since it is not needed anymore
                 shoppingListCollectionReference
                         .document(String.valueOf(mealIngredient.hashCode()))
                         .delete();
