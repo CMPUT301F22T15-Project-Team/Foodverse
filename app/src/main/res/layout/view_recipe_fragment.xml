@@ -25,6 +25,10 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                 android:hint="@string/recipe_title_hint"
                 android:inputType="textPersonName"
                 android:padding="10dp"
+                android:textAlignment="viewStart"
+                android:textColor="@color/black"
+                android:textSize="25sp"
+                app:fontFamily="@font/arvo_bold"
                 />
 
 
@@ -39,12 +43,15 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:layout_height="wrap_content"
                     android:padding="10dp"
                     android:text="@string/comments"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    app:fontFamily="@font/arvo_bold"/>
                 <TextView
                     android:id="@+id/comments_view_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="0dp"
                     android:hint="@string/comments_hint"
                     android:textSize="15sp" />
             </LinearLayout>
@@ -57,9 +64,12 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:id="@+id/category_text_view"
                     android:layout_width="135dp"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
+                    android:padding="10dp"
                     android:text="@string/category"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black"
+                    app:fontFamily="@font/arvo_bold"/>
 
 <!--                <Spinner-->
 <!--                    android:id="@+id/recipe_category_spinner"-->
@@ -69,8 +79,9 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:id="@+id/category_view_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
+                    android:padding="10dp"
                     android:text="category_value"
+                    android:textAlignment="viewStart"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -85,14 +96,18 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:layout_height="match_parent"
                     android:padding="10dp"
                     android:text="@string/serving_size"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textColor="@color/black"
+                    app:fontFamily="@font/arvo_bold"/>
 
                 <TextView
                     android:id="@+id/serving_size_view_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/serving_size_hint"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:layout_marginTop = "10dp"
+                    android:layout_gravity="bottom"/>
 
             </LinearLayout>
 
@@ -107,13 +122,17 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:layout_height="match_parent"
                     android:padding="10dp"
                     android:text="@string/prep_time"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    android:textColor="@color/black"
+                    app:fontFamily="@font/arvo_bold"/>
                 <TextView
                     android:id="@+id/prep_time_view_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="60"
-                    android:inputType="number"/>
+                    android:layout_marginTop = "10dp"
+                    android:inputType="number"
+                    />
             </LinearLayout>
             <TextView
                 android:id="@+id/DateTextView"
@@ -122,7 +141,9 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                 android:padding="1dp"
                 android:text="@string/recipe_ingredients"
                 android:textAlignment="center"
-                android:textSize="25sp" />
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                app:fontFamily="@font/arvo_bold"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
