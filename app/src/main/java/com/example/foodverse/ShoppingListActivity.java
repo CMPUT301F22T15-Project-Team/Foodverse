@@ -507,7 +507,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
         }
 
         // We populate the shopping list by counting how much of each ingredient is needed.
-        shoppingArrayList.clear();
         for (Ingredient mealIngredient : summedMealPlanArrayList) {
             boolean addToList = true;
             int count = mealIngredient.getCount();
@@ -530,9 +529,20 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
 
             if (addToList){
-                mealIngredient.setCount(count);
+                boolean purchased = false;
+
+                // Check if ingredient already exists in shopping list
+                for(ShoppingListIngredient shoppingIngredient: shoppingArrayList){
+                    if(mealIngredient.getDescription().equals(shoppingIngredient.getDescription()) &&
+                            mealIngredient.getUnit().equals(shoppingIngredient.getUnit())){
+                        // Retrieve the purchased status from the ingredient
+                        purchased = shoppingIngredient.isPurchased();
+                    }
+                }
+
+                // Add the ingredient to the shopping list
                 ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
-                        mealIngredient.getCount(), mealIngredient.getUnit(), mealIngredient.getCategory(), false));
+                        count, mealIngredient.getUnit(), mealIngredient.getCategory(), purchased));
             } else {
                 // We remove the ingredient from firebase since it is not needed anymore
                 shoppingListCollectionReference
