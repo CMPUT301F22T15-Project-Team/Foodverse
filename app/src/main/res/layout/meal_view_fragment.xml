@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/meal_name_text_view"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:textStyle="bold|italic"
+        android:layout_weight="1"
+        android:textSize="32sp"
+        android:padding="20dp"
+        android:text="Meal Name" />
+
+    <TextView
+        android:id="@+id/meal_date_text_view"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:textSize="32sp"
+        android:padding="20dp"
+        android:text="Meal Date" />
+
+    <TextView
+        android:id="@+id/meal_recipe_text_view"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:textSize="32sp"
+        android:padding="20dp"
+        android:text="Meal Name" />
+
+    <TextView
+        android:id="@+id/meal_servings_text_view"
+        android:layout_width="250dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:textSize="32sp"
+        android:padding="20dp"
+        android:text="Meal Name" />
+
+
+    <ListView
+        android:id="@+id/meal_view_fragment_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_weight="1">
+
+    </ListView>
+
+</LinearLayout>
