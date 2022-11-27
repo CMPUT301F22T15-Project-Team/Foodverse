@@ -231,7 +231,7 @@ public class RecipeActivity  extends AppCompatActivity implements
                 Query query = collectionReference.orderBy("Title");
                 if (sorting == "Sort by Preparation Time") {
                     query = collectionReference.orderBy("Prep Time");
-                } else if (sorting == "Sort by Number of Servings") {
+                } else if (sorting == "Sort by Serving Size") {
                     query = collectionReference.orderBy("Servings");
                 } else if(sorting == "Sort by Category"){
                     query = collectionReference.orderBy("Category");
