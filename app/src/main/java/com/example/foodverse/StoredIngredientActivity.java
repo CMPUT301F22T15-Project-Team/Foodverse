@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -67,6 +68,9 @@ public class StoredIngredientActivity extends AppCompatActivity
     private CategoryList catListRec = new CategoryList("Recipe");
     private CategoryList catListIng = new CategoryList("Ingredient");
     private LocationList locList = new LocationList();
+    private Spinner sortSpinner;
+    private String[] sortingMethods = {"Sort by Description", "Sort by Expiry", "Sort by Location", "Sort by Category"};
+    private String sorting = "Sort by Description";
 
 
     @Override
@@ -75,6 +79,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         setContentView(R.layout.activity_stored_ingredient);
 
         ingredientListView = findViewById(R.id.ingredient_list);
+        sortSpinner = findViewById(R.id.sort_spinner_stored_ingredient);
 
         ingredientArrayList = new ArrayList<>();
         ingredientAdapter = new StoredIngredientList(this, ingredientArrayList);
@@ -213,7 +218,60 @@ public class StoredIngredientActivity extends AppCompatActivity
             }
         });
 
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sorting = (String) sortSpinner.getSelectedItem();
+                Query query = collectionReference.orderBy("Description");
+                if (sorting == "Sort by Expiry") {
+                    query = collectionReference.orderBy("Best Before");
+                } else if (sorting == "Sort by Location") {
+                    query = collectionReference.orderBy("Location");
+                } else if (sorting == "Sort by Category") {
+                    query = collectionReference.orderBy("Category");
+                }
 
+                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                        // Clear the old list
+                        ingredientArrayList.clear();
+                        // Add ingredients from the cloud
+                        for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                            Log.d(TAG, String.valueOf(doc.getId()));
+                            String hashCode = doc.getId();
+                            String description = (String) doc.getData().get("Description");
+                            Long count = (Long) doc.getData().get("Count");
+                            Date bestBefore = ((Timestamp) doc.getData().get("Best Before")).toDate();
+                            String location = (String) doc.getData().get("Location");
+                            Long unitCost = (Long) doc.getData().get("Cost");
+                            ingredientArrayList.add(
+                                    new StoredIngredient(description, count.intValue(), bestBefore, location, unitCost.intValue()));
+                        }
+                        // Update with new cloud data
+                        ingredientAdapter.notifyDataSetChanged();
+                    }
+
+                });
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        /*
+         * Learned how to do this using the following link:
+         * Author: AdamC
+         * Title: How to update a spinner dynamically?
+         * URL: https://stackoverflow.com/questions/3283337/how-to-update-a-spinner-dynamical
+         * License: CC BY-SA 2.5
+         * Date Posted: 2010-07-20
+         * Date Retrieved: 2022-09-25
+         */
+        ArrayAdapter spinnerAdapter = new ArrayAdapter(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, sortingMethods);
+        spinnerAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(spinnerAdapter);
     }
 
     /**
