@@ -387,6 +387,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Purchased", ingredient.isPurchased());
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
 
         // Delete old ingredient and set new since hashCode() will return different result
@@ -435,6 +437,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Unit", ingredient.getUnit());
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
 
         // Need to store ingredient in the stored ingredients collection

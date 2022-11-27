@@ -304,6 +304,8 @@ public class RecipeActivity  extends AppCompatActivity implements
         data.put("Ingredients", ingStrings);
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
 
         /*
@@ -375,6 +377,8 @@ public class RecipeActivity  extends AppCompatActivity implements
         data.put("Ingredients", ingStrings);
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
 
         /*
