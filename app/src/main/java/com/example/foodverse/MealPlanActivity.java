@@ -299,8 +299,10 @@ public class MealPlanActivity extends AppCompatActivity implements
         data.put("Servings", meal.getServings());
         data.put("Scaling", meal.getServingScaling());
         data.put("Name", meal.getName());
-                if (auth.getCurrentUser() != null) {
+        if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
         
         /*
@@ -385,6 +387,8 @@ public class MealPlanActivity extends AppCompatActivity implements
         data.put("Name", meal.getName());
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
 
         // Delete old ingredient and set new since hashCode() will return different result

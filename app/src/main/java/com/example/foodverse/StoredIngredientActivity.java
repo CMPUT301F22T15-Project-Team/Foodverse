@@ -212,6 +212,8 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Unit", ingredient.getUnit());
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
 
         /*
@@ -295,6 +297,8 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Unit", ingredient.getUnit());
         if (auth.getCurrentUser() != null) {
             data.put("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            data.put("OwnerUID", "");
         }
 
         // Delete old ingredient and set new since hashCode() will return different result
