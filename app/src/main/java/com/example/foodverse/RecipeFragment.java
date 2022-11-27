@@ -316,11 +316,11 @@ public class RecipeFragment extends DialogFragment {
                         Integer serving_size = 1;
                         Integer prepare_time = 10;
 
-                        if (rec_servings.getText().toString() != "") {
+                        if (!rec_servings.getText().toString().equals("")) {
                             serving_size = Integer.parseInt(
                                     rec_servings.getText().toString());
                         }
-                        if (rec_preptime.getText().toString() != "") {
+                        if (!rec_preptime.getText().toString().equals("")) {
                             prepare_time = Integer.parseInt(
                                     rec_preptime.getText().toString());
                         }
