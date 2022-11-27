@@ -255,7 +255,7 @@ public class MealPlanActivity extends AppCompatActivity implements
                     // Add ingredients from the cloud
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String hashCode = doc.getId();
-                        String description = "", unit = "";
+                        String description = "", unit = "", category = "";
                         Long count = 0l;
                         if (doc.getData().get("Description") != null) {
                             description =
@@ -268,8 +268,11 @@ public class MealPlanActivity extends AppCompatActivity implements
                         if (doc.getData().get("Unit") != null) {
                             unit = (String) doc.getData().get("Unit");
                         }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
                         Ingredient ing = new Ingredient(description,
-                                count.intValue(), unit);
+                                count.intValue(), unit, category);
                         databaseIngredients.add(ing);
                         set.add(ing);
                         Log.d("MEALFRAG", "Added ing");
