@@ -24,11 +24,13 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -46,17 +48,20 @@ import kotlin.text.UStringsKt;
  * @version 1.0
  *
  */
-public class RecipeFragment extends DialogFragment {
-    private EditText rec_title;
-    private EditText rec_comments;
-    private EditText rec_servings;
-    private EditText rec_preptime;
-    private RecipeFragment.OnFragmentInteractionListener listener;
+public class RecipeViewFragment extends DialogFragment {
+    private TextView rec_title_v;
+    private TextView rec_comments_v;
+    private TextView rec_servings_v;
+    private TextView rec_preptime_v;
+    private String recCategory_v;
+    private TextView rec_Category_v;
+    private RecipeViewFragment.OnFragmentInteractionListener listener;
     private Recipe chosenRecipe;
     private Button addButton, deleteButton, choosePhotoButton, takePhotoButton,
-                   deletePhoto;
+            deletePhoto;
     private ImageView recipePhoto;
     public Boolean edit_text = Boolean.FALSE;
+    public Boolean view_text = Boolean.TRUE;
     private ArrayAdapter<Ingredient> listViewAdapter;
     private ArrayList<Ingredient> recIngredients = new ArrayList<>();
     private ArrayList<String> ingredientStringList = new ArrayList<>();
@@ -78,14 +83,13 @@ public class RecipeFragment extends DialogFragment {
     public interface OnFragmentInteractionListener{
         void onOkPressed(Recipe newRec);
         void onOkEditPressed(Recipe newRec);
-        void onDeletePressed();
     }
 
     /**
      * Default constructor for {@link RecipeFragment}. Sets the chosen recipe
      * to null.
      */
-    public RecipeFragment() {
+    public RecipeViewFragment() {
         super();
         this.chosenRecipe = null;
     }
@@ -96,7 +100,7 @@ public class RecipeFragment extends DialogFragment {
      * @param recipe A {@link Recipe} representing the recipe for
      * for which we want to see the details of.
      */
-    public RecipeFragment(Recipe recipe) {
+    public RecipeViewFragment(Recipe recipe) {
         super();
         this.chosenRecipe = recipe;
         // Set that we are in edit mode
@@ -129,20 +133,21 @@ public class RecipeFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState){
         // The layoutInflater gives access to the XML widgets in the fragment_recipe file to
         // edit the values and display them on the screen through the RecipeList
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_recipe, null);
-        rec_title = view.findViewById(R.id.recipe_title_edit_text);
-        rec_comments = view.findViewById(R.id.comments_edit_text);
-        rec_servings = view.findViewById(R.id.serving_size_edit_text);
-        rec_preptime = view.findViewById(R.id.prep_time_edit_text);
-        addButton = view.findViewById(R.id.recipe_add_ingredient_button);
-        deleteButton = view.findViewById(R.id.recipe_delete_ingredient_button);
-        choosePhotoButton = view.findViewById(R.id.recipe_add_image_button);
-        takePhotoButton = view.findViewById(R.id.recipe_take_photo_button);
-        deletePhoto = view.findViewById(R.id.recipe_remove_photo_button);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.view_recipe_fragment, null);
+        rec_title_v = view.findViewById(R.id.recipe_title_view_text);
+        rec_comments_v = view.findViewById(R.id.comments_view_text);
+        rec_servings_v = view.findViewById(R.id.serving_size_view_text);
+        rec_preptime_v = view.findViewById(R.id.prep_time_view_text);
+        addButton = view.findViewById(R.id.recipe_add_ingredient_button); //remove
+        deleteButton = view.findViewById(R.id.recipe_delete_ingredient_button); //remove
+        choosePhotoButton = view.findViewById(R.id.recipe_add_image_button);//remove
+        takePhotoButton = view.findViewById(R.id.recipe_take_photo_button);//remove
+        deletePhoto = view.findViewById(R.id.recipe_remove_photo_button);//remove
         ingredientList = view.findViewById(R.id.ing_list);
         listViewAdapter = new IngredientAdapter(getActivity(), recIngredients);
-        ingredientSpinner = view.findViewById(R.id.recipe_ingredient_spinner);
+        ingredientSpinner = view.findViewById(R.id.recipe_ingredient_spinner);//remove
         categorySpinner = view.findViewById(R.id.recipe_category_spinner);
+        rec_Category_v = view.findViewById(R.id.category_view_text);
         recipePhoto = view.findViewById(R.id.recipe_picture);
         ingredientList.setAdapter(listViewAdapter);
         cam_uri = null;
@@ -151,18 +156,18 @@ public class RecipeFragment extends DialogFragment {
         // if in edit mode, get the values of each attribute that stored for the recipe item entry
         // and populate them on the dialog box to allow the user to edit - this is done using the getters
         // and setters for the attributes
-        if (edit_text == Boolean.TRUE) {
+        if (view_text == Boolean.TRUE) {
             // obtain access to the Bundle's information inputted when
             // editing or creating a Recipe entry
             Bundle recipeVal = getArguments();
 
             //Recipe RecipeObject = (Recipe) recipeVal.get("recipe"); //accessing the value of the attribute passed
             Recipe RecipeObject = chosenRecipe;
-            rec_title.setText(RecipeObject.getTitle());
-            rec_comments.setText(RecipeObject.getComments());
-            recCategory = RecipeObject.getCategory();
-            rec_servings.setText(Integer.toString(RecipeObject.getServings()));//switched w int refactor
-            rec_preptime.setText(Integer.toString(RecipeObject.getPrepTime()));//switched w int refactor
+            rec_title_v.setText(RecipeObject.getTitle());
+            rec_comments_v.setText(RecipeObject.getComments());
+            recCategory_v = RecipeObject.getCategory();
+            rec_servings_v.setText(Integer.toString(RecipeObject.getServings()));//switched w int refactor
+            rec_preptime_v.setText(Integer.toString(RecipeObject.getPrepTime()));//switched w int refactor
             chosenRecipe = RecipeObject; //update on the object
             // Get all the ingredients from the recipe and add them to
             // an array list to be displayed on a listview
@@ -197,42 +202,46 @@ public class RecipeFragment extends DialogFragment {
         for (int i = 0; i < act.getCategories().size(); i++) {
             categoryList.add(act.getCategories().get(i));
         }
+        String recipeCategory = "";
+        String recipeCategory_value = chosenRecipe.getCategory();
+        Log.d("Debuggin View", recipeCategory_value);
+        rec_Category_v.setText(recipeCategory_value);
 
         // The spinner is set up to connect with the list of ingredients
-        ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
-        ingredientSpinner.setAdapter(ingAdapter);
-
-        categoryAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
-        categorySpinner.setAdapter(categoryAdapter);
-
-        if (edit_text == Boolean.TRUE) {
-            categorySpinner.setSelection(categoryList.indexOf(recCategory));
-        }
+//        ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+//        ingredientSpinner.setAdapter(ingAdapter);
+//
+//        categoryAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
+//        categorySpinner.setAdapter(categoryAdapter);
+//
+//        if (view_text == Boolean.TRUE) {
+//            categorySpinner.setSelection(categoryList.indexOf(recCategory));
+//        }
 
         // When the user clicks on the plus button to add an ingredient
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int ingIndex;
-                Log.d("RecFrag", "Adding ingredient");
-                ingIndex = ingredientSpinner.getSelectedItemPosition();
-                recIngredients.add(act.getDatabaseIngredients().get(ingIndex));
+//        addButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                int ingIndex;
+//                Log.d("RecFrag", "Adding ingredient");
+//                ingIndex = ingredientSpinner.getSelectedItemPosition();
+//                recIngredients.add(act.getDatabaseIngredients().get(ingIndex));
+//
+//                listViewAdapter.notifyDataSetChanged();
+//            }
+//        });
 
-                listViewAdapter.notifyDataSetChanged();
-            }
-        });
-
-        deleteButton.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-                        recIngredients.remove(pos);
-                        listViewAdapter.notifyDataSetChanged();
-                    }
-                });
-            }
-        });
+//        deleteButton.setOnClickListener( new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+//                        recIngredients.remove(pos);
+//                        listViewAdapter.notifyDataSetChanged();
+//                    }
+//                });
+//            }
+//        });
 
         /*
          * Both selecting and taking photo functionality made with reference to:
@@ -242,23 +251,23 @@ public class RecipeFragment extends DialogFragment {
          * Answer by Alias (2021)
          * Both Accessed 2022-11-24
          */
-        takePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.TITLE, "New Picture");
-                values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera");
-                cam_uri = requireContext().getContentResolver().insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
-                try {
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                } catch (ActivityNotFoundException e) {
-                    Log.e("RecFrag", "Take Picture Activity not found.");
-                }
-            }
-        });
+//        takePhotoButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ContentValues values = new ContentValues();
+//                values.put(MediaStore.Images.Media.TITLE, "New Picture");
+//                values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera");
+//                cam_uri = requireContext().getContentResolver().insert(
+//                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
+//                try {
+//                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+//                } catch (ActivityNotFoundException e) {
+//                    Log.e("RecFrag", "Take Picture Activity not found.");
+//                }
+//            }
+//        });
 
         /*
          * Made with reference to the above and:
@@ -268,81 +277,83 @@ public class RecipeFragment extends DialogFragment {
          * by adityamshidlyali
          * Accessed 2022-11-24.
          */
-        choosePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.TITLE, "Picture");
-                values.put(MediaStore.Images.Media.DESCRIPTION, "From Gallery");
-                cam_uri = requireContext().getContentResolver().insert(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                Intent choosePictureIntent = new Intent(Intent.ACTION_PICK);
-                choosePictureIntent.setType("image/*");
-                choosePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
-                try {
-                    startActivityForResult(choosePictureIntent, REQUEST_IMAGE_SELECTION);
-                } catch (ActivityNotFoundException e) {
-                    Log.e("RecFrag", "Choose Picture Activity not found.");
-                }
-            }
-        });
+//        choosePhotoButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ContentValues values = new ContentValues();
+//                values.put(MediaStore.Images.Media.TITLE, "Picture");
+//                values.put(MediaStore.Images.Media.DESCRIPTION, "From Gallery");
+//                cam_uri = requireContext().getContentResolver().insert(
+//                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//                Intent choosePictureIntent = new Intent(Intent.ACTION_PICK);
+//                choosePictureIntent.setType("image/*");
+//                choosePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
+//                try {
+//                    startActivityForResult(choosePictureIntent, REQUEST_IMAGE_SELECTION);
+//                } catch (ActivityNotFoundException e) {
+//                    Log.e("RecFrag", "Choose Picture Activity not found.");
+//                }
+//            }
+//        });
 
-        deletePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cam_uri = null;
-                bitmap = null;
-                recipePhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher_background));
-            }
-        });
+//        deletePhoto.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                cam_uri = null;
+//                recipePhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher_background));
+//            }
+//        });
 
 
         //creates the dialog box with the populated info and action buttons
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
-                .setTitle("Add/Edit Recipe")
+                .setTitle("View Recipe")
                 .setNeutralButton("Cancel",null)
-                .setNegativeButton("Delete",(dialog, which) -> {
-                    listener.onDeletePressed();
+                .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        new RecipeFragment(chosenRecipe).show(getFragmentManager(), "Edit_Recipe");
+                    }
                 })
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        String recipe_title = rec_title.getText().toString();
-                        String recipe_comments = rec_comments.getText().toString();
+                        String recipe_title = rec_title_v.getText().toString();
+                        String recipe_comments = rec_comments_v.getText().toString();
                         // The following lines set default values to prevent the app from crashing if
                         // values for servings size and prepare time are not entered
                         Integer serving_size = 1;
                         Integer prepare_time = 10;
 
-                        if (rec_servings.getText().toString() != "") {
+                        if (rec_servings_v.getText().toString() != "") {
                             serving_size = Integer.parseInt(
-                                    rec_servings.getText().toString());
+                                    rec_servings_v.getText().toString());
                         }
-                        if (rec_preptime.getText().toString() != "") {
+                        if (rec_preptime_v.getText().toString() != "") {
                             prepare_time = Integer.parseInt(
-                                    rec_preptime.getText().toString());
+                                    rec_preptime_v.getText().toString());
                         }
 
-                        String recipeCategory = "";
+
                         int categoryInd;
-                        categoryInd = categorySpinner.getSelectedItemPosition();
-                        recipeCategory = categoryList.get(categoryInd);
+//                        categoryInd = categorySpinner.getSelectedItemPosition();
+//                        recipeCategory = categoryList.get(categoryInd);
 
                         // Send new edited recipe back to the activity
-                        if (edit_text == Boolean.TRUE){
+                        if (view_text == Boolean.TRUE){
                             Recipe edited = new Recipe(recipe_title,
                                     prepare_time, serving_size,
-                                    recipeCategory, recipe_comments,
+                                    recipeCategory_value, recipe_comments,
                                     recIngredients, bitmap);
                             listener.onOkEditPressed(edited);
 
                         }
-                        // Context updated by creating a new recipe item entry
+                         //Context updated by creating a new recipe item entry
                         else {
                             listener.onOkPressed(new Recipe(recipe_title,
-                                    prepare_time,serving_size,recipeCategory,
+                                    prepare_time,serving_size,recipeCategory_value,
                                     recipe_comments,recIngredients, bitmap));
                         }
 
@@ -352,14 +363,14 @@ public class RecipeFragment extends DialogFragment {
     }
 
 
-    public void deleteIngredient(View view) {
-        ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-                recIngredients.remove(pos);
-                listViewAdapter.notifyDataSetChanged();
-            }
-        });
-    }
+//    public void deleteIngredient(View view) {
+//        ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+//                recIngredients.remove(pos);
+//                listViewAdapter.notifyDataSetChanged();
+//            }
+//        });
+//    }
 
 
     /**
@@ -379,6 +390,7 @@ public class RecipeFragment extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             Log.d("ImageActivity", cam_uri.toString());
+            //recipePhoto.setImageURI(cam_uri);
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(act.getContentResolver(), cam_uri);
                 recipePhoto.setImageBitmap(bitmap);
@@ -389,6 +401,7 @@ public class RecipeFragment extends DialogFragment {
         if (requestCode == REQUEST_IMAGE_SELECTION && resultCode == Activity.RESULT_OK) {
             Log.d("ImageActivity", cam_uri.toString());
             cam_uri = data.getData();
+            //recipePhoto.setImageURI(cam_uri);
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(act.getContentResolver(), cam_uri);
                 recipePhoto.setImageBitmap(bitmap);

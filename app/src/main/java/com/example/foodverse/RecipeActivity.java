@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,6 +57,7 @@ import java.util.HashSet;
 
 public class RecipeActivity  extends AppCompatActivity implements
         RecipeFragment.OnFragmentInteractionListener,
+        RecipeViewFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
     private ListView RecipeList;
     private ArrayAdapter<Recipe> RecAdapter;
@@ -68,6 +70,9 @@ public class RecipeActivity  extends AppCompatActivity implements
     private CollectionReference collectionReference;
     private Query recQuery, storedQuery;
     private final String TAG = "RecipeActivity";
+    private Spinner sortSpinner;
+    private String[] sortingMethods = {"Sort by Title", "Sort by Preparation Time", "Sort by Serving Size","Sort by Recipe Category"};
+    private String sorting = "Sort by Title";
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
@@ -76,6 +81,8 @@ public class RecipeActivity  extends AppCompatActivity implements
     private CategoryList catListRec = new CategoryList("Recipe");
     private CategoryList catListIng = new CategoryList("Ingredient");
     private LocationList locList = new LocationList();
+    private ArrayList<String> SortcategoryList = new ArrayList<>();
+    private ArrayAdapter<String> SortcategoryAdapter;
 
 
     /**
@@ -91,6 +98,8 @@ public class RecipeActivity  extends AppCompatActivity implements
         RecipeDataList = new ArrayList<>();
         RecAdapter = new RecipeList(this, RecipeDataList); //create the interface for the entries
         RecipeList.setAdapter(RecAdapter); //update the UI
+        sortSpinner = findViewById(R.id.sort_Spinner);
+        //SortcategoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.sortSpinner, SortcategoryList);
 
 
         /*
@@ -202,6 +211,98 @@ public class RecipeActivity  extends AppCompatActivity implements
                 }
             }
         });
+        /*
+         * Learned how to do this using the following link:
+         * Author: AdamC
+         * Title: How to update a spinner dynamically?
+         * URL: https://stackoverflow.com/questions/3283337/how-to-update-a-spinner-dynamical
+         * License: CC BY-SA 2.5
+         * Date Posted: 2010-07-20
+         * Date Retrieved: 2022-09-25
+         */
+        ArrayAdapter spinnerAdapter = new ArrayAdapter(this, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, sortingMethods);
+        spinnerAdapter.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(spinnerAdapter);
+
+        sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                sorting = (String) sortSpinner.getSelectedItem();
+                Query query = collectionReference.orderBy("Title");
+                if (sorting == "Sort by Preparation Time") {
+                    query = collectionReference.orderBy("Prep Time");
+                } else if (sorting == "Sort by Number of Servings") {
+                    query = collectionReference.orderBy("Servings");
+                } else if(sorting == "Sort by Category"){
+                    query = collectionReference.orderBy("Category");
+                }
+
+                query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                        // Clear the old list
+                        RecipeDataList.clear();
+                        // Add ingredients from the cloud
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            Log.d(TAG, String.valueOf(doc.getId()));
+                            String hashCode = doc.getId();
+                            String title = "", category = "", comments = "";
+                            Long prep = 0l, servings = 0l;
+                            if (doc.getData().get("Title") != null) {
+                                title = (String) doc.getData().get("Title");
+                            }
+                            if (doc.getData().get("Category") != null) {
+                                category = (String) doc.getData().get("Category");
+                            }
+                            if (doc.getData().get("Comments") != null) {
+                                comments = (String) doc.getData().get("Comments");
+                            }
+                            if (doc.getData().get("Prep Time") != null) {
+                                prep = (Long) doc.getData().get("Prep Time");
+                            }
+                            if (doc.getData().get("Servings") != null) {
+                                servings = (Long) doc.getData().get("Servings");
+                            }
+                            ArrayList<String> ingStrings =
+                                    (ArrayList<String>) doc.getData().get("Ingredients");
+                            ArrayList<Ingredient> ingredients = new ArrayList<>();
+                            if (ingStrings != null) {
+                                for (String ingString : ingStrings) {
+                                    Ingredient ing =
+                                            DatabaseIngredient
+                                                    .stringToIngredient(ingString);
+                                    ingredients.add(ing);
+                                }
+                            }
+                            /*
+                             * Decoding and encoding of bitmap with reference to:
+                             * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+                             * Accessed 2022-11-24
+                             */
+                            Bitmap bm = null;
+                            if (doc.getData().get("Bitmap") != null) {
+                                String bmEncoded = (String) doc.getData().get("Bitmap");
+                                byte[] decodedByteArray = android.util.Base64.decode(
+                                        bmEncoded, Base64.DEFAULT);
+                                bm = BitmapFactory.decodeByteArray(
+                                        decodedByteArray, 0,
+                                        decodedByteArray.length);
+                            }
+                            RecipeDataList.add(new Recipe(title, prep.intValue(),
+                                    servings.intValue(), category, comments,
+                                    ingredients, bm));
+                        }
+                        // Update with new cloud data
+                        RecAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         try {
             storedQuery = db.collection("StoredIngredients")
@@ -249,13 +350,22 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
 
+
+//                        categoryInd = categorySpinner.getSelectedItemPosition();
+//                        recipeCategory = categoryList.get(categoryInd);
+//        if(sortSpinner.equals("Preparation Time")){
+//            FirebaseFirestore rootref = FirebaseFirestore.getInstance();
+//            CollectionReference idsRef = rootref.collection("ids");
+//            Query query = idsRef.orderBy("preparationTime", Query.Direction.ASCENDING);
+//        };
+
         // When the addButton is clicked, open a dialog box to enter the attributes for the entry
         final Button addRecButton = findViewById(R.id.id_add_recipe_button);
         addRecButton.setOnClickListener((v) -> {
             new RecipeFragment().show(getSupportFragmentManager(), "ADD_Recipe");
         });
-        Button btn_del = findViewById(R.id.id_del_recipe_button);
-        Button edit_btn = findViewById(R.id.id_edit_recipe_button);
+//        Button view_btn = findViewById(R.id.id_view_recipe_button);
+//        Button edit_btn = findViewById(R.id.id_edit_recipe_button);
 
         RecipeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             /**
@@ -274,34 +384,71 @@ public class RecipeActivity  extends AppCompatActivity implements
                 clickedElement = view;
                 clickedElement.setBackgroundColor(Color.GRAY);
                 selectedRecipeIndex = i;
-            }
-        });
-        btn_del.setOnClickListener(new View.OnClickListener() {
-            /**
-             * Launches the fragment when the add recipe to storage is clicked.
-             * @param view The view that was clicked.
-             */
-            @Override
-            public void onClick(View view) {
+
                 if (clickedElement != null) {
-                    onDeletePressed();
+                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
+                            .show(getSupportFragmentManager(), "View_Recipe");
                     clickedElement.setBackgroundColor(Color.WHITE);
                     clickedElement = null;
                 }
             }
         });
-        edit_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (clickedElement != null) {
-                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
-                            .show(getSupportFragmentManager(), "Edit_Recipe");
-                    clickedElement.setBackgroundColor(Color.WHITE);
-                    clickedElement = null;
-                }
-            }
-        });
+//        btn_del.setOnClickListener(new View.OnClickListener() {
+//            /**
+//             * Launches the fragment when the add recipe to storage is clicked.
+//             * @param view The view that was clicked.
+//             */
+//            @Override
+//            public void onClick(View view) {
+//                if (clickedElement != null) {
+//                    onDeletePressed();
+//                    clickedElement.setBackgroundColor(Color.WHITE);
+//                    clickedElement = null;
+//                }
+//            }
+//        });
+//        edit_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (clickedElement != null) {
+//                    new RecipeFragment(RecipeDataList.get(selectedRecipeIndex))
+//                            .show(getSupportFragmentManager(), "Edit_Recipe");
+//                    clickedElement.setBackgroundColor(Color.WHITE);
+//                    clickedElement = null;
+//                }
+//            }
+//        });
+//        view_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                if (clickedElement != null) {
+//                    new RecipeViewFragment(RecipeDataList.get(selectedRecipeIndex))
+//                            .show(getSupportFragmentManager(), "View_Recipe");
+//                    clickedElement.setBackgroundColor(Color.WHITE);
+//                    clickedElement = null;
+//                }
+//            }
+//        });
+//        sortSpinner.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String sortValue = (String) sortSpinner.getSelectedItem();
+//                if (sortValue == "Title"){
+//                    FirebaseFirestore rootref = FirebaseFirestore.getInstance();
+//                    CollectionReference idsRef = rootref.collection("Recipes");
+//                    Query query = idsRef.orderBy("Title", Query.Direction.ASCENDING);
+//                    RecAdapter.notifyDataSetChanged();
+//                }
+//                if (sortValue == "Preparation Time"){
+//                    FirebaseFirestore rootref = FirebaseFirestore.getInstance();
+//                    CollectionReference idsRef = rootref.collection("Recipes");
+//                    Query query = idsRef.orderBy("Prep Time", Query.Direction.ASCENDING);
+//                    RecAdapter.notifyDataSetChanged();
+//                }
+//            }
+//        });
     }
+
 
 
     /**
@@ -375,6 +522,7 @@ public class RecipeActivity  extends AppCompatActivity implements
     }
 
 
+
     /**
      * This method if called when the user confirms the edit of an existing
      * {@link Recipe} object. It will remove the object in Firebase that is
@@ -446,6 +594,7 @@ public class RecipeActivity  extends AppCompatActivity implements
                         Log.d(TAG, "Data could not be updated!" + e.toString());
                     }
                 });
+
     }
 
 

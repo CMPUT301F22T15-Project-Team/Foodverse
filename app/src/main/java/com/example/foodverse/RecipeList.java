@@ -57,19 +57,19 @@ public class RecipeList extends ArrayAdapter<Recipe> {
         //get the recipe entry and the widgets' associated with each attribute
         Recipe recipe_obj = recipes.get(position);
         TextView recipeTitle = view.findViewById(R.id.title);
-        TextView recipeCategory = view.findViewById(R.id.category);
-        TextView recipeServings = view.findViewById(R.id.serving_size);
-        TextView recipeComments = view.findViewById(R.id.comments_section);
-        TextView recipePrep = view.findViewById(R.id.prep_time);
+//        TextView recipeCategory = view.findViewById(R.id.category);
+//        TextView recipeServings = view.findViewById(R.id.serving_size);
+//        TextView recipeComments = view.findViewById(R.id.comments_section);
+//        TextView recipePrep = view.findViewById(R.id.prep_time);
         ImageView recipePhoto = view.findViewById(R.id.food_img);
 
 
         //set the value of the attribute based on the information that was stored in the field when creating the food item entry
         recipeTitle.setText(recipe_obj.getTitle());
-        recipeCategory.setText(recipe_obj.getCategory());
-        recipeServings.setText(Integer.toString(recipe_obj.getServings()));
-        recipeComments.setText(recipe_obj.getComments());
-        recipePrep.setText(Integer.toString(recipe_obj.getPrepTime()));
+//        recipeCategory.setText(recipe_obj.getCategory());
+//        recipeServings.setText(Integer.toString(recipe_obj.getServings()));
+//        recipeComments.setText(recipe_obj.getComments());
+//        recipePrep.setText(Integer.toString(recipe_obj.getPrepTime()));
         if (recipe_obj.getPhotoBitmap() != null) {
             try {
                 recipePhoto.setImageBitmap(recipe_obj.getPhotoBitmap());
