@@ -30,6 +30,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * MealViewFragment
+ * The fragment responsible for allowing the user to view a meal.
+ * It is opened when a meal is selected from the main meal plan.
+ *
+ * @version 1.0
+ *
+ */
 public class MealViewFragment extends DialogFragment {
     private Meal meal;
     private ListView ingredientList;
@@ -42,7 +50,7 @@ public class MealViewFragment extends DialogFragment {
     private MealViewFragment.OnFragmentInteractionListener listener;
 
     /**
-     * A constructor for the fragment when a new meal is being created
+     * A constructor for the fragment
      */
     public MealViewFragment() {
         super();
@@ -50,8 +58,8 @@ public class MealViewFragment extends DialogFragment {
     }
 
     /**
-     * A constructor for the fragment when a meal is being edited
-     * @param meal A {@link Meal} that is being edited
+     * A constructor for the fragment
+     * @param meal A {@link Meal} that is being viewed.
      */
     public MealViewFragment(Meal meal) {
         super();
@@ -96,7 +104,6 @@ public class MealViewFragment extends DialogFragment {
         viewDate.setText(dayString + " " + monthString + " " + toStringInt.toString());
 
         viewName.setText(meal.getName());
-        //viewDate.setText(meal.getDate().toString());
         viewRecipe.setText(meal.getRecipeTitle());
         viewServings.setText("Servings: " + meal.getServingScaling() * meal.getServings());
 
@@ -120,7 +127,7 @@ public class MealViewFragment extends DialogFragment {
                 .setNegativeButton("Delete", (dialog, which) -> {
                     listener.mealDeleted();
                 })
-                // The meal is added or edited when 'Confirm' is selected
+                // The edit fragment is opened when 'Edit' is selected
                 .setPositiveButton("Edit", new DialogInterface.OnClickListener() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
                     @Override
