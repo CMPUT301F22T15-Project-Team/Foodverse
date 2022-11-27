@@ -42,7 +42,7 @@ import java.util.HashMap;
  * This class displays the shopping list which is constructed based on the users
  * meal plan and ingredient storage.
  *
- * @version 1.0
+ * @version 1.1
  *
  */
 public class ShoppingListActivity extends AppCompatActivity implements
@@ -655,6 +655,30 @@ public class ShoppingListActivity extends AppCompatActivity implements
     }
 
 
+    /**
+     * A getter method for use in the {@link ShoppingListFragment} to get
+     * access to all currently stored locations to create
+     * {@link StoredIngredient} objects.
+     *
+     * @return An {@link ArrayList<String>} containing all locations
+     *         known to the database.
+     * @since 1.1
+     */
+    public ArrayList<String> getLocations() {
+        return locList.getLocations();
+    }
+
+
+    /**
+     * A method to setup the snapshot listener for the main query of this
+     * activity. Must be given a {@link String} for ordering of results.
+     * Here, order must be one of "Description", "Purchased", or "Category"
+     * any other value will cause the query to fail.
+     *
+     * @param order A {@link String} to set as the parameter in the
+     *              {@link Query#orderBy(String)} method, to sort results.
+     * @since 1.1
+     */
     private void setSnapshotListener(String order) {
         shoppingQuery.orderBy(order).addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**

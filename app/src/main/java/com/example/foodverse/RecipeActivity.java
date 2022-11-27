@@ -634,6 +634,16 @@ public class RecipeActivity  extends AppCompatActivity implements
     }
 
 
+    /**
+     * A method to setup the snapshot listener for the main query of this
+     * activity. Must be given a {@link String} for ordering of results.
+     * Here, order must be one of "Prep Time", "Servings", "Title" or "Category"
+     * any other value will cause the query to fail.
+     *
+     * @param order A {@link String} to set as the parameter in the
+     *              {@link Query#orderBy(String)} method, to sort results.
+     * @since 1.1
+     */
     private void setSnapshotListener(String order) {
         recQuery.orderBy(order).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
