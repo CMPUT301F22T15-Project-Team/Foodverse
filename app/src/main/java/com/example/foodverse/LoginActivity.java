@@ -37,6 +37,12 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.activity_login_loginButton);
         registerButton = findViewById(R.id.activity_login_registerButton);
         auth = FirebaseAuth.getInstance();
+
+        Intent intent = getIntent();
+        if (intent.getBooleanExtra("logout", false)) {
+            auth.signOut();
+        }
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         // User already signed in so go to app

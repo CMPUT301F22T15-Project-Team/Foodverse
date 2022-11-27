@@ -33,6 +33,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -65,11 +66,11 @@ public class RecipeActivity  extends AppCompatActivity implements
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private CollectionReference collectionReference;
+    private Query recQuery, storedQuery;
     private final String TAG = "RecipeActivity";
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
-    private CollectionReference storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
     private CategoryList catListRec = new CategoryList("Recipe");
@@ -123,70 +124,94 @@ public class RecipeActivity  extends AppCompatActivity implements
                 });
 
         collectionReference = db.collection("Recipes");
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
+        try {
+            recQuery = db.collection("Recipes")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        } catch (NullPointerException e) {
+            recQuery = db.collection("Recipes")
+                    .whereEqualTo("OwnerUID", "");
+        }
 
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        recQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
-                // Clear the old list
-                RecipeDataList.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    String title = "", category = "", comments = "";
-                    Long prep = 0l, servings = 0l;
-                    if (doc.getData().get("Title") != null) {
-                        title = (String) doc.getData().get("Title");
-                    }
-                    if (doc.getData().get("Category") != null) {
-                        category = (String) doc.getData().get("Category");
-                    }
-                    if (doc.getData().get("Comments") != null) {
-                        comments = (String) doc.getData().get("Comments");
-                    }
-                    if (doc.getData().get("Prep Time") != null) {
-                        prep = (Long) doc.getData().get("Prep Time");
-                    }
-                    if (doc.getData().get("Servings") != null) {
-                        servings = (Long) doc.getData().get("Servings");
-                    }
-                    ArrayList<String> ingStrings =
-                            (ArrayList<String>) doc.getData().get("Ingredients");
-                    ArrayList<Ingredient> ingredients = new ArrayList<>();
-                    if (ingStrings != null) {
-                        for (String ingString : ingStrings) {
-                            Ingredient ing =
-                                    DatabaseIngredient.stringToIngredient(ingString);
-                            ingredients.add(ing);
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    RecipeDataList.clear();
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String title = "", category = "", comments = "";
+                        Long prep = 0l, servings = 0l;
+                        if (doc.getData().get("Title") != null) {
+                            title = (String) doc.getData().get("Title");
                         }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Comments") != null) {
+                            comments = (String) doc.getData().get("Comments");
+                        }
+                        if (doc.getData().get("Prep Time") != null) {
+                            prep = (Long) doc.getData().get("Prep Time");
+                        }
+                        if (doc.getData().get("Servings") != null) {
+                            servings = (Long) doc.getData().get("Servings");
+                        }
+                        ArrayList<String> ingStrings =
+                                (ArrayList<String>) doc.getData().get("Ingredients");
+                        ArrayList<Ingredient> ingredients = new ArrayList<>();
+                        if (ingStrings != null) {
+                            for (String ingString : ingStrings) {
+                                Ingredient ing =
+                                        DatabaseIngredient
+                                                .stringToIngredient(ingString);
+                                ingredients.add(ing);
+                            }
+                        }
+                        /*
+                         * Decoding and encoding of bitmap with reference to:
+                         * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
+                         * Accessed 2022-11-24
+                         */
+                        Bitmap bm = null;
+                        if (doc.getData().get("Bitmap") != null) {
+                            String bmEncoded = (String) doc.getData().get("Bitmap");
+                            byte[] decodedByteArray = android.util.Base64.decode(
+                                    bmEncoded, Base64.DEFAULT);
+                            bm = BitmapFactory.decodeByteArray(
+                                    decodedByteArray, 0,
+                                    decodedByteArray.length);
+                        }
+                        RecipeDataList.add(new Recipe(title, prep.intValue(),
+                                servings.intValue(), category, comments,
+                                ingredients, bm));
                     }
-                    /*
-                     * Decoding and encoding of bitmap with reference to:
-                     * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
-                     * Accessed 2022-11-24
-                     */
-                    Bitmap bm = null;
-                    if (doc.getData().get("Bitmap") != null) {
-                        String bmEncoded = (String) doc.getData().get("Bitmap");
-                        byte[] decodedByteArray = android.util.Base64.decode(
-                                bmEncoded, Base64.DEFAULT);
-                        bm = BitmapFactory.decodeByteArray(
-                                decodedByteArray, 0,
-                                decodedByteArray.length);
-                    }
-                    RecipeDataList.add(new Recipe(title, prep.intValue(),
-                            servings.intValue(), category, comments,
-                            ingredients, bm));
+                    // Update with new cloud data
+                    RecAdapter.notifyDataSetChanged();
                 }
-                // Update with new cloud data
-                RecAdapter.notifyDataSetChanged();
             }
         });
 
-        storedRef = db.collection("StoredIngredients");
+        try {
+            storedQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        } catch (NullPointerException e) {
+            storedQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", "");
+        }
 
-        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        storedQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the recipe list with all the documents on firebase everytime it is updated.
              * @param queryDocumentSnapshots Firebase documents
@@ -195,26 +220,30 @@ public class RecipeActivity  extends AppCompatActivity implements
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    String hashCode = doc.getId();
-                    String description = "", unit = "";
-                    Long count = 0l;
-                    if (doc.getData().get("Description") != null) {
-                        description = (String) doc.getData().get("Description");
-                        Log.d("RECFRAG", description);
-                    }
-                    if (doc.getData().get("Count") != null) {
-                        count = (Long) doc.getData().get("Count");
-                    }
-                    if (doc.getData().get("Unit") != null) {
-                        unit = (String) doc.getData().get("Unit");
-                    }
-                    Ingredient ing = new Ingredient(description, count.intValue(), unit);
-                    if (!set.contains(ing)) {
-                        databaseIngredients.add(ing);
-                        set.add(ing);
-                        Log.d("RECFRAG", "Added ing");
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String hashCode = doc.getId();
+                        String description = "", unit = "";
+                        Long count = 0l;
+                        if (doc.getData().get("Description") != null) {
+                            description = (String) doc.getData().get("Description");
+                            Log.d("RECFRAG", description);
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        Ingredient ing = new Ingredient(description, count.intValue(), unit);
+                        if (!set.contains(ing)) {
+                            databaseIngredients.add(ing);
+                            set.add(ing);
+                            Log.d("RECFRAG", "Added ing");
+                        }
                     }
                 }
             }
@@ -525,7 +554,7 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
             case "Logout": {
                 Intent intent = new Intent(this, LoginActivity.class);
-                auth.signOut();
+                intent.putExtra("logout", true);
                 startActivity(intent);
                 break;
             }

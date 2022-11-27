@@ -28,6 +28,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -58,6 +59,7 @@ public class StoredIngredientActivity extends AppCompatActivity
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private final String TAG = "IngredientActivity";
+    private Query ingQuery;
     private CollectionReference collectionReference;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
@@ -106,56 +108,78 @@ public class StoredIngredientActivity extends AppCompatActivity
                         Log.d(TAG, "Firebase online");
                     }
                 });
-
         collectionReference = db.collection("StoredIngredients");
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
+        try {
+            ingQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        } catch (NullPointerException e) {
+            ingQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", "");
+        }
 
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        ingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
-                // Clear the old list
-                ingredientArrayList.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    String description = "", location = "", unit = "";
-                    Long count = 0l, unitCost = 0l;
-                    Date bestBefore = new Date();
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    ingredientArrayList.clear();
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String description = "", location = "", unit = "",
+                                category = "";
+                        Long count = 0l, unitCost = 0l;
+                        Date bestBefore = new Date();
 
-                    if (doc.getData().get("Description") != null) {
-                        description =
-                                (String) doc.getData().get("Description");
+                        if (doc.getData().get("Description") != null) {
+                            description =
+                                    (String) doc.getData().get("Description");
+                        }
+                        /*
+                         * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
+                         * Answer by Niyas, February 23, 2019. Reference on casting
+                         * from firebase.timestamp to java.date.
+                         */
+                        if (doc.getData().get("Best Before") != null) {
+                            bestBefore = ((Timestamp) doc.getData().get("Best Before"))
+                                    .toDate();
+                        }
+                        if (doc.getData().get("Location") != null) {
+                            location = (String) doc.getData().get("Location");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Cost") != null) {
+                            unitCost = (Long) doc.getData().get("Cost");
+                        }
+                        ingredientArrayList.add(
+                                new StoredIngredient(description, count.intValue(),
+                                        bestBefore, location, unit, category,
+                                        unitCost.intValue()));
                     }
-                    /*
-                     * https://stackoverflow.com/questions/54838634/timestamp-firebase-casting-error-to-date-util
-                     * Answer by Niyas, February 23, 2019. Reference on casting
-                     * from firebase.timestamp to java.date.
-                     */
-                    if (doc.getData().get("Best Before") != null) {
-                        bestBefore = ((Timestamp) doc.getData().get("Best Before"))
-                                .toDate();
-                    }
-                    if (doc.getData().get("Location") != null) {
-                        location = (String) doc.getData().get("Location");
-                    }
-                    if (doc.getData().get("Unit") != null) {
-                        unit = (String) doc.getData().get("Unit");
-                    }
-                    if (doc.getData().get("Count") != null) {
-                        count = (Long) doc.getData().get("Count");
-                    }
-                    if (doc.getData().get("Cost") != null) {
-                        unitCost = (Long) doc.getData().get("Cost");
-                    }
-                    ingredientArrayList.add(
-                            new StoredIngredient(description, count.intValue(),
-                                    bestBefore, location, unit, unitCost.intValue()));
+                    // Update with new cloud data
+                    ingredientAdapter.notifyDataSetChanged();
                 }
-                // Update with new cloud data
-                ingredientAdapter.notifyDataSetChanged();
             }
         });
+
 
         /* Inspiration for getting information on a selected listView item from
         https://www.flutter-code.com/2016/03/android-listview-item-selector
@@ -201,6 +225,8 @@ public class StoredIngredientActivity extends AppCompatActivity
      */
     @Override
     public void ingredientAdded(StoredIngredient ingredient) {
+        ingredient.hashCode();
+        Log.d(TAG, String.valueOf(ingredient.hashCode()));
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
         data.put("Description", ingredient.getDescription());
@@ -249,6 +275,8 @@ public class StoredIngredientActivity extends AppCompatActivity
         if (selectedIngredientIndex != -1) {
             StoredIngredient oldIngredient = ingredientArrayList.get(
                     selectedIngredientIndex);
+            oldIngredient.hashCode();
+            Log.d(TAG, String.valueOf(oldIngredient.hashCode()));
             // Remove ingredient from database
             collectionReference
                 .document(String.valueOf(oldIngredient.hashCode()))
@@ -391,7 +419,7 @@ public class StoredIngredientActivity extends AppCompatActivity
             }
             case "Logout": {
                 Intent intent = new Intent(this, LoginActivity.class);
-                auth.signOut();
+                intent.putExtra("logout", true);
                 startActivity(intent);
                 break;
             }

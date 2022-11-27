@@ -34,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -67,8 +68,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private FirebaseAuth auth;
     private final String TAG = "ShoppingListActivity";
     private CollectionReference shoppingListCollectionReference;
-    private CollectionReference mealPlanCollectionReference;
-    private CollectionReference storedIngredientsCollectionReference;
+    private Query shoppingQuery, storedIngQuery, mealQuery;
     private Button addButton;
     private Spinner sortSpinner;
     private String[] sortingMethods = {"Sort by Purchased", "Short by Description", "Sort by Category"};
@@ -134,11 +134,30 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 });
 
         shoppingListCollectionReference = db.collection("ShoppingList");
-        mealPlanCollectionReference = db.collection("MealPlan");
-        storedIngredientsCollectionReference = db.collection("StoredIngredients");
+        if (auth.getCurrentUser() != null) {
+            shoppingQuery = db.collection("ShoppingList")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+            mealQuery = db.collection("MealPlan")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+            storedIngQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+        } else {
+            shoppingQuery = db.collection("ShoppingList")
+                    .whereEqualTo("OwnerUID", "");
+            mealQuery = db.collection("MealPlan")
+                    .whereEqualTo("OwnerUID", "");
+            storedIngQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", "");
+        }
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
 
         // Auto populate the shopping list by checking the meal plan and ingredient storage
-        mealPlanCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mealQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the local meal plan ingredient list everytime firebase is updated
              * @param queryDocumentSnapshots The meal plans stored in firebase
@@ -147,22 +166,25 @@ public class ShoppingListActivity extends AppCompatActivity implements
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 mealPlanArrayList.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
-                    if (ingStrings != null) {
-                        for (String s : ingStrings) {
-                            mealPlanArrayList.add(DatabaseIngredient.stringToIngredient(s));
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
+                        if (ingStrings != null) {
+                            for (String s : ingStrings) {
+                                mealPlanArrayList.add(DatabaseIngredient.stringToIngredient(s));
+                            }
                         }
                     }
+                    updateShoppingList();
                 }
-                updateShoppingList();
             }
         });
 
-        storedIngredientsCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-
+        storedIngQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the local stored ingredient list everytime firebase is updated
              * @param queryDocumentSnapshots The stored ingredients stored in firebase
@@ -170,29 +192,33 @@ public class ShoppingListActivity extends AppCompatActivity implements
              */
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
-                storedIngredientsArrayList.clear();
-                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
-                    String description = "", unit = "";
-                    Long count = 0l;
-                    if (doc.getData().get("Description") != null) {
-                        description = (String) doc.getData().get("Description");
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    storedIngredientsArrayList.clear();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String description = "", unit = "";
+                        Long count = 0l;
+                        if (doc.getData().get("Description") != null) {
+                            description = (String) doc.getData().get("Description");
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        storedIngredientsArrayList.add(new Ingredient(description,
+                                count.intValue(), unit));
                     }
-                    if (doc.getData().get("Count") != null) {
-                        count = (Long) doc.getData().get("Count");
-                    }
-                    if (doc.getData().get("Unit") != null) {
-                        unit = (String) doc.getData().get("Unit");
-                    }
-                    storedIngredientsArrayList.add(new Ingredient(description,
-                            count.intValue(), unit));
+                    updateShoppingList();
                 }
-                updateShoppingList();
             }
         });
 
-        shoppingListCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        shoppingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the shopping list with all the documents on firebase everytime it is updated.
              * @param queryDocumentSnapshots Firebase documents
@@ -201,38 +227,42 @@ public class ShoppingListActivity extends AppCompatActivity implements
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
-                // Clear the old list
-                shoppingArrayList.clear();
-                // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
-                    Log.d(TAG, String.valueOf(doc.getId()));
-                    String hashCode = doc.getId();
+                if (error != null) {
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    // Clear the old list
+                    shoppingArrayList.clear();
+                    // Add ingredients from the cloud
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
 
-                    String description = "";
-                    Long count = 0L;
-                    String unit = "";
-                    String category = "";
-                    Boolean purchased = false;
-                    if (doc.getData().get("Description") != null) {
-                        description = (String) doc.getData().get("Description");
+                        String description = "";
+                        Long count = 0L;
+                        String unit = "";
+                        String category = "";
+                        Boolean purchased = false;
+                        if (doc.getData().get("Description") != null) {
+                            description = (String) doc.getData().get("Description");
+                        }
+                        if (doc.getData().get("Count") != null) {
+                            count = (Long) doc.getData().get("Count");
+                        }
+                        if (doc.getData().get("Unit") != null) {
+                            unit = (String) doc.getData().get("Unit");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Purchased") != null) {
+                            purchased = (Boolean) doc.getData().get("Purchased");
+                        }
+                        shoppingArrayList.add(
+                                new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
                     }
-                    if (doc.getData().get("Count") != null) {
-                        count = (Long) doc.getData().get("Count");
-                    }
-                    if (doc.getData().get("Unit") != null) {
-                        unit = (String) doc.getData().get("Unit");
-                    }
-                    if (doc.getData().get("Category") != null) {
-                        category = (String) doc.getData().get("Category");
-                    }
-                    if (doc.getData().get("Purchased") != null) {
-                        purchased = (Boolean) doc.getData().get("Purchased");
-                    }
-                    shoppingArrayList.add(
-                            new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
+                    // Update with new cloud data
+                    shoppingListAdapter.notifyDataSetChanged();
                 }
-                // Update with new cloud data
-                shoppingListAdapter.notifyDataSetChanged();
             }
         });
 
@@ -628,7 +658,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
             case "Logout": {
                 Intent intent = new Intent(this, LoginActivity.class);
-                auth.signOut();
+                intent.putExtra("logout", true);
                 startActivity(intent);
                 break;
             }

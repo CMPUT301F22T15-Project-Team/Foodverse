@@ -64,8 +64,9 @@ public class StoredIngredient extends Ingredient {
      * @param unitCost An integer representing the unit cost of the ingredient.
      */
     public StoredIngredient(String description, int count, Date bestBefore,
-                            String location, String unit, int unitCost) {
-        super(description, count, unit);
+                            String location, String unit, String category,
+                            int unitCost) {
+        super(description, count, unit, category);
         this.bestBefore = bestBefore;
         this.location = location;
         this.unitCost = unitCost;
