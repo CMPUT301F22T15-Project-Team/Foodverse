@@ -375,7 +375,6 @@ public class RecipeFragment extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             Log.d("ImageActivity", cam_uri.toString());
-            //recipePhoto.setImageURI(cam_uri);
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(act.getContentResolver(), cam_uri);
                 recipePhoto.setImageBitmap(bitmap);
@@ -386,7 +385,6 @@ public class RecipeFragment extends DialogFragment {
         if (requestCode == REQUEST_IMAGE_SELECTION && resultCode == Activity.RESULT_OK) {
             Log.d("ImageActivity", cam_uri.toString());
             cam_uri = data.getData();
-            //recipePhoto.setImageURI(cam_uri);
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(act.getContentResolver(), cam_uri);
                 recipePhoto.setImageBitmap(bitmap);

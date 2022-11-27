@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -55,6 +56,7 @@ public class StoredIngredientActivity extends AppCompatActivity
     private ArrayList<StoredIngredient> ingredientArrayList;
     private int selectedIngredientIndex = -1;
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
     private final String TAG = "IngredientActivity";
     private CollectionReference collectionReference;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -93,6 +95,7 @@ public class StoredIngredientActivity extends AppCompatActivity
         navView.setNavigationItemSelectedListener(this);
 
         // Get our database
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
         // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
@@ -206,6 +209,10 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
         data.put("Unit", ingredient.getUnit());
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
+
         /*
          * Store all data under the hash code of the ingredient, so we can
          * store multiple similar ingredients.
@@ -284,6 +291,9 @@ public class StoredIngredientActivity extends AppCompatActivity
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
         data.put("Unit", ingredient.getUnit());
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
 
         // Delete old ingredient and set new since hashCode() will return different result
         ingredientDeleted();
@@ -371,6 +381,12 @@ public class StoredIngredientActivity extends AppCompatActivity
                 new LocationCategoryManager("Recipe Category",
                         catListRec.getCategories())
                         .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
+            case "Logout": {
+                Intent intent = new Intent(this, LoginActivity.class);
+                auth.signOut();
+                startActivity(intent);
                 break;
             }
             default: break;

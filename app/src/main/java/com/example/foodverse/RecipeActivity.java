@@ -28,6 +28,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -62,6 +63,7 @@ public class RecipeActivity  extends AppCompatActivity implements
     private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private int selectedRecipeIndex;
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
     private CollectionReference collectionReference;
     private final String TAG = "RecipeActivity";
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -108,6 +110,7 @@ public class RecipeActivity  extends AppCompatActivity implements
         navView.setNavigationItemSelectedListener(this);
 
         // Connect to the database, grab the Recipes collection.
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
         // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
@@ -299,6 +302,10 @@ public class RecipeActivity  extends AppCompatActivity implements
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
         data.put("Ingredients", ingStrings);
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
+
         /*
          * Decoding and encoding of bitmap with reference to:
          * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
@@ -366,6 +373,10 @@ public class RecipeActivity  extends AppCompatActivity implements
         data.put("Prep Time", newRecipe.getPrepTime());
         data.put("Servings", newRecipe.getServings());
         data.put("Ingredients", ingStrings);
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
+
         /*
          * Decoding and encoding of bitmap with reference to:
          * https://www.learnhowtoprogram.com/android/gestures-animations-flexible-uis/using-the-camera-and-saving-images-to-firebase
@@ -506,6 +517,12 @@ public class RecipeActivity  extends AppCompatActivity implements
                 new LocationCategoryManager("Recipe Category",
                         catListRec.getCategories())
                         .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
+            case "Logout": {
+                Intent intent = new Intent(this, LoginActivity.class);
+                auth.signOut();
+                startActivity(intent);
                 break;
             }
             default: break;

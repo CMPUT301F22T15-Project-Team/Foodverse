@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -52,6 +53,7 @@ public class MealPlanActivity extends AppCompatActivity implements
     private ListView mealListView; // The list that displays the meals
     private ArrayAdapter<Meal> mealAdapter;
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
     private final String TAG = "MealPlanActivity";
     private CollectionReference collectionReference, recRef, storedRef;
     private ArrayList<Meal> mealArrayList; // The array list that stores the meals
@@ -98,6 +100,7 @@ public class MealPlanActivity extends AppCompatActivity implements
         navView.setNavigationItemSelectedListener(this);
 
         // Get db, the MealPlan collection
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
         // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
@@ -268,6 +271,10 @@ public class MealPlanActivity extends AppCompatActivity implements
         data.put("Date", meal.getDate());
         data.put("Recipe", meal.getRecipeTitle());
         data.put("Recipe Code", meal.getRecipeHashCode());
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
+
         /*
          * Store all data under the hash code of the meal, so we can
          * store multiple similar meals.
@@ -345,6 +352,9 @@ public class MealPlanActivity extends AppCompatActivity implements
         data.put("Date", meal.getDate());
         data.put("Recipe", meal.getRecipeTitle());
         data.put("Recipe Code", meal.getRecipeHashCode());
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
 
         // Delete old ingredient and set new since hashCode() will return different result
         collectionReference.document(String.valueOf(oldMeal.hashCode()))
@@ -454,6 +464,12 @@ public class MealPlanActivity extends AppCompatActivity implements
                 new LocationCategoryManager("Recipe Category",
                         catListRec.getCategories())
                         .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
+            case "Logout": {
+                Intent intent = new Intent(this, LoginActivity.class);
+                auth.signOut();
+                startActivity(intent);
                 break;
             }
             default: break;

@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -59,6 +60,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private ArrayList<ShoppingListIngredient> shoppingArrayList;
     private int selectedIngredientIndex = -1;
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
     private final String TAG = "ShoppingListActivity";
     private CollectionReference shoppingListCollectionReference;
     private CollectionReference mealPlanCollectionReference;
@@ -115,6 +117,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
         navView.setNavigationItemSelectedListener(this);
 
         // Get our database
+        auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
         // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
@@ -280,6 +283,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Count", ingredient.getCount());
         data.put("Unit", ingredient.getUnit());
         data.put("Category", ingredient.getCategory());
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
 
         /*
          * Store all data under the hash code of the ingredient, so we can
@@ -356,6 +362,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Count", ingredient.getCount());
         data.put("Unit", ingredient.getUnit());
         data.put("Category", ingredient.getCategory());
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
 
         // Delete old ingredient and set new since hashCode() will return different result
         shoppingListCollectionReference.document(String.valueOf(oldIngredient.hashCode()))
@@ -401,6 +410,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
         data.put("Count", ingredient.getCount());
         data.put("Cost", ingredient.getUnitCost());
         data.put("Unit", ingredient.getUnit());
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
 
         // Need to store ingredient in the stored ingredients collection
         CollectionReference storedReference =
@@ -489,7 +501,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 }
             }
 
-            if(addToList){
+            if (addToList){
                 mealIngredient.setCount(count);
                 ingredientAdded(new ShoppingListIngredient(mealIngredient.getDescription(),
                         count, mealIngredient.getUnit(), mealIngredient.getCategory()));
@@ -498,7 +510,6 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 shoppingListCollectionReference
                         .document(String.valueOf(mealIngredient.hashCode()))
                         .delete();
-
             }
         }
         shoppingListAdapter.notifyDataSetChanged();
@@ -569,6 +580,12 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 new LocationCategoryManager("Recipe Category",
                         catListRec.getCategories())
                         .show(getSupportFragmentManager(), "RecCatMgr");
+                break;
+            }
+            case "Logout": {
+                Intent intent = new Intent(this, LoginActivity.class);
+                auth.signOut();
+                startActivity(intent);
                 break;
             }
             default: break;

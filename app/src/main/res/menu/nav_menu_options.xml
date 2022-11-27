@@ -39,6 +39,11 @@
         android:title="@string/rec_cat_nav"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/firebase_logout"
+        android:title="@string/logout_nav"
+        app:showAsAction="ifRoom" />
+
 
 
 </menu>
