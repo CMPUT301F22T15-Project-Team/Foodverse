@@ -9,6 +9,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -33,6 +34,7 @@ import java.util.HashMap;
 public class CategoryList {
     private ArrayList<String> categories;
     private FirebaseFirestore db;
+    private FirebaseAuth auth;
     private CollectionReference collectionReference;
     private final String TAG = "CategoryList";
 
@@ -53,6 +55,7 @@ public class CategoryList {
     public CategoryList(String caller) {
         this.categories = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
         FirebaseFirestore.setLoggingEnabled(true);
         // From https://firebase.google.com/docs/firestore/manage-data/enable-offline#java_3
         db.enableNetwork()
@@ -108,6 +111,9 @@ public class CategoryList {
      */
     public void addCategory(String category) {
         HashMap<String, Object> data = new HashMap<>();
+        if (auth.getCurrentUser() != null) {
+            data.put("OwnerUID", auth.getCurrentUser().getUid());
+        }
         collectionReference
                 .document(category)
                 .set(data)
