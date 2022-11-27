@@ -26,6 +26,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -206,11 +207,27 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    String description = (String) doc.getData().get("Description");
-                    Long count = (Long) doc.getData().get("Count");
-                    String unit = (String) doc.getData().get("Unit");
-                    String category = (String) doc.getData().get("Category");
-                    Boolean purchased = (Boolean) doc.getData().get("Purchased");
+
+                    String description = "";
+                    Long count = 0L;
+                    String unit = "";
+                    String category = "";
+                    Boolean purchased = false;
+                    if (doc.getData().get("Description") != null) {
+                        description = (String) doc.getData().get("Description");
+                    }
+                    if (doc.getData().get("Count") != null) {
+                        count = (Long) doc.getData().get("Count");
+                    }
+                    if (doc.getData().get("Unit") != null) {
+                        unit = (String) doc.getData().get("Unit");
+                    }
+                    if (doc.getData().get("Category") != null) {
+                        category = (String) doc.getData().get("Category");
+                    }
+                    if (doc.getData().get("Purchased") != null) {
+                        purchased = (Boolean) doc.getData().get("Purchased");
+                    }
                     shoppingArrayList.add(
                             new ShoppingListIngredient(description, count.intValue(), unit, category, purchased));
                 }
