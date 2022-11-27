@@ -239,18 +239,14 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
 
-        //IMPLEMENT SORTING HERE
-
-        //SpinVal = sortSpinner.getSelectedItem();
-       // String sortValue = ;
 
 //                        categoryInd = categorySpinner.getSelectedItemPosition();
 //                        recipeCategory = categoryList.get(categoryInd);
-        if(sortSpinner.equals("Preparation Time")){
-            FirebaseFirestore rootref = FirebaseFirestore.getInstance();
-            CollectionReference idsRef = rootref.collection("ids");
-            Query query = idsRef.orderBy("preparationTime", Query.Direction.ASCENDING);
-        };
+//        if(sortSpinner.equals("Preparation Time")){
+//            FirebaseFirestore rootref = FirebaseFirestore.getInstance();
+//            CollectionReference idsRef = rootref.collection("ids");
+//            Query query = idsRef.orderBy("preparationTime", Query.Direction.ASCENDING);
+//        };
 
         // When the addButton is clicked, open a dialog box to enter the attributes for the entry
         final Button addRecButton = findViewById(R.id.id_add_recipe_button);
@@ -319,6 +315,24 @@ public class RecipeActivity  extends AppCompatActivity implements
 //                            .show(getSupportFragmentManager(), "View_Recipe");
 //                    clickedElement.setBackgroundColor(Color.WHITE);
 //                    clickedElement = null;
+//                }
+//            }
+//        });
+//        sortSpinner.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String sortValue = (String) sortSpinner.getSelectedItem();
+//                if (sortValue == "Title"){
+//                    FirebaseFirestore rootref = FirebaseFirestore.getInstance();
+//                    CollectionReference idsRef = rootref.collection("Recipes");
+//                    Query query = idsRef.orderBy("Title", Query.Direction.ASCENDING);
+//                    RecAdapter.notifyDataSetChanged();
+//                }
+//                if (sortValue == "Preparation Time"){
+//                    FirebaseFirestore rootref = FirebaseFirestore.getInstance();
+//                    CollectionReference idsRef = rootref.collection("Recipes");
+//                    Query query = idsRef.orderBy("Prep Time", Query.Direction.ASCENDING);
+//                    RecAdapter.notifyDataSetChanged();
 //                }
 //            }
 //        });
