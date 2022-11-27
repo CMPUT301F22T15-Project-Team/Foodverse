@@ -31,9 +31,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/activity_login_form_title"
+                android:text="Enter the Foodverse"
                 android:textAlignment="center"
-                android:textSize="36sp" />
+                android:textSize="36sp"
+                android:paddingBottom="20sp"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -45,13 +46,14 @@
                 android:id="@+id/activity_login_usernameEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
+                android:inputType="text"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/activity_login_form_password"
-                android:textSize="22sp" />
+                android:textSize="22sp"
+                android:paddingTop="20sp"/>
 
             <EditText
                 android:id="@+id/activity_login_passwordEditText"
@@ -63,8 +65,11 @@
                 android:id="@+id/activity_login_loginButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:insetTop="20dp"
+                android:insetBottom="20dp"
                 android:text="@string/activity_login_form_login"
-                android:textSize="22sp" />
+                android:textSize="22sp"
+                card_view:backgroundTint="@color/Green" />
 
             <Button
                 android:id="@+id/activity_login_registerButton"
