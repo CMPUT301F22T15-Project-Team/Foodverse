@@ -19,8 +19,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="@android:drawable/btn_dropdown"
-            android:spinnerMode="dropdown">
-        </Spinner>
+            android:spinnerMode="dropdown"></Spinner>
         <ListView
             android:id="@+id/shopping_list_view"
             android:layout_width="match_parent"
