@@ -119,7 +119,8 @@ public class StoredIngredientActivity extends AppCompatActivity
                 for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
-                    String description = "", location = "", unit = "";
+                    String description = "", location = "", unit = "",
+                            category = "";
                     Long count = 0l, unitCost = 0l;
                     Date bestBefore = new Date();
 
@@ -139,6 +140,9 @@ public class StoredIngredientActivity extends AppCompatActivity
                     if (doc.getData().get("Location") != null) {
                         location = (String) doc.getData().get("Location");
                     }
+                    if (doc.getData().get("Category") != null) {
+                        category = (String) doc.getData().get("Category");
+                    }
                     if (doc.getData().get("Unit") != null) {
                         unit = (String) doc.getData().get("Unit");
                     }
@@ -150,7 +154,8 @@ public class StoredIngredientActivity extends AppCompatActivity
                     }
                     ingredientArrayList.add(
                             new StoredIngredient(description, count.intValue(),
-                                    bestBefore, location, unit, unitCost.intValue()));
+                                    bestBefore, location, unit, category,
+                                    unitCost.intValue()));
                 }
                 // Update with new cloud data
                 ingredientAdapter.notifyDataSetChanged();
@@ -201,6 +206,8 @@ public class StoredIngredientActivity extends AppCompatActivity
      */
     @Override
     public void ingredientAdded(StoredIngredient ingredient) {
+        ingredient.hashCode();
+        Log.d(TAG, String.valueOf(ingredient.hashCode()));
         HashMap<String, Object> data = new HashMap<>();
         // Grab data from the ingredient object
         data.put("Description", ingredient.getDescription());
@@ -249,6 +256,8 @@ public class StoredIngredientActivity extends AppCompatActivity
         if (selectedIngredientIndex != -1) {
             StoredIngredient oldIngredient = ingredientArrayList.get(
                     selectedIngredientIndex);
+            oldIngredient.hashCode();
+            Log.d(TAG, String.valueOf(oldIngredient.hashCode()));
             // Remove ingredient from database
             collectionReference
                 .document(String.valueOf(oldIngredient.hashCode()))

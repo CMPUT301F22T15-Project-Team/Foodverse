@@ -122,6 +122,7 @@ public class StoredIngredientFragment extends DialogFragment {
         locAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, locationList);
         ingredientLocation.setAdapter(locAdapter);
         catAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
+        ingredientCategory.setAdapter(catAdapter);
 
         /* Code for creating a spinner-style date picker inspired off of "Pop Up
         Date Picker Android Studio Tutorial" by Code With Cal on December 19th,
@@ -151,7 +152,6 @@ public class StoredIngredientFragment extends DialogFragment {
             ingredientCount.setText(Integer.toString(ingredient.getCount()));
             ingredientCost.setText(Integer.toString(ingredient.getUnitCost()));
             ingredientUnit.setText(ingredient.getUnit());
-            ingredientCategory.setSelection(categoryList.indexOf(ingredient.getCategory()));
 
             // Load the time information
             calendar.setTime(ingredient.getBestBefore());
@@ -160,9 +160,11 @@ public class StoredIngredientFragment extends DialogFragment {
             day = calendar.get(Calendar.DAY_OF_MONTH);
             setNewExpiryDate(calendar);
 
-            // Locations stored in firebase, set correct selection.
+            // Locations, categories stored in firebase, set correct selection.
             ingredientLocation.setSelection(locationList
                     .indexOf(ingredient.getLocation()));
+            ingredientCategory.setSelection(categoryList
+                    .indexOf(ingredient.getCategory()));
         }
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(
