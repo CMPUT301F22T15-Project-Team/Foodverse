@@ -34,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -67,8 +68,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private FirebaseAuth auth;
     private final String TAG = "ShoppingListActivity";
     private CollectionReference shoppingListCollectionReference;
-    private CollectionReference mealPlanCollectionReference;
-    private CollectionReference storedIngredientsCollectionReference;
+    private Query storedIngQuery, mealQuery;
     private Button addButton;
     private Spinner sortSpinner;
     private String[] sortingMethods = {"Sort by Purchased", "Short by Description", "Sort by Category"};
@@ -134,11 +134,19 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 });
 
         shoppingListCollectionReference = db.collection("ShoppingList");
-        mealPlanCollectionReference = db.collection("MealPlan");
-        storedIngredientsCollectionReference = db.collection("StoredIngredients");
+        mealQuery = db.collection("MealPlan")
+                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());;
+        storedIngQuery = db.collection("StoredIngredients")
+                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());;
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
 
         // Auto populate the shopping list by checking the meal plan and ingredient storage
-        mealPlanCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        mealQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the local meal plan ingredient list everytime firebase is updated
              * @param queryDocumentSnapshots The meal plans stored in firebase
@@ -161,8 +169,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
             }
         });
 
-        storedIngredientsCollectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
-
+        storedIngQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the local stored ingredient list everytime firebase is updated
              * @param queryDocumentSnapshots The stored ingredients stored in firebase

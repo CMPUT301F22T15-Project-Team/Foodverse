@@ -33,6 +33,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -65,11 +66,11 @@ public class RecipeActivity  extends AppCompatActivity implements
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private CollectionReference collectionReference;
+    private Query recQuery, storedQuery;
     private final String TAG = "RecipeActivity";
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
-    private CollectionReference storedRef;
     private HashSet<Ingredient> set = new HashSet<>();
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
     private CategoryList catListRec = new CategoryList("Recipe");
@@ -123,8 +124,16 @@ public class RecipeActivity  extends AppCompatActivity implements
                 });
 
         collectionReference = db.collection("Recipes");
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
+        recQuery = db.collection("Recipes")
+                .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
 
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        recQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
@@ -184,9 +193,10 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
 
-        storedRef = db.collection("StoredIngredients");
+        storedQuery = db.collection("StoredIngredients")
+                .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
 
-        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        storedQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
              * Updates the recipe list with all the documents on firebase everytime it is updated.
              * @param queryDocumentSnapshots Firebase documents

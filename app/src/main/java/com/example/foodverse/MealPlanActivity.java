@@ -28,6 +28,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -55,7 +56,8 @@ public class MealPlanActivity extends AppCompatActivity implements
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private final String TAG = "MealPlanActivity";
-    private CollectionReference collectionReference, recRef, storedRef;
+    private CollectionReference collectionReference;
+    private Query mealQuery, recQuery, ingQuery;
     private ArrayList<Meal> mealArrayList; // The array list that stores the meals
     private ArrayList<Ingredient> databaseIngredients = new ArrayList<>();
     private HashSet<Ingredient> set = new HashSet<>();
@@ -117,7 +119,14 @@ public class MealPlanActivity extends AppCompatActivity implements
                 });
 
         collectionReference = db.collection("MealPlan");
-
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
+        mealQuery = db.collection("MealPlan")
+                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());
         collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
@@ -178,11 +187,9 @@ public class MealPlanActivity extends AppCompatActivity implements
             }
         });
 
-        //storedRef = db.collection("Recipes");
-        recRef = db.collection("Recipes");
-
-
-        recRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        recQuery = db.collection("Recipes")
+                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());;
+        recQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 recipeHashCodes.clear();
@@ -213,9 +220,9 @@ public class MealPlanActivity extends AppCompatActivity implements
             }
         });
 
-        storedRef = db.collection("StoredIngredients");
-
-        storedRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        ingQuery = db.collection("StoredIngredients")
+                .whereEqualTo("OwnedUID", auth.getCurrentUser().getUid());
+        ingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {

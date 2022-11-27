@@ -14,6 +14,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -36,6 +37,7 @@ public class CategoryList {
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private CollectionReference collectionReference;
+    private Query catQuery;
     private final String TAG = "CategoryList";
 
 
@@ -71,6 +73,14 @@ public class CategoryList {
         }
         String collPath = caller+"Categories";
         collectionReference = db.collection(collPath);
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
+        catQuery = db.collection(collPath)
+                .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
         update();
     }
 
@@ -82,7 +92,7 @@ public class CategoryList {
      * @since 1.0
      */
     private void update() {
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        catQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                                 @Nullable FirebaseFirestoreException error) {

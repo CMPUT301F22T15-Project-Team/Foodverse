@@ -28,6 +28,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -58,6 +59,7 @@ public class StoredIngredientActivity extends AppCompatActivity
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private final String TAG = "IngredientActivity";
+    private Query ingQuery;
     private CollectionReference collectionReference;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
@@ -106,17 +108,24 @@ public class StoredIngredientActivity extends AppCompatActivity
                         Log.d(TAG, "Firebase online");
                     }
                 });
-
         collectionReference = db.collection("StoredIngredients");
+        /*
+         * Query made with reference to the following to stop permissions errors
+         * https://stackoverflow.com/questions/46590155/firestore-permission-denied-missing-or-insufficient-permissions
+         * answer by rwozniak (2019) edited by Elia Weiss (2020).
+         * Accessed 2022-11-27
+         */
+        ingQuery = db.collection("StoredIngredients")
+                .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
 
-        collectionReference.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        ingQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable
                     FirebaseFirestoreException error) {
                 // Clear the old list
                 ingredientArrayList.clear();
                 // Add ingredients from the cloud
-                for(QueryDocumentSnapshot doc: queryDocumentSnapshots) {
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                     Log.d(TAG, String.valueOf(doc.getId()));
                     String hashCode = doc.getId();
                     String description = "", location = "", unit = "",
@@ -161,6 +170,7 @@ public class StoredIngredientActivity extends AppCompatActivity
                 ingredientAdapter.notifyDataSetChanged();
             }
         });
+
 
         /* Inspiration for getting information on a selected listView item from
         https://www.flutter-code.com/2016/03/android-listview-item-selector

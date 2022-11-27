@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -197,10 +198,19 @@ public class StoredIngredientFragment extends DialogFragment {
                                     .getText().toString();
                             String costStr = ingredientCost
                                     .getText().toString();
-                            String categoryStr = categoryList
-                                    .get(ingredientCategory.getSelectedItemPosition());
-                            String locationStr = locationList
-                                    .get(ingredientLocation.getSelectedItemPosition());
+                            String categoryStr, locationStr;
+                            try {
+                                categoryStr = categoryList
+                                        .get(ingredientCategory.getSelectedItemPosition());
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                categoryStr = "";
+                            }
+                            try {
+                                locationStr = locationList
+                                        .get(ingredientLocation.getSelectedItemPosition());
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                locationStr = "";
+                            }
                             String unitStr = ingredientUnit
                                     .getText().toString();
 
