@@ -201,6 +201,8 @@ public class ShoppingListActivityTest {
     public void addTestMeal() {
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
         solo.clickOnButton("Add Meal");
+        solo.enterText((EditText) solo.getView(R.id.meal_edit_name),
+                "IntentTest MealPlan");
         solo.clickOnView(solo.getView(R.id.meal_ingredient_spinner));
         solo.clickOnText("IntentTest List");
         solo.clickOnButton("+");
@@ -237,7 +239,7 @@ public class ShoppingListActivityTest {
         solo.clickOnImageButton(0);
         solo.clickOnText("Meal Planner");
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
-        solo.clickOnText("1900");
+        solo.clickOnText("IntentTest MealPlan");
         solo.clickOnButton("Delete");
         solo.clickOnImageButton(0);
         solo.clickOnText("Shopping List");
