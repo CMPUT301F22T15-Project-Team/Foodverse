@@ -51,7 +51,8 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:id="@+id/comments_view_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="0dp"
+                    android:gravity="right"
+                    android:paddingRight="20dp"
                     android:hint="@string/comments_hint"
                     android:textSize="15sp" />
             </LinearLayout>
@@ -75,9 +76,9 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:id="@+id/category_view_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:gravity="right"
+                    android:paddingRight="20dp"
                     android:text="category_value"
-                    android:textAlignment="viewStart"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -101,6 +102,8 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:hint="@string/serving_size_hint"
+                    android:gravity="right"
+                    android:paddingRight="20dp"
                     android:textSize="15sp"
                     android:layout_marginTop = "10dp"
                     android:layout_gravity="bottom"/>
@@ -125,6 +128,8 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:id="@+id/prep_time_view_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:gravity="right"
+                    android:paddingRight="20dp"
                     android:hint="60"
                     android:layout_marginTop = "10dp"
                     android:inputType="number"
