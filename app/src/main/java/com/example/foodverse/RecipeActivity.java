@@ -73,7 +73,7 @@ public class RecipeActivity  extends AppCompatActivity implements
     private Query recQuery, storedQuery;
     private final String TAG = "RecipeActivity";
     private Spinner sortSpinner;
-    private String[] sortingMethods = {"Sort by Title", "Sort by Preparation Time", "Sort by Serving Size","Sort by Recipe Category"};
+    private String[] sortingMethods = {"Sort by Title", "Sort by Preparation Time", "Sort by Serving Size","Sort by Category"};
     private String sorting = "Sort by Title";
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
@@ -231,6 +231,7 @@ public class RecipeActivity  extends AppCompatActivity implements
             }
         });
 
+
         // When the addButton is clicked, open a dialog box to enter the attributes for the entry
         final Button addRecButton = findViewById(R.id.id_add_recipe_button);
         addRecButton.setOnClickListener((v) -> {
@@ -263,6 +264,7 @@ public class RecipeActivity  extends AppCompatActivity implements
                 }
             }
         });
+
     }
 
 
