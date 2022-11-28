@@ -2,7 +2,10 @@ package com.example.foodverse;
 
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +37,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -52,6 +56,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private ListView shoppingListView;
     private ArrayAdapter<ShoppingListIngredient> shoppingListAdapter;
     private ArrayList<Ingredient> mealPlanArrayList;
+    private ArrayList<Recipe> recipeArrayList;
+    private ArrayList<Ingredient> recipeIngredientsArrayList;
+    private HashMap<Integer, Integer> mealPlanRecipeHash;
     private ArrayList<Ingredient> summedMealPlanArrayList;
     private ArrayList<Ingredient> storedIngredientsArrayList;
     private ArrayList<Ingredient> summedStoredIngredientArrayList;
@@ -91,6 +98,9 @@ public class ShoppingListActivity extends AppCompatActivity implements
         // Creating the array list and attaching it to the adapter.
         shoppingArrayList = new ArrayList<>();
         mealPlanArrayList = new ArrayList<>();
+        recipeArrayList = new ArrayList<>();
+        recipeIngredientsArrayList = new ArrayList<>();
+        mealPlanRecipeHash = new HashMap<>();
         summedMealPlanArrayList = new ArrayList<>();
         storedIngredientsArrayList = new ArrayList<>();
         summedStoredIngredientArrayList = new ArrayList<>();
@@ -173,6 +183,53 @@ public class ShoppingListActivity extends AppCompatActivity implements
                 Log.d(TAG, "No sorting change");
             }
         });
+
+        recipeQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
+                recipeArrayList.clear();
+                if(error != null){
+                    Log.e(TAG, error.getMessage());
+                } else {
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        Log.d(TAG, String.valueOf(doc.getId()));
+                        String hashCode = doc.getId();
+                        String title = "", category = "", comments = "";
+                        Long prep = 0l, servings = 0l;
+                        if (doc.getData().get("Title") != null) {
+                            title = (String) doc.getData().get("Title");
+                        }
+                        if (doc.getData().get("Category") != null) {
+                            category = (String) doc.getData().get("Category");
+                        }
+                        if (doc.getData().get("Comments") != null) {
+                            comments = (String) doc.getData().get("Comments");
+                        }
+                        if (doc.getData().get("Prep Time") != null) {
+                            prep = (Long) doc.getData().get("Prep Time");
+                        }
+                        if (doc.getData().get("Servings") != null) {
+                            servings = (Long) doc.getData().get("Servings");
+                        }
+                        ArrayList<String> ingStrings =
+                                (ArrayList<String>) doc.getData().get("Ingredients");
+                        ArrayList<Ingredient> ingredients = new ArrayList<>();
+                        if (ingStrings != null) {
+                            for (String ingString : ingStrings) {
+                                Ingredient ing =
+                                        DatabaseIngredient
+                                                .stringToIngredient(ingString);
+                                ingredients.add(ing);
+                            }
+                            recipeArrayList.add(new Recipe(title, prep.intValue(),
+                                    servings.intValue(), category, comments,
+                                    ingredients, null));
+                        }
+                    }
+                }
+            }
+        });
+
         // Auto populate the shopping list by checking the meal plan and ingredient storage
         mealQuery.addSnapshotListener(new EventListener<QuerySnapshot>() {
             /**
@@ -183,12 +240,24 @@ public class ShoppingListActivity extends AppCompatActivity implements
             @Override
             public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException error) {
                 mealPlanArrayList.clear();
+                mealPlanRecipeHash.clear();
                 if (error != null) {
                     Log.e(TAG, error.getMessage());
                 } else {
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Log.d(TAG, String.valueOf(doc.getId()));
                         String hashCode = doc.getId();
+                        int recipeCode = 0;
+                        int scale = 1;
+
+                        if (doc.getData().get("Recipe Code") != null) {
+                            recipeCode = ((Long) doc.getData().get("Recipe Code")).intValue();
+                            if (doc.getData().get("Scaling") != null) {
+                                scale = ((Long) doc.getData().get("Scaling")).intValue();
+                                mealPlanRecipeHash.put(recipeCode, scale);
+                            }
+                        }
+
 
                         ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
                         if (ingStrings != null) {
@@ -471,9 +540,24 @@ public class ShoppingListActivity extends AppCompatActivity implements
      * and the ingredients already contained in the storage.
      */
     public void updateShoppingList() {
+
+        // We add the recipe ingredients to the meal ingredient list
+        recipeIngredientsArrayList.clear();
+        for(Recipe recipe: recipeArrayList){
+            if(mealPlanRecipeHash.containsKey(recipe.hashCode())){
+                int scale = mealPlanRecipeHash.get(recipe.hashCode());
+
+                for(Ingredient ingredient: recipe.getIngredients()){
+                    recipeIngredientsArrayList.add(new Ingredient(ingredient.getDescription(), ingredient.getCount()*scale,
+                            ingredient.getUnit(), ingredient.getCategory()));
+                }
+            }
+        }
+
         // We sum up the ingredient counts from different meals
         summedMealPlanArrayList.clear();
-        for (Ingredient mealIngredient : mealPlanArrayList) {
+        recipeIngredientsArrayList.addAll(mealPlanArrayList);
+        for (Ingredient mealIngredient : recipeIngredientsArrayList) {
             boolean addToList = true;
             for(Ingredient summedMealIngredient : summedMealPlanArrayList){
                 if(mealIngredient.getDescription().equals(summedMealIngredient.getDescription()) &&

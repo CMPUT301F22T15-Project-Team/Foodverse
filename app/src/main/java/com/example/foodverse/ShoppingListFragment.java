@@ -190,18 +190,40 @@ public class ShoppingListFragment extends DialogFragment {
                         (dialog, which) -> {
                             // Create a Ingredient object with the new values
                             StoredIngredient newIngredient = new StoredIngredient();
-                            String descriptionStr = ingredientDescription
-                                    .getText().toString();
-                            String countStr = ingredientCount
-                                    .getText().toString();
-                            String unitStr = ingredientUnit
-                                    .getText().toString();
-                            String costStr = ingredientCost
-                                    .getText().toString();
-                            String categoryStr = categoryList
-                                    .get(ingredientCategory.getSelectedItemPosition());
-                            String locationStr = ingredientLocation
-                                    .getSelectedItem().toString();
+
+                            String descriptionStr = "Ingredient", unitStr = "Unit";
+                            if(!ingredientDescription.getText().toString().equals("")){
+                                descriptionStr = ingredientDescription
+                                        .getText().toString();
+                            }
+                            if(!ingredientUnit.getText().toString().equals("")){
+                                unitStr = ingredientUnit
+                                        .getText().toString();
+                            }
+
+                            String countStr = "1", costStr = "0";
+                            if(!ingredientCount.getText().toString().equals("")){
+                                countStr = ingredientCount
+                                        .getText().toString();
+                            }
+                            if(!ingredientCost.getText().toString().equals("")){
+                                costStr = ingredientCost
+                                        .getText().toString();
+                            }
+
+                            String categoryStr, locationStr;
+                            try {
+                                categoryStr = categoryList
+                                        .get(ingredientCategory.getSelectedItemPosition());
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                categoryStr = "";
+                            }
+                            try {
+                                locationStr = locationList
+                                        .get(ingredientLocation.getSelectedItemPosition());
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                locationStr = "";
+                            }
 
                             // Load the data into the Ingredient object
                             newIngredient.setDescription(descriptionStr);

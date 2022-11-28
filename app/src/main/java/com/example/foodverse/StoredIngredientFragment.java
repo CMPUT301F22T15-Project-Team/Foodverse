@@ -190,10 +190,18 @@ public class StoredIngredientFragment extends DialogFragment {
                             StoredIngredient newIngredient = new StoredIngredient();
                             String descriptionStr = ingredientDescription
                                     .getText().toString();
-                            String countStr = ingredientCount
-                                    .getText().toString();
-                            String costStr = ingredientCost
-                                    .getText().toString();
+
+
+                            String countStr = "1", costStr = "0";
+                            if(!ingredientCount.getText().toString().equals("")){
+                                countStr = ingredientCount
+                                        .getText().toString();
+                            }
+                            if(!ingredientCost.getText().toString().equals("")){
+                                costStr = ingredientCost
+                                        .getText().toString();
+                            }
+
                             String categoryStr, locationStr;
                             try {
                                 categoryStr = categoryList
