@@ -27,8 +27,8 @@
             android:layout_weight="9"
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
-            android:divider="#8C9EFF"
-            android:dividerHeight="8px">>
+
+            android:dividerHeight="10dp">>
 
         </ListView>
 

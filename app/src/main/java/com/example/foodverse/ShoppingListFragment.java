@@ -39,6 +39,7 @@ public class ShoppingListFragment extends DialogFragment {
     private EditText ingredientDescription;
     private EditText ingredientCount;
     private EditText ingredientUnit;
+    private EditText ingredientCost;
     private Spinner ingredientCategory;
     private ArrayList<String> categoryList = new ArrayList<>();
     private ArrayList<String> locationList = new ArrayList<>();
@@ -109,6 +110,7 @@ public class ShoppingListFragment extends DialogFragment {
         ingredientDescription = view.findViewById(R.id.description_edit_text);
         ingredientCount = view.findViewById(R.id.count_edit_text);
         ingredientUnit = view.findViewById(R.id.unit_edit_text);
+        ingredientCost = view.findViewById(R.id.cost_edit_text);
         ingredientCategory = view.findViewById(R.id.category_spinner);
         ingredientLocation = view.findViewById(R.id.location_spinner);
         ingredientExpiry = view.findViewById(R.id.expiry_button);
@@ -194,6 +196,8 @@ public class ShoppingListFragment extends DialogFragment {
                                     .getText().toString();
                             String unitStr = ingredientUnit
                                     .getText().toString();
+                            String costStr = ingredientCost
+                                    .getText().toString();
                             String categoryStr = categoryList
                                     .get(ingredientCategory.getSelectedItemPosition());
                             String locationStr = ingredientLocation
@@ -203,6 +207,7 @@ public class ShoppingListFragment extends DialogFragment {
                             newIngredient.setDescription(descriptionStr);
                             newIngredient.setCount(Integer.parseInt(countStr));
                             newIngredient.setUnit(unitStr);
+                            newIngredient.setUnitCost(Integer.parseInt(costStr));
                             newIngredient.setCategory(categoryStr);
                             newIngredient.setLocation(locationStr);
                             newIngredient.setBestBefore(expiryDate);

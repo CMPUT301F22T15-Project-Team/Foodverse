@@ -61,7 +61,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
     private FirebaseAuth auth;
     private final String TAG = "ShoppingListActivity";
     private CollectionReference shoppingListCollectionReference;
-    private Query shoppingQuery, storedIngQuery, mealQuery;
+    private Query shoppingQuery, storedIngQuery, mealQuery, recipeQuery;
     private Button addButton;
     private Spinner sortSpinner;
     private String[] sortingMethods = {"Sort by Purchased", "Sort by Description", "Sort by Category"};
@@ -141,12 +141,16 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
             storedIngQuery = db.collection("StoredIngredients")
                     .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
+            recipeQuery = db.collection("Recipes")
+                    .whereEqualTo("OwnerUID", auth.getCurrentUser().getUid());
         } else {
             shoppingQuery = db.collection("ShoppingList")
                     .whereEqualTo("OwnerUID", "");
             mealQuery = db.collection("MealPlan")
                     .whereEqualTo("OwnerUID", "");
             storedIngQuery = db.collection("StoredIngredients")
+                    .whereEqualTo("OwnerUID", "");
+            recipeQuery = db.collection("Recipes")
                     .whereEqualTo("OwnerUID", "");
         }
         setSnapshotListener("Purchased");
@@ -185,6 +189,7 @@ public class ShoppingListActivity extends AppCompatActivity implements
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         Log.d(TAG, String.valueOf(doc.getId()));
                         String hashCode = doc.getId();
+
                         ArrayList<String> ingStrings = (ArrayList<String>) doc.getData().get("Ingredients");
                         if (ingStrings != null) {
                             for (String s : ingStrings) {
@@ -471,7 +476,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
         for (Ingredient mealIngredient : mealPlanArrayList) {
             boolean addToList = true;
             for(Ingredient summedMealIngredient : summedMealPlanArrayList){
-                if(summedMealIngredient.hashCode() == mealIngredient.hashCode()){
+                if(mealIngredient.getDescription().equals(summedMealIngredient.getDescription()) &&
+                        mealIngredient.getUnit().equals(summedMealIngredient.getUnit())){
                     // Since the ingredient has already been added to the list, we update the count
                     summedMealIngredient.setCount(summedMealIngredient.getCount() + mealIngredient.getCount());
                     addToList = false;
@@ -491,7 +497,8 @@ public class ShoppingListActivity extends AppCompatActivity implements
         for (Ingredient storedIngredient : storedIngredientsArrayList) {
             boolean addToList = true;
             for(Ingredient summedStoredIngredient : summedStoredIngredientArrayList){
-                if(summedStoredIngredient.hashCode() == storedIngredient.hashCode()){
+                if(storedIngredient.getDescription().equals(summedStoredIngredient.getDescription()) &&
+                        storedIngredient.getUnit().equals(summedStoredIngredient.getUnit())){
                     // Since the ingredient has already been added to the list, we update the count
                     summedStoredIngredient.setCount(summedStoredIngredient.getCount() + storedIngredient.getCount());
                     addToList = false;
