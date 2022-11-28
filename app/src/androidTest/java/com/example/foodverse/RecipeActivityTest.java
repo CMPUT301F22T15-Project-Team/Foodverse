@@ -12,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
@@ -34,6 +35,8 @@ public class RecipeActivityTest {
     @Before
     public void setUp() throws Exception{
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signInWithEmailAndPassword("tester@email.com", "tester");
     }
     /**
      * Gets the Activity
@@ -171,13 +174,13 @@ public class RecipeActivityTest {
         solo.clickOnButton("Add Recipe");
         // Add recipe
         solo.clearEditText((EditText) solo.getView(R.id.recipe_title_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.comment_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.comments_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.serving_size_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.prep_time_edit_text));
 
         solo.enterText((EditText) solo.getView(R.id.recipe_title_edit_text),
                 "IntentTest Recipe");
-        solo.enterText((EditText) solo.getView(R.id.comment_edit_text),
+        solo.enterText((EditText) solo.getView(R.id.comments_edit_text),
                 "IntentTest Comment");
         solo.clickOnRadioButton(1);
         solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),
@@ -218,13 +221,13 @@ public class RecipeActivityTest {
         solo.clickOnText("IntentTest Recipe");
         solo.clickOnButton("Edit");
         solo.clearEditText((EditText) solo.getView(R.id.recipe_title_edit_text));
-        solo.clearEditText((EditText) solo.getView(R.id.comment_edit_text));
+        solo.clearEditText((EditText) solo.getView(R.id.comments_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.serving_size_edit_text));
         solo.clearEditText((EditText) solo.getView(R.id.prep_time_edit_text));
 
         solo.enterText((EditText) solo.getView(R.id.recipe_title_edit_text),
                 "IntentTest Edit");
-        solo.enterText((EditText) solo.getView(R.id.comment_edit_text),
+        solo.enterText((EditText) solo.getView(R.id.comments_edit_text),
                 "IntentTest Comment Edit");
         solo.clickOnRadioButton(2);
         solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),

@@ -11,6 +11,8 @@ import androidx.test.rule.ActivityTestRule;
 import android.view.Gravity;
 import android.widget.EditText;
 import android.widget.ListView;
+
+import com.google.firebase.auth.FirebaseAuth;
 import com.robotium.solo.Solo;
 import org.junit.After;
 import org.junit.Before;
@@ -36,6 +38,8 @@ public class StoredIngredientActivityTest {
     @Before
     public void setUp() throws Exception{
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signInWithEmailAndPassword("tester@email.com", "tester");
     }
     /**
      * Gets the Activity
