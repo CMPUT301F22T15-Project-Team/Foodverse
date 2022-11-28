@@ -451,6 +451,13 @@ public class RecipeActivity  extends AppCompatActivity implements
     }
 
 
+    /**
+     * Callback from {@link RecipeIngredientFragment} when an ingredient is
+     * either confirmed or cancelled.
+     *
+     * @param rec The {@link Recipe} to send to {@link RecipeFragment}
+     * @param ing The {@link Ingredient} to send do {@link RecipeFragment}
+     */
     @Override
     public void ingAdded(Recipe rec, Ingredient ing) {
         new RecipeFragment(rec, ing).show(
@@ -458,6 +465,13 @@ public class RecipeActivity  extends AppCompatActivity implements
     }
 
 
+    /**
+     * Callback from {@link RecipeFragment} when a new ingredient is requested.
+     * Opens the {@link RecipeIngredientFragment} to add a new
+     * {@link Ingredient}. Will kill the old {@link RecipeFragment}.
+     *
+     * @param rec The currently edited {@link Recipe}.
+     */
     @Override
     public void onAddIngredient(Recipe rec) {
         /*

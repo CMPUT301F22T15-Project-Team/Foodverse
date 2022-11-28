@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -16,17 +15,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 
 /**
  * RecipeIngredientFragment
- * Used to create an interface for adding an ingredient to a recipe.
+ * Used to create an interface for adding a new {@link Ingredient} to a
+ * {@link Recipe}, which does not already exist as a {@link StoredIngredient}.
  *
  * @version 1.0
  */
-
 public class RecipeIngredientFragment extends DialogFragment {
     private Recipe rec;
     private RecipeIngredientFragment.OnFragmentInteractionListener listener;
@@ -77,26 +75,12 @@ public class RecipeIngredientFragment extends DialogFragment {
 
         RecipeActivity act = (RecipeActivity) getActivity();
 
+        // Get ingredient categories from firebase
         for (int i = 0; i < act.getIngCategories().size(); i++) {
             categoryList.add(act.getIngCategories().get(i));
         }
-
         catAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
         ingredientCategory.setAdapter(catAdapter);
-
-        /*
-         * Remove old recipe fragment. With reference to:
-         * https://stackoverflow.com/questions/22474584/remove-old-fragment-from-fragment-manager
-         * Answer by Yashdeep Patel (2014)
-         * Accessed 2022-11-17
-         */
-        Fragment fragment = act.getSupportFragmentManager().findFragmentByTag("RECIPE_FRAG");
-        if (fragment != null) {
-            Log.e("RecipeActivity", "Removing RECIPE_FRAG");
-            act.getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-        } else {
-            Log.e("RecipeActivity", "Didn't find RECIPE_FRAG");
-        }
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
