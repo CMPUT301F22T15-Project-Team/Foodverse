@@ -119,7 +119,6 @@ public class MealViewFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
-                .setTitle("View Meal")
                 // Nothing happens when the user selects 'Cancel'
                 .setNeutralButton("OK", null)
                 // The meal currently being viewed is deleted when 'Delete' is selected

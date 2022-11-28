@@ -150,14 +150,14 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
                     android:id="@+id/recipe_add_ingredient_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:backgroundTint="#00FF00"
+                    app:backgroundTint= "@color/Green"
                     android:textColor="#FFFFFF"
                     android:text="+" />
             </LinearLayout>
             <ListView
                 android:id="@+id/ing_list"
                 android:layout_width="match_parent"
-                android:layout_height="50dp">
+                android:layout_height="wrap_content">
             </ListView>
             <Button
                 android:id="@+id/recipe_delete_ingredient_button"
