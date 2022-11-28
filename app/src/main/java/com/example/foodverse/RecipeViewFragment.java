@@ -298,7 +298,6 @@ public class RecipeViewFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
-                .setTitle("View Recipe")
                 .setNeutralButton("Cancel",null)
                 .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
                     @Override
