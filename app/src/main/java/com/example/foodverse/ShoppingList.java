@@ -96,15 +96,11 @@ public class ShoppingList extends ArrayAdapter<ShoppingListIngredient> {
                 if(ingredient.isPurchased()){
                     finalView.setBackgroundColor(Color.WHITE);
                     ingredient.setPurchased(false);
-
-                    // Delete old ingredient and set new since hashCode() will return different result
                     shoppingListCollectionReference.document(String.valueOf(ingredient.hashCode()))
                             .update("Purchased", false);
                 } else {
                     finalView.setBackgroundColor(Color.GRAY);
                     ingredient.setPurchased(true);
-
-                    // Delete old ingredient and set new since hashCode() will return different result
                     shoppingListCollectionReference.document(String.valueOf(ingredient.hashCode()))
                             .update("Purchased", true);
                     Activity activity = (Activity) context;

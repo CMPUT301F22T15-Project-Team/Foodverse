@@ -19,6 +19,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 //https://learntodroid.com/how-to-create-a-login-form-in-android-studio/
 
+/**
+ * This activity allows the user to log in or register when they launch the app.
+ */
 public class LoginActivity extends AppCompatActivity {
     private EditText usernameEditText;
     private EditText passwordEditText;
@@ -110,6 +113,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Verifies if the credentials exist in the database.
+     * @param username The username entered by the user.
+     * @param password The password entered by the user.
+     */
     private void checkLogin(String username, String password) {
         username += "@email.com";
         // https://firebase.google.com/docs/auth/android/password-auth
@@ -131,6 +139,9 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Launches the stored ingredient list when the correct credentials are entered.
+     */
     public void goToApp() {
         Intent intent = new Intent(this, StoredIngredientActivity.class);
         startActivity(intent);

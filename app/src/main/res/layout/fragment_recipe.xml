@@ -13,9 +13,7 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:orientation="vertical"
-            xmlns:app="http://schemas.android.com/apk/res-auto">
+            android:orientation="vertical">
 
 
             <EditText
