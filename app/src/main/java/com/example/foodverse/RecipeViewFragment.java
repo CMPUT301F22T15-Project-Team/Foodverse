@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -178,6 +179,21 @@ public class RecipeViewFragment extends DialogFragment {
 
         }
 
+        /*
+         * Ensure list view shows all parameters. Reference:
+         * https://stackoverflow.com/questions/40861136/set-listview-height-programmatically
+         * Answer by: Rushi Ayyappa (2016)
+         * https://stackoverflow.com/questions/5255184/android-and-setting-width-and-height-programmatically-in-dp-units
+         * Answer by: Robby Pond (2011)
+         * Accessed: 2022-11-28
+         */
+        float dpscale = getContext().getResources().getDisplayMetrics().density;
+        ViewGroup.LayoutParams params = ingredientList.getLayoutParams();
+        params.height = (int) Math.max(Math.ceil(50*recIngredients.size() *
+                dpscale + 0.5f), Math.ceil(50 * dpscale + 0.5f));
+        ingredientList.setLayoutParams(params);
+        ingredientList.requestLayout();
+
         ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
         categoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
 
@@ -195,103 +211,6 @@ public class RecipeViewFragment extends DialogFragment {
         String recipeCategory_value = chosenRecipe.getCategory();
         Log.d("Debuggin View", recipeCategory_value);
         rec_Category_v.setText(recipeCategory_value);
-
-        // The spinner is set up to connect with the list of ingredients
-//        ingAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
-//        ingredientSpinner.setAdapter(ingAdapter);
-//
-//        categoryAdapter.setDropDownViewResource(R.layout.ingredient_spinner);
-//        categorySpinner.setAdapter(categoryAdapter);
-//
-//        if (view_text == Boolean.TRUE) {
-//            categorySpinner.setSelection(categoryList.indexOf(recCategory));
-//        }
-
-        // When the user clicks on the plus button to add an ingredient
-//        addButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int ingIndex;
-//                Log.d("RecFrag", "Adding ingredient");
-//                ingIndex = ingredientSpinner.getSelectedItemPosition();
-//                recIngredients.add(act.getDatabaseIngredients().get(ingIndex));
-//
-//                listViewAdapter.notifyDataSetChanged();
-//            }
-//        });
-
-//        deleteButton.setOnClickListener( new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-//                        recIngredients.remove(pos);
-//                        listViewAdapter.notifyDataSetChanged();
-//                    }
-//                });
-//            }
-//        });
-
-        /*
-         * Both selecting and taking photo functionality made with reference to:
-         * https://developer.android.com/training/camera/camera-intents (2022-11-22)
-         * https://developer.android.com/reference/android/provider/MediaStore (2022-06-08)
-         * https://stackoverflow.com/questions/67115099/how-do-i-use-registerforactivityresult-to-launch-camera
-         * Answer by Alias (2021)
-         * Both Accessed 2022-11-24
-         */
-//        takePhotoButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ContentValues values = new ContentValues();
-//                values.put(MediaStore.Images.Media.TITLE, "New Picture");
-//                values.put(MediaStore.Images.Media.DESCRIPTION, "From Camera");
-//                cam_uri = requireContext().getContentResolver().insert(
-//                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-//                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
-//                try {
-//                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-//                } catch (ActivityNotFoundException e) {
-//                    Log.e("RecFrag", "Take Picture Activity not found.");
-//                }
-//            }
-//        });
-
-        /*
-         * Made with reference to the above and:
-         * https://stackoverflow.com/questions/38352148/get-image-from-the-gallery-and-show-in-imageview
-         * Answer by Atul Mavani (2016), edited by shagberg (2021).
-         * https://www.geeksforgeeks.org/how-to-select-an-image-from-gallery-in-android/
-         * by adityamshidlyali
-         * Accessed 2022-11-24.
-         */
-//        choosePhotoButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ContentValues values = new ContentValues();
-//                values.put(MediaStore.Images.Media.TITLE, "Picture");
-//                values.put(MediaStore.Images.Media.DESCRIPTION, "From Gallery");
-//                cam_uri = requireContext().getContentResolver().insert(
-//                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-//                Intent choosePictureIntent = new Intent(Intent.ACTION_PICK);
-//                choosePictureIntent.setType("image/*");
-//                choosePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cam_uri);
-//                try {
-//                    startActivityForResult(choosePictureIntent, REQUEST_IMAGE_SELECTION);
-//                } catch (ActivityNotFoundException e) {
-//                    Log.e("RecFrag", "Choose Picture Activity not found.");
-//                }
-//            }
-//        });
-
-//        deletePhoto.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                cam_uri = null;
-//                recipePhoto.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher_background));
-//            }
-//        });
 
 
         //creates the dialog box with the populated info and action buttons
@@ -349,16 +268,6 @@ public class RecipeViewFragment extends DialogFragment {
                     }
                 }).create(); //creates the dialog box
     }
-
-
-//    public void deleteIngredient(View view) {
-//        ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-//                recIngredients.remove(pos);
-//                listViewAdapter.notifyDataSetChanged();
-//            }
-//        });
-//    }
 
 
     /**

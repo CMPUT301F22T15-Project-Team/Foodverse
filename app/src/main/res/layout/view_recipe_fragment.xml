@@ -158,7 +158,7 @@ Answer by Bryan Denny (2010), edited by akelec (2020). Accessed 2022-11-24 -->
             <ListView
                 android:id="@+id/ing_list"
                 android:layout_width="match_parent"
-                android:layout_height="50dp">
+                android:layout_height="wrap_content">
             </ListView>
 
             <ImageView
