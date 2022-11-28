@@ -21,20 +21,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 
-import androidx.activity.result.ActivityResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import kotlin.text.UStringsKt;
 
 /**
  * RecipeFragment
@@ -61,6 +55,7 @@ public class RecipeFragment extends DialogFragment {
     private ArrayList<Ingredient> recIngredients = new ArrayList<>();
     private ArrayList<String> ingredientStringList = new ArrayList<>();
     private ArrayList<String> categoryList = new ArrayList<>();
+    private Ingredient addToRec;
     private ArrayAdapter<String> ingAdapter, categoryAdapter;
     private Spinner ingredientSpinner, categorySpinner;
     private ListView ingredientList;
@@ -79,6 +74,7 @@ public class RecipeFragment extends DialogFragment {
         void onOkPressed(Recipe newRec);
         void onOkEditPressed(Recipe newRec);
         void onDeletePressed();
+        void onAddIngredient(Recipe rec);
     }
 
     /**
@@ -99,9 +95,29 @@ public class RecipeFragment extends DialogFragment {
     public RecipeFragment(Recipe recipe) {
         super();
         this.chosenRecipe = recipe;
+        this.addToRec = null;
         // Set that we are in edit mode
         edit_text = Boolean.TRUE;
     }
+
+
+    /**
+     * Constructor for {@link RecipeFragment} with a given {@link Recipe} and
+     * {@link Ingredient} to add to the {@link Recipe}.
+     *
+     * @param recipe A {@link Recipe} representing the recipe for
+     *               for which we want to see the details of.
+     * @param toAdd A {@link Ingredient} to add to the {@link Recipe}.
+     */
+    public RecipeFragment(Recipe recipe, Ingredient toAdd) {
+        super();
+        this.chosenRecipe = recipe;
+        this.addToRec = toAdd;
+        if (recipe != null) {
+            edit_text = Boolean.TRUE;
+        }
+    }
+
 
     /**
      * Called when fragment is attached to the context.
@@ -152,11 +168,6 @@ public class RecipeFragment extends DialogFragment {
         // and populate them on the dialog box to allow the user to edit - this is done using the getters
         // and setters for the attributes
         if (edit_text == Boolean.TRUE) {
-            // obtain access to the Bundle's information inputted when
-            // editing or creating a Recipe entry
-            Bundle recipeVal = getArguments();
-
-            //Recipe RecipeObject = (Recipe) recipeVal.get("recipe"); //accessing the value of the attribute passed
             Recipe RecipeObject = chosenRecipe;
             rec_title.setText(RecipeObject.getTitle());
             rec_comments.setText(RecipeObject.getComments());
@@ -168,6 +179,9 @@ public class RecipeFragment extends DialogFragment {
             // an array list to be displayed on a listview
             for (int i = 0; i < RecipeObject.getIngredients().size(); i++) {
                 recIngredients.add(RecipeObject.getIngredients().get(i));
+            }
+            if (addToRec != null) {
+                recIngredients.add(addToRec);
             }
             listViewAdapter.notifyDataSetChanged();
 
@@ -193,6 +207,7 @@ public class RecipeFragment extends DialogFragment {
             ingredientStringList.add(
                     act.getDatabaseIngredients().get(i).getDescription());
         }
+        ingredientStringList.add("Add New Ingredient");
 
         for (int i = 0; i < act.getCategories().size(); i++) {
             categoryList.add(act.getCategories().get(i));
@@ -216,8 +231,35 @@ public class RecipeFragment extends DialogFragment {
                 int ingIndex;
                 Log.d("RecFrag", "Adding ingredient");
                 ingIndex = ingredientSpinner.getSelectedItemPosition();
-                recIngredients.add(act.getDatabaseIngredients().get(ingIndex));
+                if (ingredientStringList.get(ingIndex).equals("Add New Ingredient")) {
+                    String recipe_title = rec_title.getText().toString();
+                    String recipe_comments = rec_comments.getText().toString();
+                    // The following lines set default values to prevent the app from crashing if
+                    // values for servings size and prepare time are not entered
+                    Integer serving_size = 1;
+                    Integer prepare_time = 10;
 
+                    if (rec_servings.getText().toString() != "") {
+                        serving_size = Integer.parseInt(
+                                rec_servings.getText().toString());
+                    }
+                    if (rec_preptime.getText().toString() != "") {
+                        prepare_time = Integer.parseInt(
+                                rec_preptime.getText().toString());
+                    }
+
+                    String recipeCategory = "";
+                    int categoryInd;
+                    categoryInd = categorySpinner.getSelectedItemPosition();
+                    recipeCategory = categoryList.get(categoryInd);
+                    Recipe edited = new Recipe(recipe_title,
+                            prepare_time, serving_size,
+                            recipeCategory, recipe_comments,
+                            recIngredients, bitmap);
+                    listener.onAddIngredient(edited);
+                } else {
+                    recIngredients.add(act.getDatabaseIngredients().get(ingIndex));
+                }
                 listViewAdapter.notifyDataSetChanged();
             }
         });
@@ -345,8 +387,6 @@ public class RecipeFragment extends DialogFragment {
                                     prepare_time,serving_size,recipeCategory,
                                     recipe_comments,recIngredients, bitmap));
                         }
-
-
                     }
                 }).create(); //creates the dialog box
     }

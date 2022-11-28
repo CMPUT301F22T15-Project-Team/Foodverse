@@ -44,6 +44,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * RecipeActivity
@@ -58,6 +59,7 @@ import java.util.HashSet;
 public class RecipeActivity  extends AppCompatActivity implements
         RecipeFragment.OnFragmentInteractionListener,
         RecipeViewFragment.OnFragmentInteractionListener,
+        RecipeIngredientFragment.OnFragmentInteractionListener,
         NavigationView.OnNavigationItemSelectedListener {
     private ListView RecipeList;
     private ArrayAdapter<Recipe> RecAdapter;
@@ -81,8 +83,6 @@ public class RecipeActivity  extends AppCompatActivity implements
     private CategoryList catListRec = new CategoryList("Recipe");
     private CategoryList catListIng = new CategoryList("Ingredient");
     private LocationList locList = new LocationList();
-    private ArrayList<String> SortcategoryList = new ArrayList<>();
-    private ArrayAdapter<String> SortcategoryAdapter;
 
 
     /**
@@ -99,7 +99,6 @@ public class RecipeActivity  extends AppCompatActivity implements
         RecAdapter = new RecipeList(this, RecipeDataList); //create the interface for the entries
         RecipeList.setAdapter(RecAdapter); //update the UI
         sortSpinner = findViewById(R.id.sort_Spinner);
-        //SortcategoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.sortSpinner, SortcategoryList);
 
 
         /*
@@ -205,7 +204,6 @@ public class RecipeActivity  extends AppCompatActivity implements
                 } else {
                     // Add ingredients from the cloud
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        String hashCode = doc.getId();
                         String description = "", unit = "", category = "";
                         Long count = 0l;
                         if (doc.getData().get("Description") != null) {
@@ -236,7 +234,7 @@ public class RecipeActivity  extends AppCompatActivity implements
         // When the addButton is clicked, open a dialog box to enter the attributes for the entry
         final Button addRecButton = findViewById(R.id.id_add_recipe_button);
         addRecButton.setOnClickListener((v) -> {
-            new RecipeFragment().show(getSupportFragmentManager(), "ADD_Recipe");
+            new RecipeFragment().show(getSupportFragmentManager(), "RECIPE_FRAG");
         });
 
         RecipeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -448,6 +446,30 @@ public class RecipeActivity  extends AppCompatActivity implements
             // Change the index to be invalid
             selectedRecipeIndex = -1;
         }
+    }
+
+
+    @Override
+    public void ingAdded(Recipe rec, Ingredient ing) {
+        new RecipeFragment(rec, ing).show(
+                getSupportFragmentManager(), "RECIPE_FRAG");
+    }
+
+
+    @Override
+    public void onAddIngredient(Recipe rec) {
+        /*
+         * Get and kill old fragment. With reference to:
+         * https://gist.github.com/PepDevils/f96e1bf1d77e7566c6d2cb372d1499d9
+         * Author: PepDevils
+         * Accessed: 2022-11-27
+         */
+        List<Fragment> frags = getSupportFragmentManager().getFragments();
+        for (Fragment f : frags) {
+            getSupportFragmentManager().beginTransaction().remove(f).commit();
+        }
+        new RecipeIngredientFragment(rec).show(
+                getSupportFragmentManager(), "REC_ING_FRAG");
     }
 
 

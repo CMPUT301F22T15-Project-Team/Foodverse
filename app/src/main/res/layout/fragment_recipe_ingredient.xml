@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/linearLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/recing_description_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="Description"
+        app:layout_constraintBottom_toTopOf="@+id/recing_count_text_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/recing_count_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="Count"
+        app:layout_constraintBottom_toTopOf="@+id/recing_unit_text_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recing_description_text_view" />
+
+
+    <TextView
+        android:id="@+id/recing_unit_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="Unit"
+        app:layout_constraintBottom_toTopOf="@+id/recing_count_edit_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recing_category_text_view" />
+
+    <TextView
+        android:id="@+id/recing_category_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="Category"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recing_unit_text_view" />
+
+    <Spinner
+        android:id="@+id/recing_category_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/recing_category_text_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/recing_category_text_view"
+        app:layout_constraintTop_toTopOf="@+id/recing_category_text_view" />
+
+
+    <EditText
+        android:id="@+id/recing_count_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Item Count"
+        android:inputType="number"
+        android:text="1"
+        app:layout_constraintBottom_toBottomOf="@+id/recing_count_text_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recing_count_text_view" />
+
+    <EditText
+        android:id="@+id/recing_description_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Ingredient Description"
+        android:inputType="textPersonName"
+        android:maxLength="30"
+        android:text="Ingredient"
+        app:layout_constraintBottom_toTopOf="@+id/recing_count_edit_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recing_description_text_view" />
+
+    <EditText
+        android:id="@+id/recing_unit_edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Unit of Storage"
+        app:layout_constraintBottom_toBottomOf="@+id/recing_unit_text_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recing_unit_text_view" />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

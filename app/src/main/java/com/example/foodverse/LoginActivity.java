@@ -111,7 +111,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void checkLogin(String username, String password) {
-        boolean isValid = false;
         username += "@email.com";
         // https://firebase.google.com/docs/auth/android/password-auth
         auth.signInWithEmailAndPassword(username, password).addOnCompleteListener(
