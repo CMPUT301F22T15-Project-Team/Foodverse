@@ -398,10 +398,14 @@ public class RecipeFragment extends DialogFragment {
                                     rec_preptime.getText().toString());
                         }
 
-                        String recipeCategory = "";
+                        String recipeCategory;
                         int categoryInd;
                         categoryInd = categorySpinner.getSelectedItemPosition();
-                        recipeCategory = categoryList.get(categoryInd);
+                        try {
+                            recipeCategory = categoryList.get(categoryInd);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            recipeCategory = "";
+                        }
 
                         // Send new edited recipe back to the activity
                         if (edit_text == Boolean.TRUE){

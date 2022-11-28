@@ -14,6 +14,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
@@ -38,6 +39,8 @@ public class MealPlanActivityTest {
     @Before
     public void setUp() throws Exception{
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signInWithEmailAndPassword("tester@email.com", "tester");
     }
     /**
      * Gets the Activity
@@ -178,6 +181,8 @@ public class MealPlanActivityTest {
     public void testAddMeal() {
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
         solo.clickOnButton("Add Meal");
+        solo.enterText((EditText) solo.getView(R.id.meal_edit_name),
+                "IntentTest MealPlan");
         solo.clickOnView(solo.getView(R.id.meal_ingredient_spinner));
         solo.clickOnText("IntentTest Meal");
         solo.clickOnButton("+");
@@ -191,12 +196,14 @@ public class MealPlanActivityTest {
         solo.clickOnButton("OK");
         solo.clickOnButton("Confirm");
         // Assert meal does appear in list, look for year
-        assertTrue(solo.searchText("1900", true));
-        solo.clickOnText("1900");
+        assertTrue(solo.searchText("IntentTest MealPlan", true));
+        solo.clickOnText("IntentTest MealPlan");
+        solo.clickOnButton("Edit");
 
         // Make sure meal date is as we entered, has the IntentTest Meal.
         assertTrue(solo.searchText("1900-01-01", true));
         assertTrue(solo.searchText("IntentTest Meal", true));
+        assertTrue(solo.searchText("IntentTest MealPlan", true));
         solo.clickOnButton("Cancel");
 
         // Make sure meal persists with change in activity
@@ -205,7 +212,7 @@ public class MealPlanActivityTest {
         solo.clickOnImageButton(0);
         solo.clickOnText("Meal Planner");
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
-        assertTrue(solo.searchText("1900", true));
+        assertTrue(solo.searchText("IntentTest MealPlan", true));
     }
 
     /**
@@ -215,9 +222,13 @@ public class MealPlanActivityTest {
     public void testEditMeal() {
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
         // Assert meal does appear in list, search for year
-        assertTrue(solo.searchText("1900", true));
+        assertTrue(solo.searchText("IntentTest MealPlan", true));
 
-        solo.clickOnText("1900");
+        solo.clickOnText("IntentTest MealPlan");
+        solo.clickOnButton("Edit");
+        solo.clearEditText((EditText) solo.getView(R.id.meal_edit_name));
+        solo.enterText((EditText) solo.getView(R.id.meal_edit_name),
+                "IntentTest Edit");
         /*
          * Set date to something easy to grab for testing. Referenced:
          * https://stackoverflow.com/questions/6837012/robotium-how-to-set-a-date-in-date-picker-using-robotium
@@ -229,13 +240,15 @@ public class MealPlanActivityTest {
         solo.clickOnButton("Confirm");
 
         // Assert meal does appear in list, look for year
-        assertTrue(solo.searchText("1901", true));
-        assertFalse(solo.searchText("1900", true));
+        assertTrue(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest MealPlan", true));
 
         // Assert meal members are as we have entered
-        solo.clickOnText("1901");
+        solo.clickOnText("IntentTest Edit");
+        solo.clickOnButton("Edit");
         assertTrue(solo.searchText("1901-02-02", true));
         assertTrue(solo.searchText("IntentTest Meal", true));
+        assertTrue(solo.searchText("IntentTest Edit", true));
         solo.clickOnButton("Cancel");
 
         // Navigate off activity and back to check to make sure Firebase worked.
@@ -244,8 +257,8 @@ public class MealPlanActivityTest {
         solo.clickOnImageButton(0);
         solo.clickOnText("Meal Planner");
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
-        assertTrue(solo.searchText("1901", true));
-        assertFalse(solo.searchText("1900", true));
+        assertTrue(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest MealPlan", true));
     }
 
     /**
@@ -255,14 +268,14 @@ public class MealPlanActivityTest {
    public void testDeleteMeal() {
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
         // Assert meal does appear in list, look for year
-        assertTrue(solo.searchText("1901", true));
+        assertTrue(solo.searchText("IntentTest Edit", true));
 
-        solo.clickOnText("1901");
+        solo.clickOnText("IntentTest Edit");
         solo.clickOnButton("Delete");
 
         // Assert meal does not appear in list, look for year
-        assertFalse(solo.searchText("1900", true));
-        assertFalse(solo.searchText("1901", true));
+        assertFalse(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest MealPlan", true));
 
         // Navigate off activity and back to check to make sure Firebase worked.
         solo.clickOnImageButton(0);
@@ -270,8 +283,8 @@ public class MealPlanActivityTest {
         solo.clickOnImageButton(0);
         solo.clickOnText("Meal Planner");
         solo.assertCurrentActivity("Wrong Activity", MealPlanActivity.class);
-        assertFalse(solo.searchText("1900", true));
-        assertFalse(solo.searchText("1901", true));
+        assertFalse(solo.searchText("IntentTest Edit", true));
+        assertFalse(solo.searchText("IntentTest MealPlan", true));
     }
 
     /**
