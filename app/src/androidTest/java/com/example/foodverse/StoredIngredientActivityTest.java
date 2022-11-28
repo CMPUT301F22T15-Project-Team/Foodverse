@@ -193,7 +193,6 @@ public class StoredIngredientActivityTest {
                 "2");
         solo.enterText((EditText) solo.getView(R.id.unit_edit_text),
                 "cups");
-        solo.pressSpinnerItem(0, 1);
         /*
          * Set date to something unique for testing. Referenced:
          * https://stackoverflow.com/questions/6837012/robotium-how-to-set-a-date-in-date-picker-using-robotium
@@ -212,7 +211,6 @@ public class StoredIngredientActivityTest {
         assertTrue(solo.searchText("1", true));
         assertTrue(solo.searchText("2", true));
         assertTrue(solo.searchText("cups", true));
-        assertTrue(solo.searchText("Fridge", true));
         assertTrue(solo.searchText("1900-01-01", true));
         solo.clickOnButton("Cancel");
 
@@ -246,12 +244,6 @@ public class StoredIngredientActivityTest {
                 "3");
         solo.enterText((EditText) solo.getView(R.id.unit_edit_text),
                 "bags");
-        solo.pressSpinnerItem(0, 1);
-        /*
-         * Set date to something unique for testing. Referenced:
-         * https://stackoverflow.com/questions/6837012/robotium-how-to-set-a-date-in-date-picker-using-robotium
-         * Answer by Jean-Philippe Roy (2012).
-         */
         solo.clickOnView(solo.getView(R.id.expiry_button));
         solo.setDatePicker(0, 1901, 1, 2);
         solo.clickOnButton("OK");
@@ -267,7 +259,6 @@ public class StoredIngredientActivityTest {
         assertTrue(solo.searchText("5", true));
         assertTrue(solo.searchText("3", true));
         assertTrue(solo.searchText("bags", true));
-        assertTrue(solo.searchText("Pantry", true));
         assertTrue(solo.searchText("1901-02-02", true));
         solo.clickOnButton("Cancel");
 

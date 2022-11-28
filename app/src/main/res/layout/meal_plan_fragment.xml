@@ -88,9 +88,7 @@
             android:layout_width="32dp"
             android:layout_height="48dp"
             android:backgroundTint="#FF0000"
-            android:textColor="#FFFFFF"
-            android:textSize="10sp"
-            android:text="-" />
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/scaling_servings"
@@ -109,10 +107,7 @@
             android:minWidth="0dp"
             android:layout_width="32dp"
             android:layout_height="48dp"
-            app:backgroundTint= "@color/Green"
-            android:textSize="10sp"
-            android:textColor="#FFFFFF"
-            android:text="+" />
+            app:backgroundTint= "@color/Green" />
 
     </LinearLayout>
 

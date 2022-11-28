@@ -182,7 +182,6 @@ public class RecipeActivityTest {
                 "IntentTest Recipe");
         solo.enterText((EditText) solo.getView(R.id.comments_edit_text),
                 "IntentTest Comment");
-        solo.clickOnRadioButton(1);
         solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),
                 "2");
         solo.enterText((EditText) solo.getView(R.id.prep_time_edit_text),
@@ -193,10 +192,8 @@ public class RecipeActivityTest {
         assertTrue(solo.searchText("IntentTest Recipe", 1, true, true));
         // Assert ingredient members are as we have entered
         solo.clickOnText("IntentTest Recipe");
-        solo.clickOnButton("Edit");
         assertTrue(solo.searchText("IntentTest Recipe", 1, true, true));
         assertTrue(solo.searchText("IntentTest Comment", 1, true, true));
-        solo.isRadioButtonChecked(1);
         assertTrue(solo.searchText("2",1, true));
         assertTrue(solo.searchText("5", 1, true));
         solo.clickOnButton("Cancel");
@@ -229,7 +226,6 @@ public class RecipeActivityTest {
                 "IntentTest Edit");
         solo.enterText((EditText) solo.getView(R.id.comments_edit_text),
                 "IntentTest Comment Edit");
-        solo.clickOnRadioButton(2);
         solo.enterText((EditText) solo.getView(R.id.serving_size_edit_text),
                 "20");
         solo.enterText((EditText) solo.getView(R.id.prep_time_edit_text),
@@ -242,10 +238,8 @@ public class RecipeActivityTest {
 
         // Assert recipe members are as we have entered
         solo.clickOnText("IntentTest Edit");
-        solo.clickOnButton("Edit");
         assertTrue(solo.searchText("IntentTest Edit", 1, true, true));
         assertTrue(solo.searchText("IntentTest Comment Edit", 1, true, true));
-        solo.isRadioButtonChecked(2);
         assertTrue(solo.searchText("20", 1, true, true));
         assertTrue(solo.searchText("50", 1, true, true));
         solo.clickOnButton("Cancel");
@@ -269,7 +263,9 @@ public class RecipeActivityTest {
         assertTrue(solo.searchText("IntentTest Edit", 1, true));
 
         solo.clickOnText("IntentTest Edit");
-        solo.clickOnButton("Delete");
+        solo.clickOnButton("Edit");
+        solo.waitForText("Delete",1, 2000);
+        solo.clickOnText("Delete");
 
         // Assert ingredient does appear in list, look for description
         assertFalse(solo.searchText("IntentTest Edit", 1, true, true));
