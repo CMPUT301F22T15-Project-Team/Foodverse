@@ -21,4 +21,4 @@ their recipe if it has one.
 
 ## Shopping List
 From the ingredient storage and the meal plan, the app will compile a list of ingredients that
-need to be purchased. From there, users can mark ingredients as picked-up as they aquire them.
+need to be purchased. From there, users can mark ingredients as picked-up as they acquire them.
