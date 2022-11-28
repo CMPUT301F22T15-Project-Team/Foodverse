@@ -12,10 +12,18 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
+/**
+ * Custom ingredient adapter to hold stored ingredients.
+ */
 public class IngredientAdapter extends ArrayAdapter<Ingredient> {
     private ArrayList<Ingredient> ingredients;
     private Context context;
 
+    /**
+     * Ingredient adapter constructor.
+     * @param context The parent activity.
+     * @param ingredients The list of ingredients for the adapter.
+     */
     public IngredientAdapter(Context context, ArrayList<Ingredient> ingredients) {
         super(context, 0, ingredients);
         this.ingredients = ingredients;

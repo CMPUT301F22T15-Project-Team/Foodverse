@@ -78,10 +78,6 @@ public class ShoppingListFragment extends DialogFragment {
         void addToStorage(StoredIngredient ingredient);
     }
 
-    /**
-     * Called when fragment is attached to the context.
-     * @param context The context being attached to.
-     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -93,11 +89,6 @@ public class ShoppingListFragment extends DialogFragment {
         }
     }
 
-    /**
-     * Initializes the components when the fragment is created.
-     * @param savedInstanceState
-     * @return
-     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     @Override

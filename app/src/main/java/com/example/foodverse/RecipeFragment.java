@@ -118,12 +118,6 @@ public class RecipeFragment extends DialogFragment {
         }
     }
 
-
-    /**
-     * Called when fragment is attached to the context.
-     * @param context The context being attached to.
-     */
-    //the function is what keeps track of the state of the system and the variables
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -134,12 +128,6 @@ public class RecipeFragment extends DialogFragment {
         }
     }
 
-    /**
-     * Initializes the components when the fragment is created.
-     * @param savedInstanceState
-     * @return a dialog with details of recipe
-     */
-    //The dialog box is what takes in the values for the attributes and displays them when in edit mode
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState){
@@ -400,7 +388,6 @@ public class RecipeFragment extends DialogFragment {
             }
         });
     }
-
 
     /**
      * For displaying an image after the camera captures it, or the user selects

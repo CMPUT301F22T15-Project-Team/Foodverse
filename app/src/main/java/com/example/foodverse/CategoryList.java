@@ -21,7 +21,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 /**
  * A class to handle the storage and all Firebase operations for locations
  * used by {@link Ingredient} and {@link Recipe} objects. All locations are

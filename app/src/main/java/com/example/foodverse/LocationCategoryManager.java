@@ -134,7 +134,9 @@ public class LocationCategoryManager extends DialogFragment {
                 .setPositiveButton("Close", null).create();
     }
 
-
+    /**
+     * Updates the locally stored location and category lists.
+     */
     public void updateItemList() {
         itemList.clear();
         if (locList != null) {

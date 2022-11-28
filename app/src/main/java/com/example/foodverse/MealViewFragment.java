@@ -42,11 +42,8 @@ public class MealViewFragment extends DialogFragment {
     private Meal meal;
     private ListView ingredientList;
     private TextView viewName, viewServings, viewDate, viewRecipe;
-
-
     private ArrayList<Ingredient> mealIngredients = new ArrayList<>();
     private ArrayAdapter<Ingredient> listViewAdapter;
-
     private MealViewFragment.OnFragmentInteractionListener listener;
 
     /**
@@ -66,7 +63,9 @@ public class MealViewFragment extends DialogFragment {
         this.meal = meal;
     }
 
-
+    /**
+     * Specifies what should occur when user interacts with fragment.
+     */
     public interface OnFragmentInteractionListener {
         void mealAdded(Meal meal);
         void mealEdited(Meal meal);

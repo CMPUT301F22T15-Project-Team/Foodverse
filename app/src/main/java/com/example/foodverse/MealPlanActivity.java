@@ -44,9 +44,6 @@ import java.util.HashSet;
  * This activity allows the user to build a meal plan by
  * adding, editing, or deleting meals.
  */
-
-
-
 public class MealPlanActivity extends AppCompatActivity implements
         MealViewFragment.OnFragmentInteractionListener,
         MealPlanFragment.OnFragmentInteractionListener,
@@ -66,16 +63,12 @@ public class MealPlanActivity extends AppCompatActivity implements
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
-
     private ArrayList<Integer> recipeHashCodes = new ArrayList<Integer>();
     private ArrayList<String> recipeTitleList = new ArrayList<String>();
-
     private ArrayList<Integer> recipeServingSizes = new ArrayList<Integer>();
-
     private CategoryList catListRec = new CategoryList("Recipe");
     private CategoryList catListIng = new CategoryList("Ingredient");
     private LocationList locList = new LocationList();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

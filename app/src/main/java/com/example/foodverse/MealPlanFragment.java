@@ -41,7 +41,6 @@ import java.util.HashSet;
  * @version 1.0
  *
  */
-
 public class MealPlanFragment extends DialogFragment implements AdapterView.OnItemSelectedListener {
     private Meal meal;
     private EditText date;
@@ -92,7 +91,9 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
         this.meal = meal;
     }
 
-
+    /**
+     * To handle any firebase changes in the meal planner.
+     */
     public interface OnFragmentInteractionListener {
         void mealAdded(Meal meal);
         void mealEdited(Meal meal);
@@ -370,15 +371,6 @@ public class MealPlanFragment extends DialogFragment implements AdapterView.OnIt
         String date = Integer.toString(year) + "-" + monthStr + "-" + dayStr;
         mealDate.setText(date);
         date2 = calendar.getTime();
-    }
-
-    public void deleteIngredient(View view) {
-        ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-                mealIngredients.remove(pos);
-                listViewAdapter.notifyDataSetChanged();
-            }
-        });
     }
 
     @Override
