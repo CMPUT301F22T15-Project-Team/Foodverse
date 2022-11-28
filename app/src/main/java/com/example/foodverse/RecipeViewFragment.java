@@ -151,7 +151,6 @@ public class RecipeViewFragment extends DialogFragment {
             // editing or creating a Recipe entry
             Bundle recipeVal = getArguments();
 
-            //Recipe RecipeObject = (Recipe) recipeVal.get("recipe"); //accessing the value of the attribute passed
             Recipe RecipeObject = chosenRecipe;
             rec_title_v.setText(RecipeObject.getTitle());
             rec_comments_v.setText(RecipeObject.getComments());
@@ -213,6 +212,7 @@ public class RecipeViewFragment extends DialogFragment {
         rec_Category_v.setText(recipeCategory_value);
 
 
+
         //creates the dialog box with the populated info and action buttons
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
@@ -243,11 +243,6 @@ public class RecipeViewFragment extends DialogFragment {
                                     rec_preptime_v.getText().toString());
                         }
 
-
-                        int categoryInd;
-//                        categoryInd = categorySpinner.getSelectedItemPosition();
-//                        recipeCategory = categoryList.get(categoryInd);
-
                         // Send new edited recipe back to the activity
                         if (view_text == Boolean.TRUE){
                             Recipe edited = new Recipe(recipe_title,
@@ -268,6 +263,7 @@ public class RecipeViewFragment extends DialogFragment {
                     }
                 }).create(); //creates the dialog box
     }
+
 
 
     /**
