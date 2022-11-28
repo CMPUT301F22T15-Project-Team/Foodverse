@@ -4,9 +4,9 @@ Foodverse is an Android app designed to help users with planning meals.
 
 # Features
 ## Ingredients
-The user can add a list of ingredients. Each ingredient has a brief description, a best before
-date, a location, an amount, a unit, and a category. The user can add ingredients to the list,
-edit them, and delete them. 
+The user can add a list of ingredients. Each ingredient has a brief description, a cost,
+a unit of storage, a a best before date, a location, an amount, and a category. The user 
+can add ingredients to the list, edit them, and delete them. 
 
 ## Recipes
 The user can compile together their ingredients to create recipes. These recipes have a title,
@@ -21,4 +21,4 @@ their recipe if it has one.
 
 ## Shopping List
 From the ingredient storage and the meal plan, the app will compile a list of ingredients that
-need to be purchased.
+need to be purchased. From there, users can mark ingredients as picked-up as they acquire them.
