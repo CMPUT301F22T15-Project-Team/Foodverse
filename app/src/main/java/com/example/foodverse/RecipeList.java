@@ -77,6 +77,8 @@ public class RecipeList extends ArrayAdapter<Recipe> {
                 Log.e("ImageActivity", e.getMessage());
                 recipe_obj.setPhotoBitmap(null);
             }
+        } else {
+            recipePhoto.setImageBitmap(null);
         }
 
 
