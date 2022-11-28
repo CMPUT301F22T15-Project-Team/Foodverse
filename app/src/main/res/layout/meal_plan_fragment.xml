@@ -109,7 +109,7 @@
             android:minWidth="0dp"
             android:layout_width="32dp"
             android:layout_height="48dp"
-            android:backgroundTint="#00FF00"
+            app:backgroundTint= "@color/Green"
             android:textSize="10sp"
             android:textColor="#FFFFFF"
             android:text="+" />
@@ -140,7 +140,7 @@
             android:id="@+id/add_meal_ingredient_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:backgroundTint="#00FF00"
+            app:backgroundTint= "@color/Green"
             android:textColor="#FFFFFF"
             android:text="+" />
     </LinearLayout>

@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -171,6 +172,20 @@ public class RecipeFragment extends DialogFragment {
             if (addToRec != null) {
                 recIngredients.add(addToRec);
             }
+            /*
+             * Ensure list view shows all parameters. Reference:
+             * https://stackoverflow.com/questions/40861136/set-listview-height-programmatically
+             * Answer by: Rushi Ayyappa (2016)
+             * https://stackoverflow.com/questions/5255184/android-and-setting-width-and-height-programmatically-in-dp-units
+             * Answer by: Robby Pond (2011)
+             * Accessed: 2022-11-28
+             */
+            float dpscale = getContext().getResources().getDisplayMetrics().density;
+            ViewGroup.LayoutParams params = ingredientList.getLayoutParams();
+            params.height = (int) Math.max(Math.ceil(50*recIngredients.size() *
+                    dpscale + 0.5f), Math.ceil(50 * dpscale + 0.5f));
+            ingredientList.setLayoutParams(params);
+            ingredientList.requestLayout();
             listViewAdapter.notifyDataSetChanged();
 
             if (RecipeObject.getPhotoBitmap() != null) {
@@ -248,6 +263,20 @@ public class RecipeFragment extends DialogFragment {
                 } else {
                     recIngredients.add(act.getDatabaseIngredients().get(ingIndex));
                 }
+                /*
+                 * Ensure list view shows all parameters. Reference:
+                 * https://stackoverflow.com/questions/40861136/set-listview-height-programmatically
+                 * Answer by: Rushi Ayyappa (2016)
+                 * https://stackoverflow.com/questions/5255184/android-and-setting-width-and-height-programmatically-in-dp-units
+                 * Answer by: Robby Pond (2011)
+                 * Accessed: 2022-11-28
+                 */
+                float dpscale = getContext().getResources().getDisplayMetrics().density;
+                ViewGroup.LayoutParams params = ingredientList.getLayoutParams();
+                params.height = (int) Math.max(Math.ceil(50*recIngredients.size() *
+                        dpscale + 0.5f), Math.ceil(50 * dpscale + 0.5f));
+                ingredientList.setLayoutParams(params);
+                ingredientList.requestLayout();
                 listViewAdapter.notifyDataSetChanged();
             }
         });
@@ -258,6 +287,20 @@ public class RecipeFragment extends DialogFragment {
                 ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
                         recIngredients.remove(pos);
+                        /*
+                         * Ensure list view shows all parameters. Reference:
+                         * https://stackoverflow.com/questions/40861136/set-listview-height-programmatically
+                         * Answer by: Rushi Ayyappa (2016)
+                         * https://stackoverflow.com/questions/5255184/android-and-setting-width-and-height-programmatically-in-dp-units
+                         * Answer by: Robby Pond (2011)
+                         * Accessed: 2022-11-28
+                         */
+                        float dpscale = getContext().getResources().getDisplayMetrics().density;
+                        ViewGroup.LayoutParams params = ingredientList.getLayoutParams();
+                        params.height = (int) Math.max(Math.ceil(50*recIngredients.size() *
+                                dpscale + 0.5f), Math.ceil(50 * dpscale + 0.5f));
+                        ingredientList.setLayoutParams(params);
+                        ingredientList.requestLayout();
                         listViewAdapter.notifyDataSetChanged();
                     }
                 });
@@ -377,16 +420,6 @@ public class RecipeFragment extends DialogFragment {
                         }
                     }
                 }).create(); //creates the dialog box
-    }
-
-
-    public void deleteIngredient(View view) {
-        ingredientList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-                recIngredients.remove(pos);
-                listViewAdapter.notifyDataSetChanged();
-            }
-        });
     }
 
     /**

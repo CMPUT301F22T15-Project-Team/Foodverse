@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -177,6 +178,21 @@ public class RecipeViewFragment extends DialogFragment {
 
         }
 
+        /*
+         * Ensure list view shows all parameters. Reference:
+         * https://stackoverflow.com/questions/40861136/set-listview-height-programmatically
+         * Answer by: Rushi Ayyappa (2016)
+         * https://stackoverflow.com/questions/5255184/android-and-setting-width-and-height-programmatically-in-dp-units
+         * Answer by: Robby Pond (2011)
+         * Accessed: 2022-11-28
+         */
+        float dpscale = getContext().getResources().getDisplayMetrics().density;
+        ViewGroup.LayoutParams params = ingredientList.getLayoutParams();
+        params.height = (int) Math.max(Math.ceil(50*recIngredients.size() *
+                dpscale + 0.5f), Math.ceil(50 * dpscale + 0.5f));
+        ingredientList.setLayoutParams(params);
+        ingredientList.requestLayout();
+
         ingAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, ingredientStringList);
         categoryAdapter = new ArrayAdapter<String>(getActivity(), R.layout.ingredient_spinner, categoryList);
 
@@ -201,7 +217,6 @@ public class RecipeViewFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder
                 .setView(view)
-                .setTitle("View Recipe")
                 .setNeutralButton("Cancel",null)
                 .setNegativeButton("Edit", new DialogInterface.OnClickListener() {
                     @Override
